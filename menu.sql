@@ -26,3 +26,9 @@ Quantity int,
 Foriegn key (No_Product) References Product(No_Produit), 
 Foriegn key (Order_ID ) References Order (Order_ID) 
 ); 
+Create table Payment (
+Payment_ID int AUTO_INCREMENT primary key, 
+Total_Amount float, 
+Payment_Date datetime, 
+Payment_Status VARCHAR(255);
+);
