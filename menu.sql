@@ -30,5 +30,5 @@ Create table Payment (
 Payment_ID int AUTO_INCREMENT primary key, 
 Total_Amount float, 
 Payment_Date datetime, 
-Payment_Status VARCHAR(255);
+Payment_Status VARCHAR(255) 
 );
