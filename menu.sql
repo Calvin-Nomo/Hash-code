@@ -1,4 +1,4 @@
-Create database Menu;
+Create database Order_System;
 Create table Order(
 Order_ID int AUTO_INCREMENT primary key, 
 Order_Date datetime, 
