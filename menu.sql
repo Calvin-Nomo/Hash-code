@@ -27,7 +27,7 @@ Payment_ID int AUTO_INCREMENT primary key,
 Order_ID int, 
 Total_Amount float, 
 Payment_Date datetime, 
-Payment_Method enum("Cash", "MTN Money", "Orange Money" ) 
+Payment_Method enum("Cash", "MTN Money", "Orange Money" ) NOT NULL 
 Payment_Status
  VARCHAR(255), 
 Foriegn key (Order_ID ) References Order(Order_ID) 
