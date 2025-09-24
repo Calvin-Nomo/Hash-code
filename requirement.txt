@@ -3,3 +3,4 @@ streamlit
 Fastapi
 Pydantic
 Typing
+Pymysql
