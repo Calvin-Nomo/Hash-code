@@ -32,3 +32,12 @@ Payment_Status
  VARCHAR(255), 
 Foriegn key (Order_ID ) References Order(Order_ID) 
 );
+
+Create table Reservation (
+No_Reservation int AUTO_INCREMENT primary key, 
+Client_Name VARCHAR(255),
+No_Telephone VARCHAR (255),
+Reservation_Date Date, 
+Reservation_Time Time, 
+No_Person int 
+);
