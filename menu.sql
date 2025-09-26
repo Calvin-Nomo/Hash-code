@@ -1,9 +1,14 @@
 Create database Order_System;
+Create table Client(
+No_Client int AUTO_INCREMENT primary key, 
+Client_Name VARCHAR (255),
+No_Telephone VARCHAR (255) Unique 
+);
 Create table Order(
 Order_ID int AUTO_INCREMENT primary key, 
 No_Reservation int NULL 
 Order_Date datetime Not Null, 
-Order_Type enum("Dine In", "Take Away") NOT NULL , 
+Order_Type enum("Dine In", "Take Away", "Reserve" ) NOT NULL , 
 No_Table int Not Null, 
 Note VARCHAR(255) Null, 
 Foriegn key (No_Reservation ) References Reservation (No_Reservation ) 
@@ -37,9 +42,9 @@ Foriegn key (Order_ID ) References Order(Order_ID)
 
 Create table Reservation (
 No_Reservation int AUTO_INCREMENT primary key, 
-Client_Name VARCHAR(255),
-No_Telephone VARCHAR (255),
+No_Client int,
 Reservation_Date Date, 
 Reservation_Time Time, 
-No_Person int 
+No_Person int, 
+Foriegn key (No_Client ) References Client(No_Client)
 );
