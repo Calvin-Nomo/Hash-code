@@ -1,10 +1,12 @@
 Create database Order_System;
 Create table Order(
 Order_ID int AUTO_INCREMENT primary key, 
+No_Reservation int NULL 
 Order_Date datetime Not Null, 
 Order_Type enum("Dine In", "Take Away") NOT NULL , 
 No_Table int Not Null, 
-Note VARCHAR(255) Null 
+Note VARCHAR(255) Null, 
+Foriegn key (No_Reservation ) References Reservation (No_Reservation ) 
 ); 
 Create table Product(
 No_Product int AUTO_INCREMENT primary key, 
