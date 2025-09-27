@@ -55,3 +55,15 @@ def get_client():
  sql_command="Select * from Client" cursor.execute(sql_command)
  clients=cursor.fetchall
     return clients
+
+
+###### Post Method #####
+
+
+
+
+######Update Method #####
+
+
+
+#### Delete Method #####
