@@ -51,7 +51,7 @@ def get_reservation():
     return reservations
 
 @app.get(/Client)
-def get_product():
+def get_client():
  sql_command="Select * from Client" cursor.execute(sql_command)
  clients=cursor.fetchall
     return clients
