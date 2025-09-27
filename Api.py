@@ -1,6 +1,6 @@
 # welcome to my api
 from fastapi import FASTAPI
-from pydantic import Base model 
+from pydantic import BaseModel 
 import pymysql
 
 DB= pymysql.connect(
