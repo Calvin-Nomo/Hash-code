@@ -35,52 +35,12 @@ def greetings():
      "Message ":"Hello World" 
 }
 
-# @app.get('/Product')
-# def get_product():
-#     sql_command="Select* from Product"
-#     cursor.execute(sql_command)
-#     product=cursor.fetchall()
-#     return product
-# @app.get('/database')
-# def get_databases():
-#     sql_command="Show databases"
-#     cursor.execute(sql_command)
-#     data=cursor.fetchall()
-#     return data
-# @app.get('/Order')
-# def get_order():
-#     sql_command="Select* from Orders" 
-#     cursor.execute(sql_command)
-#     order =cursor.fetchall()
-#     return order
-# @app.get('/Order_Items')
-# def get_orderitems():
-#     sql_command="Select* from Order_Items " 
-#     cursor.execute(sql_command)
-#     Items=cursor.fetchall()
-#     return Items
-
-# @app.get('/Payment')
-# def get_payment():
-#     sql_command="Select* from Payment" 
-#     cursor.execute(sql_command)
-#     payments=cursor.fetchall()
-#     return payments
-
-
-# @app.get('/Reservation')
-# def get_reservation():
-#     sql_command="Select * from Reservation "
-#     cursor.execute(sql_command)
-#     reservations =cursor.fetchall()
-#     return reservations
-
-# @app.get('/Client')
-# def get_client():
-#     sql_command="Select * from Clients" 
-#     cursor.execute(sql_command)
-#     clients=cursor.fetchall()
-#     return clients
+@app.get('/database')
+def get_databases():
+    sql_command="Show databases"
+    cursor.execute(sql_command)
+    data=cursor.fetchall()
+    return data
 
 
 ###### Post Method #####

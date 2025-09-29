@@ -18,3 +18,11 @@ def greetings():
     return {
      "Message ":"Hello World" 
 }
+
+
+@router.get('/Product')
+def get_product():
+    sql_command="Select* from Product"
+    cursor.execute(sql_command)
+    product=cursor.fetchall()
+    return product

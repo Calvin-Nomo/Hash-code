@@ -21,3 +21,10 @@ def greetings():
     return {
      "Message ":"Hello World" 
 }
+
+@router.get('/Client')
+def get_client():
+    sql_command="Select * from Clients" 
+    cursor.execute(sql_command)
+    clients=cursor.fetchall()
+    return clients

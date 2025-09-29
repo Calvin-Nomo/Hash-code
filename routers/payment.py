@@ -18,3 +18,10 @@ def greetings():
     return {
      "Message ":"Hello World" 
 }
+
+@router.get('/Payment')
+def get_payment():
+    sql_command="Select* from Payment" 
+    cursor.execute(sql_command)
+    payments=cursor.fetchall()
+    return payments

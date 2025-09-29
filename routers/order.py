@@ -18,3 +18,9 @@ def greetings():
     return {
      "Message ":"Hello World" 
 }
+@router.get('/Order')
+def get_order():
+    sql_command="Select* from Orders" 
+    cursor.execute(sql_command)
+    order =cursor.fetchall()
+    return order
