@@ -1,7 +1,8 @@
 from fastapi import APIRouter,HTTPException
 from pydantic import BaseModel
 import pymysql
-
+from datetime import date
+import time
 DB= pymysql.connect(
     host="localhost",
     user="root",
@@ -13,6 +14,12 @@ DB= pymysql.connect(
 cursor=DB.cursor()
 
 router = APIRouter( prefix="/reservation", tags=["reservation"])
+class Reservation(BaseModel):
+    No_Client:int
+    Reservation_Date:date
+    Reservation_Time:time
+    Number_of_Guest:int
+
 @router.get('/')
 def greetings():
     return {
@@ -25,3 +32,15 @@ def get_reservation():
     reservations =cursor.fetchall()
     return reservations
 
+@router.post('/create Reservation')
+def create_reservation(reserve:Reservation):
+    try:
+        sql_command="""INSERT INTO Reservation(No_Client,Reservation_Date,Reservation_Time,No_Person)
+        VALUES(%s,%s,%s,%s)"""
+        cursor.execute(sql_command,(reserve.No_Client,reserve.Reservation_Date,reserve.Reservation_Time,reserve.Number_of_Guest))
+        DB.commit()
+    except Exception as e:
+        raise HTTPException(status_code=404,detail=(e))
+    return{
+'Message':'You Have successfully added the Reservation data to your database'
+    }

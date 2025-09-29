@@ -46,5 +46,5 @@ def create_product(product:Product):
     except Exception as e:
         raise HTTPException(status_code=404,detail=(e))
     return{
-'Message':'You Have successfully added the data to your database'
+'Message':'You Have successfully added the Product data to your database'
     }

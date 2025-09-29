@@ -5,7 +5,7 @@
 from fastapi import FastAPI,APIRouter
 from pydantic import BaseModel
 import pymysql
-from routers import client,order,order_items,reservation,payment,product
+from routers import client,order,order_items,reservation,payment,product,stock
 
 DB= pymysql.connect(
     host="localhost",
@@ -25,6 +25,7 @@ app.include_router(order_items.router, prefix="/order_items", tags=["order_items
 app.include_router(reservation.router, prefix="/reservation", tags=["reservation"])
 app.include_router(product.router, prefix="/product", tags=["product"])
 app.include_router(payment.router, prefix="/payment", tags=["payment"])
+app.include_router(stock.router, prefix="/stock", tags=["stock"])
 
 ##### Class############
 
