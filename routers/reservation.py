@@ -1,8 +1,7 @@
 from fastapi import APIRouter,HTTPException
 from pydantic import BaseModel
 import pymysql
-from datetime import date
-import time
+from datetime import date,time
 DB= pymysql.connect(
     host="localhost",
     user="root",
