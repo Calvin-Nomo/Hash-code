@@ -18,7 +18,7 @@ class Reservation(BaseModel):
     No_Client:int
     Reservation_Date:date
     Reservation_Time:time
-    Number_of_Guest:int
+    No_Person:int
 
 @router.get('/')
 def greetings():
@@ -37,7 +37,7 @@ def create_reservation(reserve:Reservation):
     try:
         sql_command="""INSERT INTO Reservation(No_Client,Reservation_Date,Reservation_Time,No_Person)
         VALUES(%s,%s,%s,%s)"""
-        cursor.execute(sql_command,(reserve.No_Client,reserve.Reservation_Date,reserve.Reservation_Time,reserve.Number_of_Guest))
+        cursor.execute(sql_command,(reserve.No_Client,reserve.Reservation_Date,reserve.Reservation_Time,reserve.No_Person))
         DB.commit()
     except Exception as e:
         raise HTTPException(status_code=404,detail=(e))
