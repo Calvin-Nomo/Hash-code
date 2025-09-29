@@ -1,18 +1,21 @@
 # welcome to my api
-from fastapi import FASTAPI
-from pydantic import BaseModel 
+# cd desktop
+#cd Hash-code
+# env\Scripts\activate
+from fastapi import FastAPI 
 import pymysql
 
 DB= pymysql.connect(
     host="localhost",
     user="root",
-    password="Bineli26",
-   database="Order_System", cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
+    password="Bineli2006",
+    database="Order_System", 
+   cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
 )
 
-cursor=DB.connection()
+cursor=DB.cursor()
 
-app=FASTAPI() 
+app=FastAPI() 
 ######## Get Method#######
 @app.get('/')
 def greetings():
@@ -24,27 +27,32 @@ def greetings():
 def get_product():
     sql_command="Select* from Product"
     cursor.execute(sql_command)
-    product=cursor.fetchall
+    product=cursor.fetchall()
     return product
-
+@app.get('/database')
+def get_databases():
+    sql_command="Show databases"
+    cursor.execute(sql_command)
+    data=cursor.fetchall()
+    return data
 @app.get('/Order')
 def get_order():
-    sql_command="Select* from Order " 
+    sql_command="Select* from Orders" 
     cursor.execute(sql_command)
-    order =cursor.fetchall
+    order =cursor.fetchall()
     return order
 @app.get('/Order_Items')
 def get_orderitems():
     sql_command="Select* from Order_Items " 
     cursor.execute(sql_command)
-    Items=cursor.fetchall
+    Items=cursor.fetchall()
     return Items
 
-@app.get('/Payment' )
+@app.get('/Payment')
 def get_payment():
     sql_command="Select* from Payment" 
     cursor.execute(sql_command)
-    payments=cursor.fetchall
+    payments=cursor.fetchall()
     return payments
 
 
@@ -52,14 +60,14 @@ def get_payment():
 def get_reservation():
     sql_command="Select * from Reservation "
     cursor.execute(sql_command)
-    reservations =cursor.fetchall
+    reservations =cursor.fetchall()
     return reservations
 
 @app.get('/Client')
 def get_client():
-    sql_command="Select * from Client" 
+    sql_command="Select * from Clients" 
     cursor.execute(sql_command)
-    clients=cursor.fetchall
+    clients=cursor.fetchall()
     return clients
 
 
