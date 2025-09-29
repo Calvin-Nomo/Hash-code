@@ -1,5 +1,5 @@
 # welcome to my api
-# cd desktop
+0# cd desktop
 #cd Hash-code
 # env\Scripts\activate
 from fastapi import FastAPI,APIRouter
