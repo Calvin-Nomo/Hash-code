@@ -46,5 +46,12 @@ No_Client int,
 Reservation_Date Date, 
 Reservation_Time Time, 
 No_Person int, 
-Foriegn key (No_Client ) References Client(No_Client)
+Foriegn key (No_Client ) References Client(No_Client),
+);
+
+create table Stock(
+No_Stock int auto_increment primary key,
+No_Product int,
+Quantity_available int
+Foriegn key (No_Product) References Product(No_Product) 
 );
