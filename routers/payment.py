@@ -35,6 +35,7 @@ def get_payment():
     cursor.execute(sql_command)
     payments=cursor.fetchall()
     return payments
+
 @router.post("/create_payment")
 def create_payment(pay:Payment):
     try:
@@ -46,4 +47,35 @@ def create_payment(pay:Payment):
         raise HTTPException(status_code=404,detail=(e))
     return{
 'Message':'You Have successfully added the Payment data to your database'
+    }
+
+@router.put('/updated_payment/{payment_id}')
+def update_order(payment_id:int,pay:Payment):
+    try:
+        sql_command=""" UPDATE Payment SET
+        Order_ID=%s,Total_Amount=%s,Payment_Date=%s,Payment_Method=%s,Payment_Status=%s WHERE Payment_ID=%s)"""
+        cursor.execute(sql_command,(pay.Order_ID,pay.Total_Amount,pay.Payment_Date,pay.Payment_Method,pay.Payment_Status,payment_id))
+        DB.commit()
+    except Exception as e:
+        raise HTTPException(status_code=404,detail=(e))
+    return{
+        'Message':'You have updated successfully the Payments data from the database'
+    }
+
+@router.delete('/delete_payment/{payment_id}')
+def delete_payment(payment_id: int):
+    try:
+        sql_command = """
+        DELETE FROM Payment
+        WHERE Payment_ID = %s
+        """
+        cursor.execute(sql_command, (payment_id,))
+        DB.commit()
+
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {
+        'Message': f'Payment with ID {payment_id} has been successfully deleted.'
     }

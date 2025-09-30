@@ -32,6 +32,7 @@ def get_orderitems():
     cursor.execute(sql_command)
     Items=cursor.fetchall()
     return Items
+
 @router.post('/create_Order_items')
 def create_items(item:Items):
     try:
@@ -43,4 +44,37 @@ def create_items(item:Items):
         raise HTTPException(status_code=404,detail=(e))
     return{
 'Message':'You Have Successfully Added The  Order_Item Data To Your  Database'
+    }
+
+@router.put('/update_order_items/{items_id}')
+def update_orderitems(items_id:int,item:Items):
+    try:
+        sql_command="""Update Order_Items
+        SET
+        Order_ID=%s, No_Product=%s,Quantity=%s
+        WHERE Item_ID=%s
+        """
+        cursor.execute(sql_command,(item.Order_ID,item.No_Product,item.Quantity,items_id))
+        DB.commit()
+    except Exception as e:
+        raise HTTPException(status_code=404,detail=(e))
+    return{
+'Message':'You have updated successfully the Items data from the database'
+    }
+
+@router.delete('/delete-order-item/{item_id}')
+def delete_order_item(item_id: int):
+    try:
+        sql_command = """
+            DELETE FROM Order_Items
+            WHERE Item_ID = %s
+        """
+        cursor.execute(sql_command, (item_id,))
+        DB.commit()
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {
+        'Message': f'Order item with ID {item_id} has been successfully deleted.'
     }
