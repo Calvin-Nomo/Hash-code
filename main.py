@@ -6,6 +6,20 @@ from fastapi import FastAPI,APIRouter
 from pydantic import BaseModel
 import pymysql
 from routers import client,order,order_items,reservation,payment,product,stock
+from typing import List
+from fastapi.middleware.cors import CORSMiddleware
+
+
+app=FastAPI(title='Qrcode Order System') 
+
+
+# Allow CORS for frontend running on different port
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # in prod, restrict to your frontend domain
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 DB= pymysql.connect(
     host="localhost",
@@ -16,8 +30,6 @@ DB= pymysql.connect(
 )
 
 cursor=DB.cursor()
-
-app=FastAPI(title='Qrcode Order System') 
 
 app.include_router(client.router, prefix="/client", tags=["client"])
 app.include_router(order.router, prefix="/order", tags=["order"])

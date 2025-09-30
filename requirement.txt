@@ -4,3 +4,37 @@ Fastapi
 Pydantic
 Typing
 Pymysql
+update this code in such a way tha i can select my product,view  cart remove 
+,add and clear items from my cart ,i can choice my order type is it Dine In,Take Away or Reserve
+ ,select my table number from 1 to 10 ,View  my to total amount,
+ select my payment method is it by MTN Money,Orange Money or By Cash andall in one and it should correspond to how my api is 
+class Items(BaseModel):
+ No_Product:int
+ Quantity:int 
+ class Order(BaseModel)
+   No_Reservation:Optional[int]=None
+    Order_Type: str
+    No_Table: int 
+    Note:str
+    items: List[Items]
+class Payment(BaseModel):
+    Order_ID:int 
+    Total_Amount:float 
+    Payment_Method:str
+    Payment_Status:str
+
+    class Product(BaseModel):
+    Product_Name:str
+    Product_Description:str
+    Category:str
+    Unit_Price:float 
+
+using this url
+get
+http://127.0.0.1:8000/product/product/Product
+
+post
+
+  http://127.0.0.1:8000/order/order/create order
+
+http://127.0.0.1:8000/payment/payment/create_payment
