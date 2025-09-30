@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel - Restaurant</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ---------------- Global Styles ---------------- */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { display:flex; height:100vh; background:#f0f2f5; overflow:hidden; }
+
+/* ---------------- Sidebar ---------------- */
+.sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, #007bff, #00c6ff);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    padding-top:20px;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+}
+.sidebar h2 { text-align:center; font-size:1.5em; margin-bottom:30px; font-weight:bold; text-shadow: 1px 1px rgba(0,0,0,0.3); }
+.sidebar button {
+    background:transparent; border:none; color:#fff; padding:15px 25px;
+    text-align:left; font-size:1em; cursor:pointer; position:relative;
+    transition: 0.3s; display:flex; align-items:center; gap:10px;
+}
+.sidebar button:hover, .sidebar button.active { background: rgba(255,255,255,0.15); padding-left:30px; box-shadow: inset 0 0 10px rgba(255,255,255,0.2);}
+.sidebar button:focus { outline:none; background: rgba(255,255,255,0.25); }
+.sidebar button::before {
+    content:""; width:5px; height:100%; background:#fff; position:absolute; left:0; top:0;
+    border-radius:0 4px 4px 0; opacity:0; transition:opacity 0.3s;
+}
+.sidebar button.active::before { opacity:1; }
+
+/* ---------------- Main Content ---------------- */
+.main-content { flex:1; padding:20px; overflow-y:auto; background:#f4f7fa; }
+.section { display:none; }
+.section.active { display:block; }
+
+/* ---------------- Tables ---------------- */
+table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 8px 15px rgba(0,0,0,0.05); margin-bottom:20px; transition:0.3s; }
+th, td { padding:12px; text-align:left; border-bottom:1px solid #eee; }
+th { background:#f7f7f7; }
+table tr:hover { background: rgba(0,123,255,0.05); transform:scale(1.01); transition:0.3s; }
+table img { width:60px; height:60px; object-fit:cover; border-radius:8px; }
+
+/* ---------------- Forms ---------------- */
+input, button { margin-right:8px; padding:6px 10px; border-radius:6px; border:1px solid #ccc; }
+button { border:none; background:#007bff; color:#fff; cursor:pointer; transition:0.3s; }
+button:hover { background:#0056b3; }
+
+/* ---------------- Dashboard Cards ---------------- */
+.dashboard-cards { display:flex; gap:20px; margin-bottom:20px; }
+.card { flex:1; background:#fff; border-radius:10px; padding:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+.card h3 { margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<!-- ---------------- Sidebar ---------------- -->
+<div class="sidebar">
+<h2>Admin Panel</h2>
+<button class="active" onclick="showSection('dashboard')">Dashboard</button>
+<button onclick="showSection('client')">Clients</button>
+<button onclick="showSection('product')">Products</button>
+<button onclick="showSection('order')">Orders</button>
+<button onclick="showSection('orderItems')">Order Items</button>
+<button onclick="showSection('reservation')">Reservations</button>
+<button onclick="showSection('payment')">Payments</button>
+<button onclick="showSection('system')">System Settings</button>
+<button onclick="logout()">Logout</button>
+</div>
+
+<!-- ---------------- Main Content ---------------- -->
+<div class="main-content">
+
+<!-- ---------------- Dashboard Section ---------------- -->
+<div id="dashboard" class="section active">
+  <h1>Dashboard</h1>
+  <div class="dashboard-cards">
+    <div class="card"><h3>Total Orders</h3><p id="total-orders">0</p></div>
+    <div class="card"><h3>Total Revenue</h3><p id="total-revenue">0 FCFA</p></div>
+    <div class="card"><h3>Total Reservations</h3><p id="total-reservations">0</p></div>
+  </div>
+  <div style="margin-bottom:20px;">
+    <label for="revenueFilter">Filter:</label>
+    <select id="revenueFilter" onchange="updateRevenueChart()">
+      <option value="day">Per Day</option>
+      <option value="month">Per Month</option>
+      <option value="year">Per Year</option>
+    </select>
+    <canvas id="revenueChart" height="150"></canvas>
+  </div>
+  <h3>Most Sold Products</h3>
+  <table>
+    <thead><tr><th>Product Name</th><th>Total Quantity Sold</th></tr></thead>
+    <tbody id="product-table"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Clients Section ---------------- -->
+<div id="client" class="section">
+  <h1>Clients</h1>
+  <div class="add-client-form" style="margin-bottom:15px;">
+    <input type="text" id="newClientName" placeholder="Name">
+    <input type="text" id="newClientPhone" placeholder="Phone">
+    <button onclick="addClient()">Add Client</button>
+  </div>
+  <div class="search-bar"><input type="text" id="clientSearch" placeholder="Search clients..." oninput="filterClients()"></div>
+  <table>
+    <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Actions</th></tr></thead>
+    <tbody id="clientTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Products Section ---------------- -->
+<div id="product" class="section">
+  <h1>Products</h1>
+  <div class="add-product-form" style="margin-bottom:15px;">
+    <input type="text" id="newName" placeholder="Name">
+    <input type="text" id="newCategory" placeholder="Category">
+    <input type="number" id="newPrice" placeholder="Price">
+    <input type="text" id="newDescription" placeholder="Description">
+    <input type="text" id="newImage" placeholder="Image URL">
+    <button onclick="addProduct()">Add Product</button>
+  </div>
+  <div class="search-bar"><input type="text" id="productSearch" placeholder="Search products..." oninput="filterProducts()"></div>
+  <table>
+    <thead><tr><th>ID</th><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Description</th><th>Actions</th></tr></thead>
+    <tbody id="productTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Orders Section ---------------- -->
+<div id="order" class="section">
+  <h1>Orders</h1>
+  <div class="add-order-form" style="margin-bottom:15px;">
+    <input type="text" id="newOrderType" placeholder="Order Type">
+    <input type="number" id="newOrderTable" placeholder="Table No">
+    <input type="text" id="newOrderNote" placeholder="Note">
+    <button onclick="addOrder()">Add Order</button>
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Table</th><th>Note</th><th>Date</th><th>Actions</th></tr></thead>
+    <tbody id="orderTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Order Items Section ---------------- -->
+<div id="orderItems" class="section">
+  <h1>Order Items</h1>
+  <div class="add-order-item-form" style="margin-bottom:15px;">
+    <input type="number" id="newItemOrderID" placeholder="Order ID">
+    <input type="number" id="newItemProductID" placeholder="Product ID">
+    <input type="number" id="newItemQuantity" placeholder="Quantity">
+    <button onclick="addOrderItem()">Add Item</button>
+  </div>
+  <table>
+    <thead><tr><th>Order ID</th><th>Product ID</th><th>Quantity</th><th>Actions</th></tr></thead>
+    <tbody id="orderItemsTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Reservations Section ---------------- -->
+<div id="reservation" class="section">
+  <h1>Reservations</h1>
+  <div class="add-reservation-form" style="margin-bottom:15px;">
+    <input type="number" id="newResClient" placeholder="No_Client">
+    <input type="date" id="newResDate" placeholder="Reservation Date">
+    <input type="time" id="newResTime" placeholder="Reservation Time">
+    <input type="number" id="newResTable" placeholder="Table Number">
+    <input type="text" id="newResPhone" placeholder="Telephone">
+    <input type="number" id="newResPersons" placeholder="No Persons">
+    <button onclick="addReservation()">Add Reservation</button>
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>No_Client</th><th>Date</th><th>Time</th><th>Table</th><th>Phone</th><th>No Persons</th><th>Actions</th></tr></thead>
+    <tbody id="reservationTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Payments Section ---------------- -->
+<div id="payment" class="section">
+  <h1>Payments</h1>
+  <div class="add-payment-form" style="margin-bottom:15px;">
+    <input type="number" id="newPaymentOrderID" placeholder="Order ID">
+    <input type="number" id="newPaymentTotal" placeholder="Total">
+    <input type="text" id="newPaymentMethod" placeholder="Method">
+    <input type="text" id="newPaymentStatus" placeholder="Status">
+    <input type="datetime-local" id="newPaymentDate">
+    <button onclick="addPayment()">Add Payment</button>
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Order ID</th><th>Total</th><th>Method</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+    <tbody id="paymentTable"></tbody>
+  </table>
+</div>
+
+<div id="system" class="section"><h1>System Settings</h1></div>
+
+</div>
+
+<script>
+// ---------------- Sidebar navigation ----------------
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+function logout(){ alert("Logging out..."); }
+
+// ---------------- Global data ----------------
+let clients=[], products=[], orders=[], orderItems=[], reservations=[], payments=[];
+let revenueChartInstance=null;
+
+// ---------------- FETCH DATA ----------------
+function fetchData(){
+  fetchClients(); fetchProducts(); fetchOrders(); fetchOrderItems();
+  fetchReservations(); fetchPayments();
+}
+
+/* ---------------- CLIENTS ---------------- */
+function fetchClients(){ fetch("http://127.0.0.1:8000/client/get_all_clients").then(r=>r.json()).then(d=>{ clients=d; renderClients(); }); }
+function renderClients(){ const tbody=document.getElementById('clientTable'); tbody.innerHTML=""; clients.forEach(c=>{ tbody.innerHTML+=`
+<tr>
+<td>${c.Client_ID}</td>
+<td>${c.Name}</td>
+<td>${c.Phone}</td>
+<td>
+<button onclick="editClient(${c.Client_ID})">Edit</button>
+<button onclick="deleteClient(${c.Client_ID})">Delete</button>
+</td>
+</tr>`; }); }
+function filterClients(){ const q=document.getElementById('clientSearch').value.toLowerCase(); const tbody=document.getElementById('clientTable'); tbody.innerHTML=""; clients.filter(c=>c.Name.toLowerCase().includes(q)||c.Phone.includes(q)).forEach(c=>{ tbody.innerHTML+=`
+<tr><td>${c.Client_ID}</td><td>${c.Name}</td><td>${c.Phone}</td><td><button onclick="editClient(${c.Client_ID})">Edit</button><button onclick="deleteClient(${c.Client_ID})">Delete</button></td></tr>`; }); }
+function addClient(){ const newC={Name:document.getElementById('newClientName').value,Phone:document.getElementById('newClientPhone').value}; fetch("http://127.0.0.1:8000/client/create_client",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newC)}).then(()=>fetchClients()); }
+function editClient(id){ const c=clients.find(c=>c.Client_ID===id); const newName=prompt("Name",c.Name)||c.Name; const newPhone=prompt("Phone",c.Phone)||c.Phone; fetch(`http://127.0.0.1:8000/client/update_client/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Name:newName,Phone:newPhone})}).then(()=>fetchClients()); }
+function deleteClient(id){ if(!confirm("Delete client?")) return; fetch(`http://127.0.0.1:8000/client/delete/${id}`,{method:"DELETE"}).then(()=>fetchClients()); }
+
+/* ---------------- PRODUCTS ---------------- */
+function fetchProducts(){ fetch("http://127.0.0.1:8000/product/get_all_products").then(r=>r.json()).then(d=>{ products=d; renderProducts(); }); }
+function renderProducts(){ const tbody=document.getElementById('productTable'); tbody.innerHTML=""; products.forEach(p=>{ tbody.innerHTML+=`
+<tr>
+<td>${p.Product_ID}</td>
+<td><img src="${p.Image}" /></td>
+<td>${p.Name}</td>
+<td>${p.Category}</td>
+<td>${p.Price}</td>
+<td>${p.Description}</td>
+<td>
+<button onclick="editProduct(${p.Product_ID})">Edit</button>
+<button onclick="deleteProduct(${p.Product_ID})">Delete</button>
+</td>
+</tr>`; }); }
+function filterProducts(){ const q=document.getElementById('productSearch').value.toLowerCase(); const tbody=document.getElementById('productTable'); tbody.innerHTML=""; products.filter(p=>p.Name.toLowerCase().includes(q)||p.Category.toLowerCase().includes(q)).forEach(p=>{ tbody.innerHTML+=`
+<tr><td>${p.Product_ID}</td><td><img src="${p.Image}" /></td><td>${p.Name}</td><td>${p.Category}</td><td>${p.Price}</td><td>${p.Description}</td><td><button onclick="editProduct(${p.Product_ID})">Edit</button><button onclick="deleteProduct(${p.Product_ID})">Delete</button></td></tr>`; }); }
+function addProduct(){ const newP={Name:document.getElementById('newName').value,Category:document.getElementById('newCategory').value,Price:parseFloat(document.getElementById('newPrice').value),Description:document.getElementById('newDescription').value,Image:document.getElementById('newImage').value}; fetch("http://127.0.0.1:8000/product/create_product",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newP)}).then(()=>fetchProducts()); }
+function editProduct(id){ const p=products.find(p=>p.Product_ID===id); const newName=prompt("Name",p.Name)||p.Name; const newCat=prompt("Category",p.Category)||p.Category; const newPrice=prompt("Price",p.Price)||p.Price; const newDesc=prompt("Description",p.Description)||p.Description; const newImg=prompt("Image URL",p.Image)||p.Image; fetch(`http://127.0.0.1:8000/product/update/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Name:newName,Category:newCat,Price:parseFloat(newPrice),Description:newDesc,Image:newImg})}).then(()=>fetchProducts()); }
+function deleteProduct(id){ if(!confirm("Delete product?")) return; fetch(`http://127.0.0.1:8000/product/delete/${id}`,{method:"DELETE"}).then(()=>fetchProducts()); }
+
+/* ---------------- ORDERS ---------------- */
+function fetchOrders(){ fetch("http://127.0.0.1:8000/order/get_all_orders").then(r=>r.json()).then(d=>{ orders=d; renderOrders(); }); }
+function renderOrders(){ const tbody=document.getElementById('orderTable'); tbody.innerHTML=""; orders.forEach(o=>{ tbody.innerHTML+=`<tr><td>${o.Order_ID}</td><td>${o.Type}</td><td>${o.Table_Number}</td><td>${o.Note}</td><td>${o.Date}</td><td><button onclick="editOrder(${o.Order_ID})">Edit</button><button onclick="deleteOrder(${o.Order_ID})">Delete</button></td></tr>`; }); }
+function addOrder(){ const newO={Type:document.getElementById('newOrderType').value,Table_Number:parseInt(document.getElementById('newOrderTable').value),Note:document.getElementById('newOrderNote').value}; fetch("http://127.0.0.1:8000/order/create_order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newO)}).then(()=>fetchOrders()); }
+function editOrder(id){ const o=orders.find(o=>o.Order_ID===id); const newType=prompt("Type",o.Type)||o.Type; const newTable=prompt("Table Number",o.Table_Number)||o.Table_Number; const newNote=prompt("Note",o.Note)||o.Note; fetch(`http://127.0.0.1:8000/order/update/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Type:newType,Table_Number:parseInt(newTable),Note:newNote})}).then(()=>fetchOrders()); }
+function deleteOrder(id){ if(!confirm("Delete order?")) return; fetch(`http://127.0.0.1:8000/order/delete/${id}`,{method:"DELETE"}).then(()=>fetchOrders()); }
+
+/* ---------------- ORDER ITEMS ---------------- */
+function fetchOrderItems(){ fetch("http://127.0.0.1:8000/order_item/get_all_order_items").then(r=>r.json()).then(d=>{ orderItems=d; renderOrderItems(); }); }
+function renderOrderItems(){ const tbody=document.getElementById('orderItemsTable'); tbody.innerHTML=""; orderItems.forEach(i=>{ tbody.innerHTML+=`<tr><td>${i.Order_ID}</td><td>${i.Product_ID}</td><td>${i.Quantity}</td><td><button onclick="editOrderItem(${i.Order_ID},${i.Product_ID})">Edit</button><button onclick="deleteOrderItem(${i.Order_ID},${i.Product_ID})">Delete</button></td></tr>`; }); }
+function addOrderItem(){ const newI={Order_ID:parseInt(document.getElementById('newItemOrderID').value),Product_ID:parseInt(document.getElementById('newItemProductID').value),Quantity:parseInt(document.getElementById('newItemQuantity').value)}; fetch("http://127.0.0.1:8000/order_item/create_order_item",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newI)}).then(()=>fetchOrderItems()); }
+function editOrderItem(orderId,prodId){ const i=orderItems.find(i=>i.Order_ID===orderId && i.Product_ID===prodId); const newQty=prompt("Quantity",i.Quantity)||i.Quantity; fetch(`http://127.0.0.1:8000/order_item/update/${orderId}/${prodId}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Quantity:parseInt(newQty)})}).then(()=>fetchOrderItems()); }
+function deleteOrderItem(orderId,prodId){ if(!confirm("Delete item?")) return; fetch(`http://127.0.0.1:8000/order_item/delete/${orderId}/${prodId}`,{method:"DELETE"}).then(()=>fetchOrderItems()); }
+
+/* ---------------- RESERVATIONS ---------------- */
+function fetchReservations(){ fetch("http://127.0.0.1:8000/reservation/get_all_reservations").then(r=>r.json()).then(d=>{ reservations=d; renderReservations(); }); }
+function renderReservations(){ const tbody=document.getElementById('reservationTable'); tbody.innerHTML=""; reservations.forEach(r=>{ tbody.innerHTML+=`<tr><td>${r.Reservation_ID}</td><td>${r.No_Client}</td><td>${r.Reservation_Date}</td><td>${r.Reservation_Time}</td><td>${r.Table_Number}</td><td>${r.Telephone}</td><td>${r.No_Person}</td><td><button onclick="editReservation(${r.Reservation_ID})">Edit</button><button onclick="deleteReservation(${r.Reservation_ID})">Delete</button></td></tr>`; }); }
+function addReservation(){ const newR={No_Client:parseInt(document.getElementById('newResClient').value),Reservation_Date:document.getElementById('newResDate').value,Reservation_Time:document.getElementById('newResTime').value,Table_Number:parseInt(document.getElementById('newResTable').value),Telephone:document.getElementById('newResPhone').value,No_Person:parseInt(document.getElementById('newResPersons').value)}; fetch("http://127.0.0.1:8000/reservation/create_reservation",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newR)}).then(()=>fetchReservations()); }
+function editReservation(id){ const r=reservations.find(r=>r.Reservation_ID===id); const newNoC=prompt("No_Client",r.No_Client)||r.No_Client; const newDate=prompt("Date",r.Reservation_Date)||r.Reservation_Date; const newTime=prompt("Time",r.Reservation_Time)||r.Reservation_Time; const newTable=prompt("Table Number",r.Table_Number)||r.Table_Number; const newPhone=prompt("Phone",r.Telephone)||r.Telephone; const newPerson=prompt("No Persons",r.No_Person)||r.No_Person; fetch(`http://127.0.0.1:8000/reservation/update/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({No_Client:parseInt(newNoC),Reservation_Date:newDate,Reservation_Time:newTime,Table_Number:parseInt(newTable),Telephone:newPhone,No_Person:parseInt(newPerson)})}).then(()=>fetchReservations()); }
+function deleteReservation(id){ if(!confirm("Delete reservation?")) return; fetch(`http://127.0.0.1:8000/reservation/delete/${id}`,{method:"DELETE"}).then(()=>fetchReservations()); }
+
+/* ---------------- PAYMENTS ---------------- */
+function fetchPayments(){ fetch("http://127.0.0.1:8000/payment/get_all_payments").then(r=>r.json()).then(d=>{ payments=d; renderPayments(); }); }
+function renderPayments(){ const tbody=document.getElementById('paymentTable'); tbody.innerHTML=""; payments.forEach(p=>{ tbody.innerHTML+=`<tr><td>${p.Payment_ID}</td><td>${p.Order_ID}</td><td>${p.Total}</td><td>${p.Method}</td><td>${p.Status}</td><td>${p.Date}</td><td><button onclick="editPayment(${p.Payment_ID})">Edit</button><button onclick="deletePayment(${p.Payment_ID})">Delete</button></td></tr>`; }); }
+function addPayment(){ const newP={Order_ID:parseInt(document.getElementById('newPaymentOrderID').value),Total:parseFloat(document.getElementById('newPaymentTotal').value),Method:document.getElementById('newPaymentMethod').value,Status:document.getElementById('newPaymentStatus').value,Date:document.getElementById('newPaymentDate').value}; fetch("http://127.0.0.1:8000/payment/create_payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newP)}).then(()=>fetchPayments()); }
+function editPayment(id){ const p=payments.find(p=>p.Payment_ID===id); const newOrder=prompt("Order_ID",p.Order_ID)||p.Order_ID; const newTotal=prompt("Total",p.Total)||p.Total; const newMethod=prompt("Method",p.Method)||p.Method; const newStatus=prompt("Status",p.Status)||p.Status; const newDate=prompt("Date",p.Date)||p.Date; fetch(`http://127.0.0.1:8000/payment/update/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Order_ID:parseInt(newOrder),Total:parseFloat(newTotal),Method:newMethod,Status:newStatus,Date:newDate})}).then(()=>fetchPayments()); }
+function deletePayment(id){ if(!confirm("Delete payment?")) return; fetch(`http://127.0.0.1:8000/payment/delete/${id}`,{method:"DELETE"}).then(()=>fetchPayments()); }
+
+/* ---------------- Revenue Chart ---------------- */
+function updateRevenueChart(){ /* Placeholder chart */ const ctx=document.getElementById('revenueChart').getContext('2d'); if(revenueChartInstance) revenueChartInstance.destroy(); revenueChartInstance=new Chart(ctx,{type:'bar',data:{labels:['Jan','Feb','Mar','Apr'],datasets:[{label:'Revenue',data:[1200,1900,3000,2500],backgroundColor:'#007bff'}]}}); }
+
+/* ---------------- Initialize ---------------- */
+fetchData();
+</script>
+
+</body>
+</html>

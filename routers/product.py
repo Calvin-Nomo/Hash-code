@@ -1,6 +1,5 @@
 from fastapi import APIRouter,HTTPException
 from pydantic import BaseModel
-import os
 import pymysql
 
 DB= pymysql.connect(
@@ -10,8 +9,6 @@ DB= pymysql.connect(
     database="Order_System", 
    cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
 )
-UPLOAD_DIR = "uploaded_images"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 cursor=DB.cursor()
 
