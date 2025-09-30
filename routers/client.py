@@ -36,7 +36,7 @@ def get_client():
 @router.post("/create_client")
 def create_client(client:Client):
     try:
-        sql_command="""INSERT INTO Client(Client_Name,No_Telephone)
+        sql_command="""INSERT INTO Clients(Client_Name,No_Telephone)
         VALUES(%s,%s)"""
         cursor.execute(sql_command,(client.Client_Name,client.No_Telephone))
         DB.commit()
