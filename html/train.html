@@ -79,11 +79,24 @@ button:hover { background:#0056b3; }
 <!-- ---------------- Dashboard Section ---------------- -->
 <div id="dashboard" class="section active">
   <h1>Dashboard</h1>
+
+  <!-- Dashboard cards -->
   <div class="dashboard-cards">
-    <div class="card"><h3>Total Orders</h3><p id="total-orders">0</p></div>
-    <div class="card"><h3>Total Revenue</h3><p id="total-revenue">0 FCFA</p></div>
-    <div class="card"><h3>Total Reservations</h3><p id="total-reservations">0</p></div>
+    <div class="card">
+      <h3>Total Orders</h3>
+      <p id="total-orders">0</p>
+    </div>
+    <div class="card">
+      <h3>Total Revenue</h3>
+      <p id="total-revenue">0 FCFA</p>
+    </div>
+    <div class="card">
+      <h3>Total Reservations</h3>
+      <p id="total-reservations">0</p>
+    </div>
   </div>
+
+  <!-- Revenue chart -->
   <div style="margin-bottom:20px;">
     <label for="revenueFilter">Filter:</label>
     <select id="revenueFilter" onchange="updateRevenueChart()">
@@ -93,6 +106,8 @@ button:hover { background:#0056b3; }
     </select>
     <canvas id="revenueChart" height="150"></canvas>
   </div>
+
+  <!-- Most sold products table -->
   <h3>Most Sold Products</h3>
   <table>
     <thead><tr><th>Product Name</th><th>Total Quantity Sold</th></tr></thead>
@@ -143,7 +158,7 @@ button:hover { background:#0056b3; }
     <button onclick="addOrder()">Add Order</button>
   </div>
   <table>
-    <thead><tr><th>ID</th><th>Type</th><th>Table</th><th>Note</th><th>Date</th><th>Actions</th></tr></thead>
+    <thead><tr><th>ID</th><th>No_Reservation</th><th>Type</th><th>Table</th><th>Note</th><th>Date</th><th>Actions</th></tr></thead>
     <tbody id="orderTable"></tbody>
   </table>
 </div>
@@ -170,13 +185,11 @@ button:hover { background:#0056b3; }
     <input type="number" id="newResClient" placeholder="No_Client">
     <input type="date" id="newResDate" placeholder="Reservation Date">
     <input type="time" id="newResTime" placeholder="Reservation Time">
-    <input type="number" id="newResTable" placeholder="Table Number">
-    <input type="text" id="newResPhone" placeholder="Telephone">
-    <input type="number" id="newResPersons" placeholder="No Persons">
+     <input type="number" id="newResPersons" placeholder="No Persons">
     <button onclick="addReservation()">Add Reservation</button>
   </div>
   <table>
-    <thead><tr><th>ID</th><th>No_Client</th><th>Date</th><th>Time</th><th>Table</th><th>Phone</th><th>No Persons</th><th>Actions</th></tr></thead>
+    <thead><tr><th>ID</th><th>No_Client</th><th>Date</th><th>Time</th><th>No Persons</th><th>Actions</th></tr></thead>
     <tbody id="reservationTable"></tbody>
   </table>
 </div>
@@ -223,36 +236,36 @@ function fetchData(){
 }
 
 /* ---------------- CLIENTS ---------------- */
-function fetchClients(){ fetch("http://127.0.0.1:8000/client/get_all_clients").then(r=>r.json()).then(d=>{ clients=d; renderClients(); }); }
+function fetchClients(){ fetch("http://127.0.0.1:8000/client/client/Client").then(r=>r.json()).then(d=>{ clients=d; renderClients(); }); }
 function renderClients(){ const tbody=document.getElementById('clientTable'); tbody.innerHTML=""; clients.forEach(c=>{ tbody.innerHTML+=`
 <tr>
-<td>${c.Client_ID}</td>
-<td>${c.Name}</td>
-<td>${c.Phone}</td>
+<td>${c.No_Client}</td>
+<td>${c.Client_Name}</td>
+<td>${c.No_Telephone}</td>
 <td>
-<button onclick="editClient(${c.Client_ID})">Edit</button>
-<button onclick="deleteClient(${c.Client_ID})">Delete</button>
+<button onclick="editClient(${c.No_Client})">Edit</button>
+<button onclick="deleteClient(${c.No_Client})">Delete</button>
 </td>
 </tr>`; }); }
-function filterClients(){ const q=document.getElementById('clientSearch').value.toLowerCase(); const tbody=document.getElementById('clientTable'); tbody.innerHTML=""; clients.filter(c=>c.Name.toLowerCase().includes(q)||c.Phone.includes(q)).forEach(c=>{ tbody.innerHTML+=`
-<tr><td>${c.Client_ID}</td><td>${c.Name}</td><td>${c.Phone}</td><td><button onclick="editClient(${c.Client_ID})">Edit</button><button onclick="deleteClient(${c.Client_ID})">Delete</button></td></tr>`; }); }
-function addClient(){ const newC={Name:document.getElementById('newClientName').value,Phone:document.getElementById('newClientPhone').value}; fetch("http://127.0.0.1:8000/client/create_client",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newC)}).then(()=>fetchClients()); }
-function editClient(id){ const c=clients.find(c=>c.Client_ID===id); const newName=prompt("Name",c.Name)||c.Name; const newPhone=prompt("Phone",c.Phone)||c.Phone; fetch(`http://127.0.0.1:8000/client/update_client/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Name:newName,Phone:newPhone})}).then(()=>fetchClients()); }
-function deleteClient(id){ if(!confirm("Delete client?")) return; fetch(`http://127.0.0.1:8000/client/delete/${id}`,{method:"DELETE"}).then(()=>fetchClients()); }
+function filterClients(){ const q=document.getElementById('clientSearch').value.toLowerCase(); const tbody=document.getElementById('clientTable'); tbody.innerHTML=""; clients.filter(c=>c.Client_Name.toLowerCase().includes(q)||c.No_Telephone.includes(q)).forEach(c=>{ tbody.innerHTML+=`
+<tr><td>${c.No_Client}</td><td>${c.Client_Name}</td><td>${c.No_Telephone}</td><td><button onclick="editClient(${c.No_Client})">Edit</button><button onclick="deleteClient(${c.No_Client})">Delete</button></td></tr>`; }); }
+function addClient(){ const newC={Name:document.getElementById('newClientName').value,Phone:document.getElementById('newClientPhone').value}; fetch("http://127.0.0.1:8000/client/client/create_client",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newC)}).then(()=>fetchClients()); }
+function editClient(id){ const c=clients.find(c=>c.No_Client===id); const newName=prompt("Name",c.Client_Name)||c.Client_Name; const newPhone=prompt("Phone",c.No_Telephone)||c.No_Telephone; fetch(`http://127.0.0.1:8000/client/client/update_client/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Name:newName,Phone:newPhone})}).then(()=>fetchClients()); }
+function deleteClient(id){ if(!confirm("Delete client?")) return; fetch(`http://127.0.0.1:8000/client/client/delete_client/${id}`,{method:"DELETE"}).then(()=>fetchClients()); }
 
 /* ---------------- PRODUCTS ---------------- */
-function fetchProducts(){ fetch("http://127.0.0.1:8000/product/get_all_products").then(r=>r.json()).then(d=>{ products=d; renderProducts(); }); }
+function fetchProducts(){ fetch("http://127.0.0.1:8000/product/product/Product").then(r=>r.json()).then(d=>{ products=d; renderProducts(); }); }
 function renderProducts(){ const tbody=document.getElementById('productTable'); tbody.innerHTML=""; products.forEach(p=>{ tbody.innerHTML+=`
 <tr>
-<td>${p.Product_ID}</td>
-<td><img src="${p.Image}" /></td>
-<td>${p.Name}</td>
+<td>${p.No_Product}</td>
+<td><img src="${p.Image_link}" /></td>
+<td>${p.Product_Name}</td>
 <td>${p.Category}</td>
-<td>${p.Price}</td>
-<td>${p.Description}</td>
+<td>${p.Unit_Price}</td>
+<td>${p.Product_Description}</td>
 <td>
-<button onclick="editProduct(${p.Product_ID})">Edit</button>
-<button onclick="deleteProduct(${p.Product_ID})">Delete</button>
+<button onclick="editProduct(${p.No_Product})">Edit</button>
+<button onclick="deleteProduct(${p.No_Product})">Delete</button>
 </td>
 </tr>`; }); }
 function filterProducts(){ const q=document.getElementById('productSearch').value.toLowerCase(); const tbody=document.getElementById('productTable'); tbody.innerHTML=""; products.filter(p=>p.Name.toLowerCase().includes(q)||p.Category.toLowerCase().includes(q)).forEach(p=>{ tbody.innerHTML+=`
@@ -262,35 +275,112 @@ function editProduct(id){ const p=products.find(p=>p.Product_ID===id); const new
 function deleteProduct(id){ if(!confirm("Delete product?")) return; fetch(`http://127.0.0.1:8000/product/delete/${id}`,{method:"DELETE"}).then(()=>fetchProducts()); }
 
 /* ---------------- ORDERS ---------------- */
-function fetchOrders(){ fetch("http://127.0.0.1:8000/order/get_all_orders").then(r=>r.json()).then(d=>{ orders=d; renderOrders(); }); }
-function renderOrders(){ const tbody=document.getElementById('orderTable'); tbody.innerHTML=""; orders.forEach(o=>{ tbody.innerHTML+=`<tr><td>${o.Order_ID}</td><td>${o.Type}</td><td>${o.Table_Number}</td><td>${o.Note}</td><td>${o.Date}</td><td><button onclick="editOrder(${o.Order_ID})">Edit</button><button onclick="deleteOrder(${o.Order_ID})">Delete</button></td></tr>`; }); }
+function fetchOrders(){ fetch("http://127.0.0.1:8000/order/order/Order").then(r=>r.json()).then(d=>{ orders=d; renderOrders(); }); }
+function renderOrders(){ const tbody=document.getElementById('orderTable'); tbody.innerHTML=""; orders.forEach(o=>{ tbody.innerHTML+=`<tr><td>${o.Order_ID}</td><td>${o.No_Reservation}</td><td>${o.Order_Type}</td><td>${o.No_Table}</td><td>${o.Note}</td><td>${o.Order_Date}</td><td><button onclick="editOrder(${o.Order_ID})">Edit</button><button onclick="deleteOrder(${o.Order_ID})">Delete</button></td></tr>`; }); }
 function addOrder(){ const newO={Type:document.getElementById('newOrderType').value,Table_Number:parseInt(document.getElementById('newOrderTable').value),Note:document.getElementById('newOrderNote').value}; fetch("http://127.0.0.1:8000/order/create_order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newO)}).then(()=>fetchOrders()); }
 function editOrder(id){ const o=orders.find(o=>o.Order_ID===id); const newType=prompt("Type",o.Type)||o.Type; const newTable=prompt("Table Number",o.Table_Number)||o.Table_Number; const newNote=prompt("Note",o.Note)||o.Note; fetch(`http://127.0.0.1:8000/order/update/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Type:newType,Table_Number:parseInt(newTable),Note:newNote})}).then(()=>fetchOrders()); }
 function deleteOrder(id){ if(!confirm("Delete order?")) return; fetch(`http://127.0.0.1:8000/order/delete/${id}`,{method:"DELETE"}).then(()=>fetchOrders()); }
 
 /* ---------------- ORDER ITEMS ---------------- */
-function fetchOrderItems(){ fetch("http://127.0.0.1:8000/order_item/get_all_order_items").then(r=>r.json()).then(d=>{ orderItems=d; renderOrderItems(); }); }
-function renderOrderItems(){ const tbody=document.getElementById('orderItemsTable'); tbody.innerHTML=""; orderItems.forEach(i=>{ tbody.innerHTML+=`<tr><td>${i.Order_ID}</td><td>${i.Product_ID}</td><td>${i.Quantity}</td><td><button onclick="editOrderItem(${i.Order_ID},${i.Product_ID})">Edit</button><button onclick="deleteOrderItem(${i.Order_ID},${i.Product_ID})">Delete</button></td></tr>`; }); }
-function addOrderItem(){ const newI={Order_ID:parseInt(document.getElementById('newItemOrderID').value),Product_ID:parseInt(document.getElementById('newItemProductID').value),Quantity:parseInt(document.getElementById('newItemQuantity').value)}; fetch("http://127.0.0.1:8000/order_item/create_order_item",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newI)}).then(()=>fetchOrderItems()); }
-function editOrderItem(orderId,prodId){ const i=orderItems.find(i=>i.Order_ID===orderId && i.Product_ID===prodId); const newQty=prompt("Quantity",i.Quantity)||i.Quantity; fetch(`http://127.0.0.1:8000/order_item/update/${orderId}/${prodId}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Quantity:parseInt(newQty)})}).then(()=>fetchOrderItems()); }
+function fetchOrderItems(){ fetch("http://127.0.0.1:8000/order_items/order_items/Order_Items").then(r=>r.json()).then(d=>{ orderItems=d; renderOrderItems(); }); }
+function renderOrderItems(){ const tbody=document.getElementById('orderItemsTable'); tbody.innerHTML=""; orderItems.forEach(i=>{ tbody.innerHTML+=`<tr><td>${i.Order_ID}</td><td>${i.No_Product}</td><td>${i.Quantity}</td><td><button onclick="editOrderItem(${i.Order_ID},${i.No_Product})">Edit</button><button onclick="deleteOrderItem(${i.Order_ID},${i.NoProduct})">Delete</button></td></tr>`; }); }
+function addOrderItem(){ const newI={Order_ID:parseInt(document.getElementById('newItemOrderID').value),No_Product:parseInt(document.getElementById('newItemProductID').value),Quantity:parseInt(document.getElementById('newItemQuantity').value)}; fetch("http://127.0.0.1:8000/order_item/create_order_item",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newI)}).then(()=>fetchOrderItems()); }
+function editOrderItem(orderId,prodId){ const i=orderItems.find(i=>i.Order_ID===orderId && i.No_Product===prodId); const newQty=prompt("Quantity",i.Quantity)||i.Quantity; fetch(`http://127.0.0.1:8000/order_item/update/${orderId}/${prodId}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Quantity:parseInt(newQty)})}).then(()=>fetchOrderItems()); }
 function deleteOrderItem(orderId,prodId){ if(!confirm("Delete item?")) return; fetch(`http://127.0.0.1:8000/order_item/delete/${orderId}/${prodId}`,{method:"DELETE"}).then(()=>fetchOrderItems()); }
 
 /* ---------------- RESERVATIONS ---------------- */
-function fetchReservations(){ fetch("http://127.0.0.1:8000/reservation/get_all_reservations").then(r=>r.json()).then(d=>{ reservations=d; renderReservations(); }); }
-function renderReservations(){ const tbody=document.getElementById('reservationTable'); tbody.innerHTML=""; reservations.forEach(r=>{ tbody.innerHTML+=`<tr><td>${r.Reservation_ID}</td><td>${r.No_Client}</td><td>${r.Reservation_Date}</td><td>${r.Reservation_Time}</td><td>${r.Table_Number}</td><td>${r.Telephone}</td><td>${r.No_Person}</td><td><button onclick="editReservation(${r.Reservation_ID})">Edit</button><button onclick="deleteReservation(${r.Reservation_ID})">Delete</button></td></tr>`; }); }
-function addReservation(){ const newR={No_Client:parseInt(document.getElementById('newResClient').value),Reservation_Date:document.getElementById('newResDate').value,Reservation_Time:document.getElementById('newResTime').value,Table_Number:parseInt(document.getElementById('newResTable').value),Telephone:document.getElementById('newResPhone').value,No_Person:parseInt(document.getElementById('newResPersons').value)}; fetch("http://127.0.0.1:8000/reservation/create_reservation",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newR)}).then(()=>fetchReservations()); }
-function editReservation(id){ const r=reservations.find(r=>r.Reservation_ID===id); const newNoC=prompt("No_Client",r.No_Client)||r.No_Client; const newDate=prompt("Date",r.Reservation_Date)||r.Reservation_Date; const newTime=prompt("Time",r.Reservation_Time)||r.Reservation_Time; const newTable=prompt("Table Number",r.Table_Number)||r.Table_Number; const newPhone=prompt("Phone",r.Telephone)||r.Telephone; const newPerson=prompt("No Persons",r.No_Person)||r.No_Person; fetch(`http://127.0.0.1:8000/reservation/update/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({No_Client:parseInt(newNoC),Reservation_Date:newDate,Reservation_Time:newTime,Table_Number:parseInt(newTable),Telephone:newPhone,No_Person:parseInt(newPerson)})}).then(()=>fetchReservations()); }
+function fetchReservations(){ fetch("http://127.0.0.1:8000/reservation/reservation/Reservation").then(r=>r.json()).then(d=>{ reservations=d; renderReservations(); }); }
+function renderReservations(){ const tbody=document.getElementById('reservationTable'); tbody.innerHTML=""; reservations.forEach(r=>{ tbody.innerHTML+=`<tr><td>${r.No_Reservation}</td><td>${r.No_Client}</td><td>${r.Reservation_Date}</td><td>${r.Reservation_Time}</td><td>${r.No_Person}</td><td><button onclick="editReservation(${r.No_Reservation})">Edit</button><button onclick="deleteReservation(${r.Reservation_ID})">Delete</button></td></tr>`; }); }
+function addReservation(){ const newR={No_Client:parseInt(document.getElementById('newResClient').value),Reservation_Date:document.getElementById('newResDate').value,Reservation_Time:document.getElementById('newResTime').value,No_Telephone:document.getElementById('newResPhone').value,No_Person:parseInt(document.getElementById('newResPersons').value)}; fetch("http://127.0.0.1:8000/reservation/reservation/create_reservation",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newR)}).then(()=>fetchReservations()); }
+function editReservation(id){ const r=reservations.find(r=>r.No_Reservation===id); const newNoC=prompt("No_Client",r.No_Client)||r.No_Client; const newDate=prompt("Date",r.Reservation_Date)||r.Reservation_Date; const newTime=prompt("Time",r.Reservation_Time)||r.Reservation_Time; const newPhone=prompt("Phone",r.Telephone)||r.Telephone; const newPerson=prompt("No Persons",r.No_Person)||r.No_Person; fetch(`http://127.0.0.1:8000/reservation/update/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({No_Client:parseInt(newNoC),Reservation_Date:newDate,Reservation_Time:newTime,Table_Number:parseInt(newTable),Telephone:newPhone,No_Person:parseInt(newPerson)})}).then(()=>fetchReservations()); }
 function deleteReservation(id){ if(!confirm("Delete reservation?")) return; fetch(`http://127.0.0.1:8000/reservation/delete/${id}`,{method:"DELETE"}).then(()=>fetchReservations()); }
 
 /* ---------------- PAYMENTS ---------------- */
-function fetchPayments(){ fetch("http://127.0.0.1:8000/payment/get_all_payments").then(r=>r.json()).then(d=>{ payments=d; renderPayments(); }); }
-function renderPayments(){ const tbody=document.getElementById('paymentTable'); tbody.innerHTML=""; payments.forEach(p=>{ tbody.innerHTML+=`<tr><td>${p.Payment_ID}</td><td>${p.Order_ID}</td><td>${p.Total}</td><td>${p.Method}</td><td>${p.Status}</td><td>${p.Date}</td><td><button onclick="editPayment(${p.Payment_ID})">Edit</button><button onclick="deletePayment(${p.Payment_ID})">Delete</button></td></tr>`; }); }
+function fetchPayments(){ fetch("http://127.0.0.1:8000/payment/payment/Payment").then(r=>r.json()).then(d=>{ payments=d; renderPayments(); }); }
+function renderPayments(){ const tbody=document.getElementById('paymentTable'); tbody.innerHTML=""; payments.forEach(p=>{ tbody.innerHTML+=`<tr><td>${p.Payment_ID}</td><td>${p.Order_ID}</td><td>${p.Total_Amount}</td><td>${p.Payment_Method}</td><td>${p.Payment_Status}</td><td>${p.Payment_Date}</td><td><button onclick="editPayment(${p.Payment_ID})">Edit</button><button onclick="deletePayment(${p.Payment_ID})">Delete</button></td></tr>`; }); }
 function addPayment(){ const newP={Order_ID:parseInt(document.getElementById('newPaymentOrderID').value),Total:parseFloat(document.getElementById('newPaymentTotal').value),Method:document.getElementById('newPaymentMethod').value,Status:document.getElementById('newPaymentStatus').value,Date:document.getElementById('newPaymentDate').value}; fetch("http://127.0.0.1:8000/payment/create_payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(newP)}).then(()=>fetchPayments()); }
 function editPayment(id){ const p=payments.find(p=>p.Payment_ID===id); const newOrder=prompt("Order_ID",p.Order_ID)||p.Order_ID; const newTotal=prompt("Total",p.Total)||p.Total; const newMethod=prompt("Method",p.Method)||p.Method; const newStatus=prompt("Status",p.Status)||p.Status; const newDate=prompt("Date",p.Date)||p.Date; fetch(`http://127.0.0.1:8000/payment/update/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({Order_ID:parseInt(newOrder),Total:parseFloat(newTotal),Method:newMethod,Status:newStatus,Date:newDate})}).then(()=>fetchPayments()); }
 function deletePayment(id){ if(!confirm("Delete payment?")) return; fetch(`http://127.0.0.1:8000/payment/delete/${id}`,{method:"DELETE"}).then(()=>fetchPayments()); }
 
+// /* ---------------- Revenue Chart ---------------- */
+// function updateRevenueChart(){
+//   const filter = document.getElementById('revenueFilter').value;
+//   let labels=[], data=[];
+//   const map = {};
+//   payments.forEach(p=>{
+//     let key;
+//     const d = new Date(p.Payment_Date);
+//     if(filter==='day'){ key = d.toLocaleDateString(); }
+//     else if(filter==='month'){ key = d.getMonth()+1 + "/" + d.getFullYear(); }
+//     else{ key = d.getFullYear(); }
+//     map[key] = (map[key]||0) + p.Total_Amount;
+//   });
+//   for(const k in map){ labels.push(k); data.push(map[k]); }
+  
+//   if(revenueChartInstance) revenueChartInstance.destroy();
+//   const ctx = document.getElementById('revenueChart').getContext('2d');
+//   revenueChartInstance = new Chart(ctx,{ type:'bar', data:{labels, datasets:[{label:'Revenue', data, backgroundColor:'#007bff'}] }, options:{} });
+// }
+
+// /* ---------- Most Sold Products ---------- */
+// function updateMostSoldProducts(){
+//   const productMap={};
+//   orderItems.forEach(oi=>{
+//     const p = products.find(p=>p.No_Product===oi.No_Product);
+//     if(p) productMap[p.Product_Name] = (productMap[p.Product_Name]||0)+oi.Quantity;
+//   });
+//   const tbody=document.getElementById('product-table'); tbody.innerHTML="";
+//   Object.keys(productMap).sort((a,b)=>productMap[b]-productMap[a]).forEach(name=>{
+//     const row=document.createElement('tr');
+//     row.innerHTML=`<td>${name}</td><td>${productMap[name]}</td>`;
+//     tbody.appendChild(row);
+//   });
+// }
+
 /* ---------------- Revenue Chart ---------------- */
-function updateRevenueChart(){ /* Placeholder chart */ const ctx=document.getElementById('revenueChart').getContext('2d'); if(revenueChartInstance) revenueChartInstance.destroy(); revenueChartInstance=new Chart(ctx,{type:'bar',data:{labels:['Jan','Feb','Mar','Apr'],datasets:[{label:'Revenue',data:[1200,1900,3000,2500],backgroundColor:'#007bff'}]}}); }
+function updateRevenueChart(){
+  const filter = document.getElementById('revenueFilter').value;
+  let labels=[], data=[];
+  const map = {};
+  payments.forEach(p=>{
+    let key;
+    const d = new Date(p.Payment_Date);
+    if(filter==='day'){ key = d.toLocaleDateString(); }
+    else if(filter==='month'){ key = (d.getMonth()+1) + "/" + d.getFullYear(); }
+    else{ key = d.getFullYear(); }
+    map[key] = (map[key]||0) + p.Total_Amount;
+  });
+  for(const k in map){ labels.push(k); data.push(map[k]); }
+  
+  if(revenueChartInstance) revenueChartInstance.destroy();
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  revenueChartInstance = new Chart(ctx,{
+    type:'bar',
+    data:{labels, datasets:[{label:'Revenue', data, backgroundColor:'#007bff'}]},
+    options:{responsive:true, plugins:{legend:{display:false}}}
+  });
+}
+
+/* ---------- Most Sold Products ---------- */
+function updateMostSoldProducts(){
+  const productMap={};
+  orderItems.forEach(oi=>{
+    const p = products.find(p=>p.No_Product===oi.No_Product);
+    if(p) productMap[p.Product_Name] = (productMap[p.Product_Name]||0)+oi.Quantity;
+  });
+  const tbody=document.getElementById('product-table'); tbody.innerHTML="";
+  Object.keys(productMap).sort((a,b)=>productMap[b]-productMap[a]).forEach(name=>{
+    const row=document.createElement('tr');
+    row.innerHTML=`<td>${name}</td><td>${productMap[name]}</td>`;
+    tbody.appendChild(row);
+  });
+}
+
+/* ---------- Dashboard Update Helper ---------- */
+function updateDashboard(){
+  updateRevenueChart();
+  updateMostSoldProducts();
+}
 
 /* ---------------- Initialize ---------------- */
 fetchData();

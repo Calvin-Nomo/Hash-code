@@ -33,7 +33,7 @@ def get_reservation():
     reservations =cursor.fetchall()
     return reservations
 
-@router.post('/create Reservation')
+@router.post('/create_reservation')
 def create_reservation(reserve:Reservation):
     try:
         sql_command="""INSERT INTO Reservation(No_Client,Reservation_Date,Reservation_Time,No_Person)

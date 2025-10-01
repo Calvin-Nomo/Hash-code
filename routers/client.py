@@ -64,7 +64,7 @@ def update_client(client_id:int,client:Client):
         'Message':'You have updated successfully the Clients data from the database'
     }
 
-@router.delete('/delete-client/{client_id}')
+@router.delete('/delete_client/{client_id}')
 def delete_client(client_id: int):
     try:
         sql_command = """

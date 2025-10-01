@@ -1,0 +1,910 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel - Restaurant</title>
+<!-- Include Chart.js CDN for revenue chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ---------------- Global Styles ---------------- */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { display:flex; height:100vh; background:#f0f2f5; overflow:hidden; }
+
+/* ---------------- Sidebar ---------------- */
+.sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, #007bff, #00c6ff);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    padding-top:20px;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+}
+.sidebar h2 { text-align:center; font-size:1.5em; margin-bottom:30px; font-weight:bold; text-shadow: 1px 1px rgba(0,0,0,0.3); }
+.sidebar button {
+    background:transparent; border:none; color:#fff; padding:15px 25px;
+    text-align:left; font-size:1em; cursor:pointer; position:relative;
+    transition: 0.3s; display:flex; align-items:center; gap:10px;
+}
+.sidebar button:hover, .sidebar button.active { background: rgba(255,255,255,0.15); padding-left:30px; box-shadow: inset 0 0 10px rgba(255,255,255,0.2);}
+.sidebar button:focus { outline:none; background: rgba(255,255,255,0.25); }
+.sidebar button::before {
+    content:""; width:5px; height:100%; background:#fff; position:absolute; left:0; top:0;
+    border-radius:0 4px 4px 0; opacity:0; transition:opacity 0.3s;
+}
+.sidebar button.active::before, .sidebar button:hover::before { opacity:1; }
+
+/* ---------------- Main Content ---------------- */
+.main-content { flex:1; padding:20px; overflow-y:auto; background:#f4f7fa; }
+.section { display:none; }
+.section.active { display:block; }
+
+/* ---------------- Tables ---------------- */
+table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 8px 15px rgba(0,0,0,0.05); margin-bottom:20px; }
+th, td { padding:12px; text-align:left; border-bottom:1px solid #eee; }
+th { background:#f7f7f7; }
+table tr:hover { background: rgba(0,123,255,0.05); transition:0.3s; }
+table img { width:60px; height:60px; object-fit:cover; border-radius:8px; }
+
+/* ---------------- Forms ---------------- */
+input, button { margin-right:8px; padding:6px 10px; border-radius:6px; border:1px solid #ccc; }
+button { border:none; background:#007bff; color:#fff; cursor:pointer; transition:0.3s; }
+button:hover { background:#0056b3; }
+
+/* ---------------- Dashboard Cards ---------------- */
+.dashboard-cards { display:flex; gap:20px; margin-bottom:20px; }
+.card { flex:1; background:#fff; border-radius:10px; padding:20px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+.card h3 { margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<!-- ---------------- Sidebar ---------------- -->
+<div class="sidebar">
+<h2>Admin Panel</h2>
+<button class="active" onclick="showSection('dashboard')">Dashboard</button>
+<button onclick="showSection('client')">Clients</button>
+<button onclick="showSection('product')">Products</button>
+<button onclick="showSection('order')">Orders</button>
+<button onclick="showSection('orderItems')">Order Items</button>
+<button onclick="showSection('reservation')">Reservations</button>
+<button onclick="showSection('payment')">Payments</button>
+<button onclick="showSection('system')">System Settings</button>
+<button onclick="logout()">Logout</button>
+</div>
+
+<!-- ---------------- Main Content ---------------- -->
+<div class="main-content">
+
+<!-- ---------------- Dashboard Section ---------------- -->
+<div id="dashboard" class="section active">
+  <h1>Dashboard</h1>
+
+  <!-- Dashboard cards -->
+  <div class="dashboard-cards">
+    <div class="card">
+      <h3>Total Orders</h3>
+      <p id="total-orders">0</p>
+    </div>
+    <div class="card">
+      <h3>Total Revenue</h3>
+      <p id="total-revenue">0 FCFA</p>
+    </div>
+    <div class="card">
+      <h3>Total Reservations</h3>
+      <p id="total-reservations">0</p>
+    </div>
+  </div>
+
+  <!-- Revenue chart -->
+  <div style="margin-bottom:20px;">
+    <label for="revenueFilter">Filter:</label>
+    <select id="revenueFilter" onchange="updateRevenueChart()">
+      <option value="day">Per Day</option>
+      <option value="month">Per Month</option>
+      <option value="year">Per Year</option>
+    </select>
+    <canvas id="revenueChart" height="150"></canvas>
+  </div>
+
+  <!-- Most sold products table -->
+  <h3>Most Sold Products</h3>
+  <table>
+    <thead><tr><th>Product Name</th><th>Total Quantity Sold</th></tr></thead>
+    <tbody id="product-table"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Clients Section ---------------- -->
+<div id="client" class="section">
+  <h1>Clients</h1>
+  <div class="add-client-form" style="margin-bottom:15px;">
+    <input type="text" id="newClientName" placeholder="Name">
+    <input type="text" id="newClientPhone" placeholder="Phone">
+    <button onclick="addClient()">Add Client</button>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="clientSearch" placeholder="Search clients..." oninput="filterClients()">
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Actions</th></tr></thead>
+    <tbody id="clientTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Products Section ---------------- -->
+<div id="product" class="section">
+  <h1>Products</h1>
+  <div class="add-product-form" style="margin-bottom:15px;">
+    <input type="text" id="newName" placeholder="Name">
+    <input type="text" id="newCategory" placeholder="Category">
+    <input type="number" id="newPrice" placeholder="Price">
+    <input type="text" id="newDescription" placeholder="Description">
+    <input type="text" id="newImage" placeholder="Image URL">
+    <button onclick="addProduct()">Add Product</button>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="productSearch" placeholder="Search products..." oninput="filterProducts()">
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Description</th><th>Actions</th></tr></thead>
+    <tbody id="productTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Orders Section ---------------- -->
+<div id="order" class="section">
+  <h1>Orders</h1>
+  <div class="add-order-form" style="margin-bottom:15px;">
+    <input type="int" id="newOrderReservatione" placeholder="No_Reservation">
+    <input type="text" id="newOrderType" placeholder="Order Type">
+    <input type="number" id="newOrderTable" placeholder="No Table">
+    <input type="text" id="newOrderNote" placeholder="Note">
+    <button onclick="addOrder()">Add Order</button>
+  </div>
+  <table>
+    <thead><tr>
+      <th>ID</th><th>No_Reservation</th><th>Date</th><th>Type</th><th>Table</th><th>Note</th><th>Actions</th>
+    </tr></thead>
+    <tbody id="orderTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Order Items Section ---------------- -->
+<div id="orderItems" class="section">
+  <h1>Order Items</h1>
+  <div class="add-order-item-form" style="margin-bottom:15px;">
+    <input type="number" id="newItemOrderID" placeholder="Order ID">
+    <input type="number" id="newItemProductID" placeholder="Product ID">
+    <input type="number" id="newItemQuantity" placeholder="Quantity">
+    <button onclick="addOrderItem()">Add Item</button>
+  </div>
+  <table>
+    <thead><tr>
+      <th>No_Items</th><th>Order ID</th><th>Product ID</th><th>Quantity</th><th>Actions</th>
+    </tr></thead>
+    <tbody id="orderItemsTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Reservations Section ---------------- -->
+<div id="reservation" class="section">
+  <h1>Reservations</h1>
+  <div class="add-reservation-form" style="margin-bottom:15px;">
+    <input type="int" id="newResClient" placeholder="No_Client">
+    <input type="datetime-local" id="newResDate">
+    <input type="time" id="newResTime">
+       <input type="number" id="newResPersons" placeholder="No_Person">
+    <button onclick="addReservation()">Add Reservation</button>
+  </div>
+  <table>
+    <thead><tr>
+      <thead><tr><th>ID</th><th>No_Client</th><th>Date</th><th>Time</th><th>No Persons</th><th>Actions</th></tr></thead>
+    </tr></thead>
+    <tbody id="reservationTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- Payments Section ---------------- -->
+<div id="payment" class="section">
+  <h1>Payments</h1>
+  <div class="add-payment-form" style="margin-bottom:15px;">
+    <input type="number" id="newPaymentOrderID" placeholder="Order ID">
+    <input type="number" id="newPaymentTotal" placeholder="Total">
+    <input type="text" id="newPaymentMethod" placeholder="Method">
+    <input type="text" id="newPaymentStatus" placeholder="Status">
+    <input type="datetime-local" id="newPaymentDate">
+    <button onclick="addPayment()">Add Payment</button>
+  </div>
+  <table>
+    <thead><tr>
+      <th>ID</th><th>Order ID</th><th>Total</th><th>Method</th><th>Status</th><th>Date</th><th>Actions</th>
+    </tr></thead>
+    <tbody id="paymentTable"></tbody>
+  </table>
+</div>
+
+<!-- ---------------- System Settings ---------------- -->
+<div id="system" class="section"><h1>System Settings</h1></div>
+
+</div>
+
+<script>
+// ---------------- Sidebar navigation ----------------
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function logout(){ alert("Logging out..."); }
+
+// ---------------- Global data arrays ----------------
+let clients=[], products=[], orders=[], orderItems=[], reservations=[], payments=[];
+let revenueChartInstance = null;
+
+// ---------------- Fetch all data ----------------
+function fetchData(){
+  fetchClients(); fetchProducts(); fetchOrders(); fetchOrderItems();
+  fetchReservations(); fetchPayments();
+}
+/* ---------- Clients ---------- */
+function fetchClients() {
+    fetch("http://127.0.0.1:8000/client/client/Client")
+        .then(r => r.json())
+        .then(d => {
+            clients = d;
+            renderClients();
+        })
+        .catch(err => console.error("Failed to fetch clients:", err));
+}
+
+function renderClients() {
+    const tbody = document.getElementById('clientTable');
+    tbody.innerHTML = "";
+    clients.forEach(c => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${c.No_Client}</td>
+            <td>${c.Client_Name}</td>
+            <td>${c.No_Telephone}</td>
+            <td>
+                <button onclick="editClient(${c.No_Client})">Edit</button>
+                <button onclick="deleteClient(${c.No_Client})">Delete</button>
+            </td>`;
+        tbody.appendChild(row);
+    });
+}
+
+function filterClients() {
+    const q = document.getElementById('clientSearch').value.toLowerCase();
+    const tbody = document.getElementById('clientTable');
+    tbody.innerHTML = "";
+    clients
+        .filter(c => c.Client_Name.toLowerCase().includes(q) || c.No_Telephone.includes(q))
+        .forEach(c => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${c.No_Client}</td>
+                <td>${c.Client_Name}</td>
+                <td>${c.No_Telephone}</td>
+                <td>
+                    <button onclick="editClient(${c.No_Client})">Edit</button>
+                    <button onclick="deleteClient(${c.No_Client})">Delete</button>
+                </td>`;
+            tbody.appendChild(row);
+        });
+}
+
+function addClient() {
+    const newC = {
+        Client_Name: document.getElementById('newClientName').value,
+        No_Telephone: document.getElementById('newClientPhone').value
+    };
+
+    if (!newC.Client_Name || !newC.No_Telephone) {
+        return alert("Please fill in all client fields.");
+    }
+
+    fetch("http://127.0.0.1:8000/client/client/create_client", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newC)
+    })
+    .then(res => res.json())
+    .then(() => {
+        document.getElementById('newClientName').value = "";
+        document.getElementById('newClientPhone').value = "";
+        fetchClients();
+    })
+    .catch(err => console.error("Failed to add client:", err));
+}
+
+function editClient(id) {
+    const c = clients.find(c => c.No_Client === id);
+    if (!c) return alert("Client not found.");
+
+    const newName = prompt("Name", c.Client_Name) || c.Client_Name;
+    const newPhone = prompt("Phone", c.No_Telephone) || c.No_Telephone;
+
+    fetch(`http://127.0.0.1:8000/client/client/update_client/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Client_Name: newName, No_Telephone: newPhone })
+    })
+    .then(res => res.json())
+    .then(() => fetchClients())
+    .catch(err => console.error("Failed to edit client:", err));
+}
+
+function deleteClient(id) {
+    if (!confirm("Delete client?")) return;
+
+    fetch(`http://127.0.0.1:8000/client/client/delete_client/${id}`, { method: "DELETE" })
+        .then(res => res.json())
+        .then(() => fetchClients())
+        .catch(err => console.error("Failed to delete client:", err));
+}
+
+
+/* ---------- Products ---------- */
+function fetchProducts() {
+    fetch("http://127.0.0.1:8000/product/product/Product")
+        .then(r => r.json())
+        .then(d => {
+            products = d;
+            renderProducts();
+        })
+        .catch(err => console.error("Failed to fetch products:", err));
+}
+
+function renderProducts() {
+    const tbody = document.getElementById('productTable');
+    tbody.innerHTML = "";
+    products.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${p.No_Product || ''}</td>
+            <td><img src="${p.Image_Link || 'https://via.placeholder.com/60'}" alt="Product Image"></td>
+            <td>${p.Product_Name}</td>
+            <td>${p.Category}</td>
+            <td>${p.Unit_Price} FCFA</td>
+            <td>${p.Product_Description}</td>
+            <td>
+                <button onclick="editProduct(${p.No_Product})">Edit</button>
+                <button onclick="deleteProduct(${p.No_Product})">Delete</button>
+            </td>`;
+        tbody.appendChild(row);
+    });
+}
+
+function filterProducts() {
+    const q = document.getElementById('productSearch').value.toLowerCase();
+    const tbody = document.getElementById('productTable');
+    tbody.innerHTML = "";
+    products
+        .filter(p => p.Product_Name.toLowerCase().includes(q) || p.Category.toLowerCase().includes(q))
+        .forEach(p => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${p.No_Product || ''}</td>
+                <td><img src="${p.Image_Link || 'https://via.placeholder.com/60'}" alt="Product Image"></td>
+                <td>${p.Product_Name}</td>
+                <td>${p.Category}</td>
+                <td>${p.Unit_Price} FCFA</td>
+                <td>${p.Product_Description}</td>
+                <td>
+                    <button onclick="editProduct(${p.No_Product})">Edit</button>
+                    <button onclick="deleteProduct(${p.No_Product})">Delete</button>
+                </td>`;
+            tbody.appendChild(row);
+        });
+}
+
+function addProduct() {
+    const newP = {
+        Product_Name: document.getElementById('newName').value.trim(),
+        Category: document.getElementById('newCategory').value.trim(),
+        Unit_Price: parseFloat(document.getElementById('newPrice').value),
+        Product_Description: document.getElementById('newDescription').value.trim(),
+        Image_Link: document.getElementById('newImage').value.trim()
+    };
+
+    if (!newP.Product_Name || !newP.Category || isNaN(newP.Unit_Price)) {
+        return alert("Please fill in all required product fields correctly.");
+    }
+
+    fetch("http://127.0.0.1:8000/product/product/create_product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newP)
+    })
+    .then(res => res.json())
+    .then(() => {
+        document.getElementById('newName').value = "";
+        document.getElementById('newCategory').value = "";
+        document.getElementById('newPrice').value = "";
+        document.getElementById('newDescription').value = "";
+        document.getElementById('newImage').value = "";
+        fetchProducts();
+    })
+    .catch(err => console.error("Failed to add product:", err));
+}
+
+function editProduct(id) {
+    const p = products.find(p => p.No_Product === id);
+    if (!p) return alert("Product not found.");
+
+    const newName = prompt("Name", p.Product_Name) || p.Product_Name;
+    const newCat = prompt("Category", p.Category) || p.Category;
+    const newPrice = parseFloat(prompt("Price", p.Unit_Price)) || p.Unit_Price;
+    const newDesc = prompt("Description", p.Product_Description) || p.Product_Description;
+    const newImg = prompt("Image URL", p.Image_Link) || p.Image_Link;
+
+    fetch(`http://127.0.0.1:8000/product/product/update_product/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            Product_Name: newName,
+            Category: newCat,
+            Unit_Price: newPrice,
+            Product_Description: newDesc,
+            Image_Link: newImg
+        })
+    })
+    .then(res => res.json())
+    .then(() => fetchProducts())
+    .catch(err => console.error("Failed to edit product:", err));
+}
+
+function deleteProduct(id) {
+    if (!confirm("Delete product?")) return;
+    fetch(`http://127.0.0.1:8000/product/product/delete_product/${id}`, { method: "DELETE" })
+        .then(res => res.json())
+        .then(() => fetchProducts())
+        .catch(err => console.error("Failed to delete product:", err));
+}
+
+
+
+/* ---------- Orders ---------- */
+function fetchOrders() {
+    fetch("http://127.0.0.1:8000/order/order/Order")
+        .then(r => r.json())
+        .then(d => {
+
+            orders = d;
+            renderOrders();
+            updateDashboardCards();
+            updateRevenueChart();
+            updateMostSoldProducts();
+        })
+        .catch(err => console.error("Failed to fetch orders:", err));
+}
+
+function renderOrders() {
+    const tbody = document.getElementById('orderTable');
+    tbody.innerHTML = "";
+    orders.forEach(o => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${o.Order_ID}</td>
+            <td>${o.No_Reservation || ""}</td>
+            <td>${new Date(o.Order_Date).toLocaleString()}</td>
+            <td>${o.Order_Type}</td>
+            <td>${o.No_Table}</td>
+            <td>${o.Note || ""}</td>
+            <td>
+                <button onclick="editOrder(${o.Order_ID})">Edit</button>
+                <button onclick="deleteOrder(${o.Order_ID})">Delete</button>
+            </td>`;
+        tbody.appendChild(row);
+    });
+}
+
+function addOrder() {
+//     const newOrder = {
+//         No_Reservation: parseInt(document.getElementById('newOrderReservation').value) || null,
+//         Order_Date: new Date().toISOString(),
+//         Order_Type: document.getElementById('newOrderType').value,
+//         No_Table: parseInt(document.getElementById('newOrderTable').value),
+//         Note: document.getElementById('newOrderNote').value || null
+//     };
+  const reservationValue = document.getElementById('newOrderReservation').value;
+  const newOrder = {
+      No_Reservation: reservationValue === "" ? null : parseInt(reservationValue),
+      Order_Date: new Date().toISOString(),
+      Order_Type: document.getElementById('newOrderType').value,
+      No_Table: parseInt(document.getElementById('newOrderTable').value),
+      Note: document.getElementById('newOrderNote').value || null
+  };
+
+    if (!newOrder.Order_Type || isNaN(newOrder.No_Table)) {
+        alert("Please fill in required fields: Order Type and Table Number.");
+        return;
+    }
+
+    fetch("http://127.0.0.1:8000/order/order/create_order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newOrder)
+    }).then(() => {
+        document.getElementById('newOrderReservation').value = '';
+        document.getElementById('newOrderType').value = '';
+        document.getElementById('newOrderTable').value = '';
+        document.getElementById('newOrderNote').value = '';
+        fetchOrders();
+    }).catch(err => console.error("Failed to add order:", err));
+}
+
+function editOrder(id) {
+    const o = orders.find(o => o.Order_ID === id);
+    if (!o) return alert("Order not found.");
+
+    const newReservation = prompt("Reservation ID (optional)", o.No_Reservation) || o.No_Reservation;
+    const newType = prompt("Order Type (Dine In, Take Away, Reserve)", o.Order_Type) || o.Order_Type;
+    const newTable = prompt("Table Number", o.No_Table) || o.No_Table;
+    const newNote = prompt("Note (optional)", o.Note) || o.Note;
+
+    if (!newType || isNaN(newTable)) return alert("Order Type and Table Number are required.");
+
+    const updatedOrder = {
+        No_Reservation: newReservation ? parseInt(newReservation) : null,
+        Order_Type: newType,
+        No_Table: parseInt(newTable),
+        Note: newNote || null
+    };
+
+    fetch(`http://127.0.0.1:8000/order/order/update_order/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedOrder)
+    }).then(() => fetchOrders())
+      .catch(err => console.error("Failed to edit order:", err));
+}
+
+function deleteOrder(id) {
+    if (!confirm("Are you sure you want to delete this order?")) return;
+
+    fetch(`http://127.0.0.1:8000/order/order/delete_order/${id}`, { method: "DELETE" })
+        .then(() => fetchOrders())
+        .catch(err => console.error("Failed to delete order:", err));
+}
+
+ /* ---------- Order Items ---------- */
+
+function fetchOrderItems() {
+    fetch("http://127.0.0.1:8000/order_items/order_items/Order_Items")
+        .then(r => r.json())
+        .then(d => {
+            orderItems = d;
+            renderOrderItems();
+            updateDashboardCards();
+            updateMostSoldProducts();
+        })
+        .catch(err => console.error("Failed to fetch order items:", err));
+}
+
+function renderOrderItems() {
+    const tbody = document.getElementById('orderItemsTable');
+    tbody.innerHTML = "";
+    orderItems.forEach(oi => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${oi.Item_ID}</td>
+            <td>${oi.Order_ID}</td>
+            <td>${oi.No_Product}</td>
+            <td>${oi.Quantity}</td>
+            <td>
+                <button onclick="editOrderItem(${oi.Item_ID})">Edit</button>
+                <button onclick="deleteOrderItem(${oi.Item_ID})">Delete</button>
+            </td>`;
+        tbody.appendChild(row);
+    });
+}
+
+function addOrderItem() {
+    const newItem = {
+        Order_ID: parseInt(document.getElementById('newItemOrderID').value),
+        No_Product: parseInt(document.getElementById('newItemProductID').value),
+        Quantity: parseInt(document.getElementById('newItemQuantity').value)
+    };
+
+    if (isNaN(newItem.Order_ID) || isNaN(newItem.No_Product) || isNaN(newItem.Quantity)) {
+        return alert("Please enter valid Order ID, Product ID, and Quantity.");
+    }
+
+    fetch("http://127.0.0.1:8000/orderitems/order_items/create_orderitems", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newItem)
+    })
+    .then(() => {
+        document.getElementById('newItemOrderID').value = '';
+        document.getElementById('newItemProductID').value = '';
+        document.getElementById('newItemQuantity').value = '';
+        fetchOrderItems();
+    })
+    .catch(err => console.error("Failed to add order item:", err));
+}
+
+function editOrderItem(itemId) {
+    const oi = orderItems.find(oi => oi.Item_ID === itemId);
+    if (!oi) return alert("Order item not found.");
+
+    const newOrderID = prompt("Order ID", oi.Order_ID) || oi.Order_ID;
+    const newProductID = prompt("Product ID", oi.No_Product) || oi.No_Product;
+    const newQuantity = prompt("Quantity", oi.Quantity) || oi.Quantity;
+
+    if (isNaN(newOrderID) || isNaN(newProductID) || isNaN(newQuantity)) {
+        return alert("Order ID, Product ID, and Quantity must be numbers.");
+    }
+
+    const updatedItem = {
+        Order_ID: parseInt(newOrderID),
+        No_Product: parseInt(newProductID),
+        Quantity: parseInt(newQuantity)
+    };
+
+    fetch(`http://127.0.0.1:8000/orderitems/order_items/update_orderitems/${itemId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedItem)
+    })
+    .then(() => fetchOrderItems())
+    .catch(err => console.error("Failed to edit order item:", err));
+}
+
+function deleteOrderItem(itemId) {
+    if (!confirm("Are you sure you want to delete this order item?")) return;
+
+    fetch(`http://127.0.0.1:8000/orderitems/order_items/delete_orderitems/${itemId}`, { method: "DELETE" })
+        .then(() => fetchOrderItems())
+        .catch(err => console.error("Failed to delete order item:", err));
+}
+
+
+/* ---------- Reservations ---------- */
+function fetchReservations() {
+    fetch("http://127.0.0.1:8000/reservation/reservation/Reservation")
+        .then(r => r.json())
+        .then(d => {
+            reservations = d;
+            renderReservations();
+            updateDashboardCards();
+        })
+        .catch(err => console.error("Failed to fetch reservations:", err));
+}
+
+function renderReservations() {
+    const tbody = document.getElementById('reservationTable');
+    tbody.innerHTML = "";
+    reservations.forEach(r => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${r.No_Reservation}</td>
+            <td>${r.No_Client}</td>
+            <td>${r.Reservation_Date}</td>
+            <td>${r.Reservation_Time}</td>
+            <td>${r.No_Person}</td>
+            <td>
+                <button onclick="editReservation(${r.No_Reservation})">Edit</button>
+                <button onclick="deleteReservation(${r.No_Reservation})">Delete</button>
+            </td>`;
+        tbody.appendChild(row);
+    });
+}
+
+function addReservation() {
+    const newRes = {
+        No_Client: parseInt(document.getElementById('newResClient').value),
+        Reservation_Date: document.getElementById('newResDate').value,
+        Reservation_Time: document.getElementById('newResTime').value,
+        No_Person: parseInt(document.getElementById('newResPersons').value)
+    };
+
+    if (isNaN(newRes.No_Client) || !newRes.Reservation_Date || !newRes.Reservation_Time || isNaN(newRes.No_Person)) {
+        return alert("Please fill all fields correctly.");
+    }
+
+    fetch("http://127.0.0.1:8000/reservation/reservation/create_reservation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newRes)
+    })
+    .then(() => {
+        document.getElementById('newResClient').value = '';
+        document.getElementById('newResDate').value = '';
+        document.getElementById('newResTime').value = '';
+        document.getElementById('newResPersons').value = '';
+        fetchReservations();
+    })
+    .catch(err => console.error("Failed to add reservation:", err));
+}
+
+function editReservation(resId) {
+    const r = reservations.find(r => r.No_Reservation === resId);
+    if (!r) return alert("Reservation not found.");
+
+    const newClient = prompt("Client ID", r.No_Client) || r.No_Client;
+    const newDate = prompt("Reservation Date (YYYY-MM-DD)", r.Reservation_Date) || r.Reservation_Date;
+    const newTime = prompt("Reservation Time (HH:MM:SS)", r.Reservation_Time) || r.Reservation_Time;
+    const newPersons = prompt("Number of Persons", r.No_Person) || r.No_Person;
+
+    if (isNaN(newClient) || isNaN(newPersons)) return alert("Client ID and Number of Persons must be numbers.");
+
+    const updatedRes = {
+        No_Client: parseInt(newClient),
+        Reservation_Date: newDate,
+        Reservation_Time: newTime,
+        No_Person: parseInt(newPersons)
+    };
+
+    fetch(`http://127.0.0.1:8000/reservation/reservation/update_reservation/${resId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedRes)
+    })
+    .then(() => fetchReservations())
+    .catch(err => console.error("Failed to edit reservation:", err));
+}
+
+function deleteReservation(resId) {
+    if (!confirm("Are you sure you want to delete this reservation?")) return;
+
+    fetch(`http://127.0.0.1:8000/reservation/reservation/delete_reservation/${resId}`, { method: "DELETE" })
+        .then(() => fetchReservations())
+        .catch(err => console.error("Failed to delete reservation:", err));
+}
+
+
+
+/* ---------- Payments ---------- */
+function fetchPayments() {
+    fetch("http://127.0.0.1:8000/payment/payment/Payment")
+        .then(r => r.json())
+        .then(d => {
+            payments = d;
+            renderPayments();
+            updateDashboardCards();
+            updateRevenueChart();
+        })
+        .catch(err => console.error("Failed to fetch payments:", err));
+}
+
+function renderPayments() {
+    const tbody = document.getElementById('paymentTable');
+    tbody.innerHTML = "";
+    payments.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${p.Payment_ID}</td>
+            <td>${p.Order_ID}</td>
+            <td>${parseFloat(p.Total_Amount).toFixed(2)}</td>
+            <td>${p.Payment_Method}</td>
+            <td>${p.Payment_Status}</td>
+            <td>${new Date(p.Payment_Date).toLocaleString()}</td>
+            <td>
+                <button onclick="editPayment(${p.Payment_ID})">Edit</button>
+                <button onclick="deletePayment(${p.Payment_ID})">Delete</button>
+            </td>`;
+        tbody.appendChild(row);
+    });
+}
+
+function addPayment() {
+    const newP = {
+        Order_ID: parseInt(document.getElementById('newPaymentOrderID').value),
+        Total_Amount: parseFloat(document.getElementById('newPaymentTotal').value),
+        Payment_Method: document.getElementById('newPaymentMethod').value,
+        Payment_Status: document.getElementById('newPaymentStatus').value,
+        Payment_Date: document.getElementById('newPaymentDate').value
+    };
+
+    if (isNaN(newP.Order_ID) || isNaN(newP.Total_Amount) || !newP.Payment_Method || !newP.Payment_Status || !newP.Payment_Date) {
+        return alert("Please fill all fields correctly.");
+    }
+
+    fetch("http://127.0.0.1:8000/payment/payment/create_payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newP)
+    })
+    .then(() => {
+        document.getElementById('newPaymentOrderID').value = '';
+        document.getElementById('newPaymentTotal').value = '';
+        document.getElementById('newPaymentMethod').value = '';
+        document.getElementById('newPaymentStatus').value = '';
+        document.getElementById('newPaymentDate').value = '';
+        fetchPayments();
+    })
+    .catch(err => console.error("Failed to add payment:", err));
+}
+
+function editPayment(paymentId) {
+    const p = payments.find(p => p.Payment_ID === paymentId);
+    if (!p) return alert("Payment not found.");
+
+    const newOrder = prompt("Order ID", p.Order_ID) || p.Order_ID;
+    const newTotal = prompt("Total Amount", p.Total_Amount) || p.Total_Amount;
+    const newMethod = prompt("Payment Method", p.Payment_Method) || p.Payment_Method;
+    const newStatus = prompt("Payment Status", p.Payment_Status) || p.Payment_Status;
+    const newDate = prompt("Payment Date (YYYY-MM-DDTHH:MM)", p.Payment_Date) || p.Payment_Date;
+
+    if (isNaN(newOrder) || isNaN(newTotal)) return alert("Order ID and Total must be numbers.");
+
+    const updatedPayment = {
+        Order_ID: parseInt(newOrder),
+        Total_Amount: parseFloat(newTotal),
+        Payment_Method: newMethod,
+        Payment_Status: newStatus,
+        Payment_Date: newDate
+    };
+
+    fetch(`http://127.0.0.1:8000/payment/payment/update_payment/${paymentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedPayment)
+    })
+    .then(() => fetchPayments())
+    .catch(err => console.error("Failed to edit payment:", err));
+}
+
+function deletePayment(paymentId) {
+    if (!confirm("Are you sure you want to delete this payment?")) return;
+
+    fetch(`http://127.0.0.1:8000/payment/payment/delete_payment/${paymentId}`, { method: "DELETE" })
+        .then(() => fetchPayments())
+        .catch(err => console.error("Failed to delete payment:", err));
+}
+
+
+/* ---------- Dashboard Cards & Revenue ---------- */
+function updateDashboardCards(){
+  document.getElementById('total-orders').innerText = orders.length;
+  document.getElementById('total-revenue').innerText = payments.reduce((sum,p)=>sum+p.Total_Amount,0) + " FCFA";
+  document.getElementById('total-reservations').innerText = reservations.length;
+}
+
+function updateRevenueChart(){
+  const filter = document.getElementById('revenueFilter').value;
+  let labels=[], data=[];
+  const map = {};
+  payments.forEach(p=>{
+    let key;
+    const d = new Date(p.Payment_Date);
+    if(filter==='day'){ key = d.toLocaleDateString(); }
+    else if(filter==='month'){ key = d.getMonth()+1 + "/" + d.getFullYear(); }
+    else{ key = d.getFullYear(); }
+    map[key] = (map[key]||0) + p.Total_Amount;
+  });
+  for(const k in map){ labels.push(k); data.push(map[k]); }
+  
+  if(revenueChartInstance) revenueChartInstance.destroy();
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  revenueChartInstance = new Chart(ctx,{ type:'bar', data:{labels, datasets:[{label:'Revenue', data, backgroundColor:'#007bff'}] }, options:{} });
+}
+
+/* ---------- Most Sold Products ---------- */
+function updateMostSoldProducts(){
+  const productMap={};
+  orderItems.forEach(oi=>{
+    const p = products.find(p=>p.No_Product===oi.No_Product);
+    if(p) productMap[p.Product_Name] = (productMap[p.Product_Name]||0)+oi.Quantity;
+  });
+  const tbody=document.getElementById('product-table'); tbody.innerHTML="";
+  Object.keys(productMap).sort((a,b)=>productMap[b]-productMap[a]).forEach(name=>{
+    const row=document.createElement('tr');
+    row.innerHTML=`<td>${name}</td><td>${productMap[name]}</td>`;
+    tbody.appendChild(row);
+  });
+}
+
+// ---------------- Initialize ----------------
+fetchData();
+</script>
+
+</body>
+</html>

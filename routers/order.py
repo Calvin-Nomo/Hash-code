@@ -52,6 +52,7 @@ def create_order(order:Order):
                     """,
                     (order_id, item.No_Product, item.Quantity)
                 )
+        
 
         DB.commit()
     except Exception as e:
