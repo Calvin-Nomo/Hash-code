@@ -43,11 +43,11 @@ def create_product(product:Product):
         VALUES(%s,%s,%s,%s,%s)"""
 
         cursor.execute(sql_command,(product.Product_Name,product.Product_Description,product.Category,product.Unit_Price,product.Image_Path))
+        product_id=cursor.lastrowid
 
-product_id=cursor.lastrowid
-
-sql_command="Insert Into Stock(No_Product) Values(%s) " 
-cursor.execute(sql_command, (product_id,) )
+        sql_command="Insert Into Stock(No_Product) Values(%s) " 
+        cursor.execute(sql_command, (product_id,) )
+        
         DB.commit()
     except Exception as e:
         raise HTTPException(status_code=404,detail=(e))

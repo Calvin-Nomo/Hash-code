@@ -24,7 +24,14 @@ def greetings():
      "Message ":"Hello World" 
 }
 
-@router.post("/create_client")
+@router.get('/Stock')
+def get_client():
+    sql_command="Select * from Stock" 
+    cursor.execute(sql_command)
+    stock=cursor.fetchall()
+    return stock
+
+@router.post("/create_stock")
 def create_stock(stock:Stock):
     try:
         sql_command="""INSERT INTO Stock(No_Product,Quantity_Available)

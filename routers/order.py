@@ -65,14 +65,14 @@ def create_order(order:Order):
                     (order_id, item.No_Product, item.Quantity)
                 )
         # 3. Calculate total amount using JOIN
-        # sql_total = """
-        #         SELECT SUM(oi.Quantity * p.Unit_Price) AS total_amount
-        #         FROM Order_Items oi
-        #         JOIN Product p ON oi.No_Product = p.No_Product
-        #         WHERE oi.Order_ID = %s
-        #     """
-        # cursor.execute(sql_total, (order_id,))
-        total_amount = total_amount(order_id)
+        sql_total = """
+                SELECT SUM(oi.Quantity * p.Unit_Price) AS total
+                FROM Order_Items oi
+                JOIN Product p ON oi.No_Product = p.No_Product
+                WHERE oi.Order_ID = %s
+            """
+        cursor.execute(sql_total, (order_id,))
+        total_amount= cursor.fetchone()['total']
         payment_date=datetime.utcnow()
 
             # 4. Insert Payment automatically

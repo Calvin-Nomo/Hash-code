@@ -367,7 +367,7 @@ function renderProducts() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${p.No_Product || ''}</td>
-            <td><img src="${p.Image_Link || 'https://via.placeholder.com/60'}" alt="Product Image"></td>
+            <td><img src="${p.Image_Path || 'https://via.placeholder.com/60'}" alt="Product Image"></td>
             <td>${p.Product_Name}</td>
             <td>${p.Category}</td>
             <td>${p.Unit_Price} FCFA</td>
@@ -390,7 +390,7 @@ function filterProducts() {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${p.No_Product || ''}</td>
-                <td><img src="${p.Image_Link || 'https://via.placeholder.com/60'}" alt="Product Image"></td>
+                <td><img src="${p.Image_Path || 'https://via.placeholder.com/60'}" alt="Product Image"></td>
                 <td>${p.Product_Name}</td>
                 <td>${p.Category}</td>
                 <td>${p.Unit_Price} FCFA</td>
@@ -409,10 +409,11 @@ function addProduct() {
         Category: document.getElementById('newCategory').value.trim(),
         Unit_Price: parseFloat(document.getElementById('newPrice').value),
         Product_Description: document.getElementById('newDescription').value.trim(),
-        Image_Link: document.getElementById('newImage').value.trim()
+        Image_Path: document.getElementById('newImage').value.trim()
     };
 
     if (!newP.Product_Name || !newP.Category || isNaN(newP.Unit_Price)) {
+
         return alert("Please fill in all required product fields correctly.");
     }
 
@@ -441,7 +442,7 @@ function editProduct(id) {
     const newCat = prompt("Category", p.Category) || p.Category;
     const newPrice = parseFloat(prompt("Price", p.Unit_Price)) || p.Unit_Price;
     const newDesc = prompt("Description", p.Product_Description) || p.Product_Description;
-    const newImg = prompt("Image URL", p.Image_Link) || p.Image_Link;
+    const newImg = prompt("Image URL", p.Image_Path) || p.Image_Path;
 
     fetch(`http://127.0.0.1:8000/product/product/update_product/${id}`, {
         method: "PUT",
@@ -451,7 +452,7 @@ function editProduct(id) {
             Category: newCat,
             Unit_Price: newPrice,
             Product_Description: newDesc,
-            Image_Link: newImg
+            Image_Path: newImg
         })
     })
     .then(res => res.json())
