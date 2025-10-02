@@ -14,6 +14,7 @@ DB= pymysql.connect(
    cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
 )
 def total_Amount(order_id:int):
+    
     sql_command=""" SELECT 
         o.Order_ID,
         SUM(oi.Quantity * pr.Unit_Price) AS Total_Amount
@@ -57,13 +58,14 @@ def create_order(order:Order):
         order_id = cursor.lastrowid
             # Insert all order items in one go
         for item in order.items:
+               #checks if the is an Available Quantity For a Food
                 cursor.execute(
                     "SELECT Quantity_Available FROM Product WHERE No_Product=%s",
                     (item.No_Product,)
                 )
                 stock = cursor.fetchone()
                 if not stock:
-                    raise HTTPException(status_code=404,detail=f'No Stock Found For {item.No_Product}')
+                    raise HTTPException(status_code=404,detail=f'No Quantity_Available Found For {item.No_Product}')
                     
                 if stock["Quantity_Available"] < item.Quantity:
                     

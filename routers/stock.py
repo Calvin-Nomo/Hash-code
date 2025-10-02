@@ -15,7 +15,6 @@ cursor=DB.cursor()
 router = APIRouter(prefix="/stock", tags=["stock"])
 
 class Stock(BaseModel):
-    No_Product:int
     Quantity_Available:int
     
 @router.get('/')
@@ -31,28 +30,28 @@ def get_client():
     stock=cursor.fetchall()
     return stock
 
-# @router.post("/create_stock")
-# def create_stock(stock:Stock):
-#     try:
-#         sql_command="""INSERT INTO Stock(No_Product,Quantity_Available)
-#         VALUES(%s,%s)"""
-#         cursor.execute(sql_command,(stock.No_Product,stock.Quantity_Available))
-#         DB.commit()
-#     except Exception as e:
-#         raise HTTPException(status_code=404,detail=(e))
-#     return{
-# 'Message':'You Have successfully added the  Stock data to your database'
-#     }
+@router.post("/create_stock")
+def create_stock(stock:Stock):
+    try:
+        sql_command="""INSERT INTO Stock(Quantity_Available)
+        VALUES(%s)"""
+        cursor.execute(sql_command,(stock.Quantity_Available))
+        DB.commit()
+    except Exception as e:
+        raise HTTPException(status_code=404,detail=(e))
+    return{
+'Message':'You Have successfully added the  Stock data to your database'
+    }
 
 @router.put("/update_stock/{stock_id}")
 def update_stock(stock_id,stock: Stock):
     try:
         sql_command = """
             UPDATE Stock
-            SET Quantity_Available = %s,No_Product = %s
+            SET Quantity_Available = %s
             WHERE No_Stock=%s
         """
-        cursor.execute(sql_command, (stock.Quantity_Available, stock.No_Product,stock_id))
+        cursor.execute(sql_command, (stock.Quantity_Available,stock_id))
         DB.commit()
 
     except Exception as e:

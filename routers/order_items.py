@@ -31,6 +31,7 @@ def get_orderitems():
     cursor.execute(sql_command)
     Items=cursor.fetchall()
     return Items
+# Here i have tto manage thye Order _ID
 @router.put('/update_order_items/{items_id}')
 def update_orderitems(items_id:int,item:Items):
     try:

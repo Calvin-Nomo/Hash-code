@@ -224,6 +224,20 @@ button:hover { background:#0056b3; }
     <tbody id="paymentTable"></tbody>
   </table>
 </div>
+<!-- ---------------- Stock Section ---------------- -->
+<div id="stock" class="section">
+  <h1>Stock</h1>
+  <div class="add-stock-form" style="margin-bottom:15px;">
+    <input type="number" id="newquantity" placeholder="Quantity_Available">
+    <button onclick="addstokc()">Add Stock</button>
+  </div>
+  <table>
+    <thead><tr>
+      <th>ID</th><th>No_Product</th><th>Quantity_Available</th><th>Actions</th>
+    </tr></thead>
+    <tbody id="stockTable"></tbody>
+  </table>
+</div>
 
 <!-- ---------------- System Settings ---------------- -->
 <div id="system" class="section"><h1>System Settings</h1></div>
