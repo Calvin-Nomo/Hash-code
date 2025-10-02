@@ -58,11 +58,28 @@ def create_order(order:Order):
             # Insert all order items in one go
         for item in order.items:
                 cursor.execute(
+                    "SELECT Quantity_Available FROM Product WHERE No_Product=%s",
+                    (item.No_Product,)
+                )
+                stock = cursor.fetchone()
+                if not stock:
+                    raise HTTPException(status_code=404,detail=f'No Stock Found For {item.No_Product}')
+                    
+                if stock["Quantity_Available"] < item.Quantity:
+                    
+                    return {"error": f"Not enough stock for product {item.No_Product}"}
+
+                cursor.execute(
                     """
                     INSERT INTO Order_Items (Order_ID, No_Product, Quantity)
                     VALUES (%s, %s, %s)
                     """,
                     (order_id, item.No_Product, item.Quantity)
+                )
+                                # Update stock
+                cursor.execute(
+                     "UPDATE Stock SET Quantity_Available = Quantity_Available - %s WHERE No_Product=%s",
+                    (item.Quantity, item.No_Product)
                 )
         # 3. Calculate total amount using JOIN
         sql_total = """
@@ -81,6 +98,7 @@ def create_order(order:Order):
                 VALUES (%s, %s, %s, %s, %s)
             """
         cursor.execute(sql_payment, (order_id, total_amount, payment_date,"Cash", "pending"))
+
 
         #         )
         DB.commit()
