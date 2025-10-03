@@ -43,37 +43,37 @@ def get_client():
 # 'Message':'You Have successfully added the  Stock data to your database'
 #     }
 
-@router.put("/update_stock/{stock_id}")
-def update_stock(stock_id,stock: Stock):
-    try:
-        sql_command = """
-            UPDATE Stock
-            SET Quantity_Available = %s
-            WHERE No_Stock=%s
-        """
-        cursor.execute(sql_command, (stock.Quantity_Available,stock_id))
-        DB.commit()
+# @router.put("/update_stock/{stock_id}")
+# def update_stock(stock_id,stock: Stock):
+#     try:
+#         sql_command = """
+#             UPDATE Stock
+#             SET Quantity_Available = %s
+#             WHERE No_Stock=%s
+#         """
+#         cursor.execute(sql_command, (stock.Quantity_Available,stock_id))
+#         DB.commit()
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
-    return {
-        "Message": "Stock data successfully updated in the database"
-    }
+#     return {
+#         "Message": "Stock data successfully updated in the database"
+#     }
 
-@router.delete("/delete_stock/{stock_id}")
-def delete_stock(stock_id: int):
-    try:
-        sql_command = """
-            DELETE FROM Stock
-            WHERE No_Stock = %s
-        """
-        cursor.execute(sql_command, (stock_id,))
-        DB.commit()
+# @router.delete("/delete_stock/{stock_id}")
+# def delete_stock(stock_id: int):
+#     try:
+#         sql_command = """
+#             DELETE FROM Stock
+#             WHERE No_Stock = %s
+#         """
+#         cursor.execute(sql_command, (stock_id,))
+#         DB.commit()
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
-    return {
-        "Message": f"Stock with No_Product {stock_id} has been successfully deleted."
-    }
+#     return {
+#         "Message": f"Stock with No_Product {stock_id} has been successfully deleted."
+#     }

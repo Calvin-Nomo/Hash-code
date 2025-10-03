@@ -1,118 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR Codes Table Example</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    background: #f5f5f5;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  th, td {
-    padding: 12px 15px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
-  th {
-    background: #3498db;
-    color: white;
-    font-size: 16px;
-  }
-  tr:hover {
-    background: #f1f1f1;
-  }
-  canvas {
-    margin-top: 5px;
-  }
-  button.download-btn {
-    padding: 6px 12px;
-    font-size: 13px;
-    border-radius: 5px;
-    border: none;
-    background-color: #28a745;
-    color: white;
-    cursor: pointer;
-  }
-</style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Code Order System Demo</title>
+    <style>
+      /* ===== General Styles ===== */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f2f2f2;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .container {
+        max-width: 900px;
+        margin: 20px auto;
+        background: #fff;
+        padding: 25px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: #007bff;
+      }
+      h2 {
+        text-align: center;
+        font-size: 22px;
+        margin-bottom: 15px;
+        color: #555;
+      }
+      #tabs {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+      #tabs button {
+        flex: 1;
+        margin: 5px;
+        padding: 12px 0;
+        background: #007bff;
+        color: #fff;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      #tabs button.active {
+        background: #0056b3;
+      }
+      #tabs button:hover {
+        background: #0056b3;
+      }
+      label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: 600;
+        color: #444;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+      button {
+        font-size: 16px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .submitBtn {
+        width: 100%;
+        background: #28a745;
+        color: white;
+        font-weight: bold;
+      }
+      .submitBtn:hover {
+        background: #218838;
+      }
+      .productItem {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+        align-items: flex-end;
+        border-bottom: 1px dashed #ccc;
+        padding-bottom: 10px;
+      }
+      .productItem label {
+        flex-basis: 100%;
+        margin-bottom: 5px;
+      }
+      .productItem select,
+      .productItem input {
+        flex: 1;
+        min-width: 120px;
+        font-size: 16px;
+        padding: 8px 10px;
+      }
+      .productItem button.removeBtn {
+        flex: 0 0 auto;
+        background: #dc3545;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+      }
+      .productItem button.removeBtn:hover {
+        background: #c82333;
+      }
+      .section {
+        display: none;
+        margin-bottom: 25px;
+      }
+      pre {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-size: 15px;
+        line-height: 1.5;
+        color: #222;
+      }
+      #reservationSection {
+        background: #f1f8ff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 15px;
+        border: 1px solid #007bff;
+      }
+      @media (max-width: 700px) {
+        .productItem {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        #tabs button {
+          flex: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>QR Code Order System Demo</h1>
 
-<h1>QR Codes for Tables (Illustration)</h1>
-<button onclick="generateQRCodes()">Generate QR Codes</button>
+      <!-- Tabs -->
+      <div id="tabs">
+        <button class="tabBtn active" data-section="orderSection">
+          Place Order
+        </button>
+        <button class="tabBtn" data-section="paymentSection">Payment</button>
+        <button class="tabBtn" data-section="receiptSection">Receipt</button>
+      </div>
 
-<table id="qrTable">
-  <thead>
-    <tr>
-      <th>Notable</th>
-      <th>Table Number</th>
-      <th>QR Code</th>
-      <th>Download</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- QR codes will be inserted here dynamically -->
-  </tbody>
-</table>
+      <!-- Place Order Section -->
+      <div class="section" id="orderSection" style="display: block">
+        <h2>Client Information</h2>
+        <label for="clientName">Client Name</label>
+        <input type="text" id="clientName" placeholder="Enter client name" />
+        <label for="clientPhone">Phone Number</label>
+        <input type="text" id="clientPhone" placeholder="Enter phone number" />
 
-<script>
-function generateQRCodes() {
-  const tbody = document.querySelector('#qrTable tbody');
-  tbody.innerHTML = ''; // Clear previous rows
+        <h2>Order Items</h2>
+        <div id="productList"></div>
+        <button id="addProductBtn" class="submitBtn">Add Product</button>
 
-  for(let i = 1; i <= 10; i++){
-    const tableNumber = Math.floor(Math.random() * 50) + 1; // Random 1-50
+        <h2>Order Type & Table</h2>
+        <label for="orderType">Order Type</label>
+        <select id="orderType">
+          <option value="Takeaway">Takeaway</option>
+          <option value="Dine In">Dine In</option>
+          <option value="Reservation">Reservation</option>
+        </select>
+        <label for="tableNumber"
+          >Table Number (for Dine In / Reservation)</label
+        >
+        <input
+          type="number"
+          id="tableNumber"
+          placeholder="Enter table number"
+        />
 
-    const tr = document.createElement('tr');
+        <section id="reservationSection">
+          <h2>Reservation Details</h2>
+          <label for="reservationDate">Reservation Date</label>
+          <input type="date" id="reservationDate" />
+          <label for="reservationTime">Reservation Time</label>
+          <input type="time" id="reservationTime" />
+          <label for="reservationPersons">Number of Persons</label>
+          <input
+            type="number"
+            id="reservationPersons"
+            placeholder="Enter number of persons"
+          />
+        </section>
 
-    // Notable
-    const tdNotable = document.createElement('td');
-    tdNotable.textContent = `Table ${i}`;
-    tr.appendChild(tdNotable);
+        <button id="nextPaymentBtn" class="submitBtn">Next: Payment</button>
+      </div>
 
-    // Table Number
-    const tdNumber = document.createElement('td');
-    tdNumber.textContent = tableNumber;
-    tr.appendChild(tdNumber);
+      <!-- Payment Section -->
+      <div class="section" id="paymentSection">
+        <h2>Payment</h2>
+        <label for="paymentMethod">Payment Method</label>
+        <select id="paymentMethod">
+          <option value="Cash">Cash</option>
+          <option value="Card">Card</option>
+          <option value="Mobile Money">Mobile Money</option>
+        </select>
+        <button id="payBtn" class="submitBtn">Pay & Place Order</button>
+        <pre id="paymentResponse"></pre>
+      </div>
 
-    // QR Code
-    const tdQR = document.createElement('td');
-    const canvas = document.createElement('canvas');
-    tdQR.appendChild(canvas);
-    tr.appendChild(tdQR);
+      <!-- Receipt Section -->
+      <div class="section" id="receiptSection">
+        <h2>Receipt</h2>
+        <pre id="receiptContent"></pre>
+        <button onclick="window.print()">Print Receipt</button>
+      </div>
+    </div>
 
-    const qrUrl = `https://yourdomain.com/order/${tableNumber}`;
-    QRCode.toCanvas(canvas, qrUrl, { width: 120 }, function(err){
-      if(err) console.error(err);
-    });
+    <script>
+      // === Tabs ===
+      const tabBtns = document.querySelectorAll(".tabBtn");
+      const sections = document.querySelectorAll(".section");
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          sections.forEach((s) => (s.style.display = "none"));
+          document.getElementById(btn.dataset.section).style.display = "block";
+          if (btn.dataset.section === "receiptSection") showReceipt();
+        });
+      });
 
-    // Download button
-    const tdDownload = document.createElement('td');
-    const btn = document.createElement('button');
-    btn.textContent = 'Download';
-    btn.className = 'download-btn';
-    btn.onclick = () => {
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = `Table_${tableNumber}_QR.png`;
-      link.click();
-    };
-    tdDownload.appendChild(btn);
-    tr.appendChild(tdDownload);
+      // === Demo Products ===
+      const products = [
+        { No_Product: 1, Product_Name: "Margherita Pizza", Unit_Price: 8 },
+        { No_Product: 2, Product_Name: "Pepperoni Pizza", Unit_Price: 10 },
+        { No_Product: 3, Product_Name: "Cheeseburger", Unit_Price: 6 },
+        { No_Product: 4, Product_Name: "Chicken Burger", Unit_Price: 7 },
+        { No_Product: 5, Product_Name: "Veggie Burger", Unit_Price: 5 },
+      ];
 
-    tbody.appendChild(tr);
-  }
-}
-</script>
+      const productList = document.getElementById("productList");
+      const addProductBtn = document.getElementById("addProductBtn");
+      addProductBtn.addEventListener("click", () => {
+        const div = document.createElement("div");
+        div.className = "productItem";
+        div.innerHTML = `
+    <label>Product</label>
+    <select class="productSelect">
+        ${products
+          .map(
+            (p) =>
+              `<option value="${p.No_Product}">${p.Product_Name} ($${p.Unit_Price})</option>`
+          )
+          .join("")}
+    </select>
+    <label>Quantity</label>
+    <input type="number" class="productQty" value="1" min="1"/>
+    <button type="button" class="removeBtn">Remove</button>
+    `;
+        productList.appendChild(div);
+        div
+          .querySelector(".removeBtn")
+          .addEventListener("click", () => div.remove());
+      });
 
-</body>
+      // === Reservation toggle ===
+      const orderType = document.getElementById("orderType");
+      const reservationSection = document.getElementById("reservationSection");
+      orderType.addEventListener("change", () => {
+        reservationSection.style.display =
+          orderType.value === "Reservation" ? "block" : "none";
+      });
+
+      // === Save Order ===
+      let fullOrder = {};
+      document
+        .getElementById("nextPaymentBtn")
+        .addEventListener("click", () => {
+          const client = {
+            Client_Name: document.getElementById("clientName").value,
+            No_Telephone: document.getElementById("clientPhone").value,
+          };
+          const order = {
+            Order_Type: orderType.value,
+            No_Table: document.getElementById("tableNumber").value || null,
+            items: Array.from(document.querySelectorAll(".productItem")).map(
+              (div) => {
+                const pId = parseInt(div.querySelector(".productSelect").value);
+                const prod = products.find((p) => p.No_Product === pId);
+                return {
+                  No_Product: pId,
+                  Product_Name: prod.Product_Name,
+                  Unit_Price: prod.Unit_Price,
+                  Quantity: parseInt(div.querySelector(".productQty").value),
+                };
+              }
+            ),
+          };
+          let reservation = null;
+          if (orderType.value === "Reservation")
+            reservation = {
+              No_Table: parseInt(document.getElementById("tableNumber").value),
+              Reservation_Date:
+                document.getElementById("reservationDate").value,
+              Reservation_Time:
+                document.getElementById("reservationTime").value,
+              No_Person: parseInt(
+                document.getElementById("reservationPersons").value
+              ),
+            };
+          fullOrder = { client, order, reservation };
+          // Switch to payment tab
+          document.querySelector('[data-section="paymentSection"]').click();
+        });
+
+      // === Payment ===
+      document.getElementById("payBtn").addEventListener("click", () => {
+        const method = document.getElementById("paymentMethod").value;
+        if (
+          !fullOrder ||
+          !fullOrder.order ||
+          fullOrder.order.items.length === 0
+        )
+          return alert("Please add order items!");
+        fullOrder.payment = { Payment_Method: method, Payment_Status: "Paid" };
+        fullOrder.orderResponse = {
+          Order_ID: Math.floor(Math.random() * 1000) + 1,
+          Total_Amount: fullOrder.order.items.reduce(
+            (acc, i) => acc + i.Unit_Price * i.Quantity,
+            0
+          ),
+        };
+        document.getElementById(
+          "paymentResponse"
+        ).innerText = `Order placed successfully!\nTotal: $${fullOrder.orderResponse.Total_Amount}`;
+        // Switch to receipt tab
+        document.querySelector('[data-section="receiptSection"]').click();
+      });
+
+      // === Show Receipt ===
+      function showReceipt() {
+        if (!fullOrder || !fullOrder.orderResponse) {
+          document.getElementById("receiptContent").innerText = "No receipt.";
+          return;
+        }
+        const o = fullOrder.order;
+        const c = fullOrder.client;
+        const p = fullOrder.payment;
+        const r = fullOrder.orderResponse;
+        document.getElementById("receiptContent").innerText = `
+Order ID: ${r.Order_ID}
+Client: ${c.Client_Name} (${c.No_Telephone})
+Order Type: ${o.Order_Type}
+Table Number: ${o.No_Table || "N/A"}
+Items:
+${o.items
+  .map(
+    (i) =>
+      ` - ${i.Product_Name} x ${i.Quantity} = $${i.Unit_Price * i.Quantity}`
+  )
+  .join("\n")}
+Total Amount: $${r.Total_Amount}
+Payment Method: ${p.Payment_Method}
+Payment Status: ${p.Payment_Status}
+`;
+      }
+    </script>
+  </body>
 </html>

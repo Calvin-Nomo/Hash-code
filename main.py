@@ -28,7 +28,7 @@ app.add_middleware(
 DB= pymysql.connect(
     host="localhost",
     user="root",
-    passwd="Bineli26",
+    passwd='Bineli26',
     database="Order_System", 
    cursorclass=pymysql.cursors.DictCursor,
    autocommit=True
@@ -51,7 +51,7 @@ def client():
     cursor.execute(sql_command)
     client=cursor.fetchone()
     return client
-######## Get Method#######
+######## Get Method#####
 @app.get('/')
 def greetings():
     return {
@@ -74,7 +74,7 @@ def create_order(data:FullOrderRequest):
         sql_command="""SELECT No_Client FROM Clients 
                     WHERE No_Telephone=%s
                 """
-        cursor.execute(sql_command,(data.client.No_Telephone))
+        cursor.execute(sql_command,(data.client.No_Telephone,))
         client= cursor.fetchone()
         if  client:
             client_id=client['No_Client']
@@ -84,7 +84,7 @@ def create_order(data:FullOrderRequest):
             """
             cursor.execute(sql_command,(data.client.Client_Name,data.client.No_Telephone))
             client_id= cursor.lastrowid
-            
+
             #Handling the Reservation if the Order_Type is Reversation
             reservation_id=None
             if data.order.Order_Type=='Reservation':
@@ -101,6 +101,12 @@ def create_order(data:FullOrderRequest):
                 # Handling the Dine In Order Type
             elif data.order.Order_Type == 'Dine In':
                 table_id=data.order.No_Table
+                #Checking if a table Exist
+                sql_command="""SELECT * From Tab WHERE Table_ID=%s """
+                cursor.execute(sql_command,(table_id,))
+                table=cursor.fetchone()
+                if not table:
+                  raise HTTPException(status_code=404,detail='The Table does not exist')
                 if not data.order.No_Table:
                     raise HTTPException(status_code=404,detail='a Table Number is Required for the Dine In')
             else:
@@ -108,16 +114,16 @@ def create_order(data:FullOrderRequest):
                 table_id=None
             order=data.order
             order_date = datetime.utcnow() 
-            sql_command="""INSERT INTO Orders(No_Client,No_Reservation,Order_Date,Order_Type,No_Table,Note)
-            VALUES(%s,%s,%s,%s,%s)"""
-            cursor.execute(sql_command,(client_id,reservation_id,order_date,order.Order_Type,table_id,order.Note))
+            sql_order="""INSERT INTO Orders(No_Client,No_Reservation,Order_Date,Order_Type,No_Table,Note)
+            VALUES(%s,%s,%s,%s,%s,%s)"""
+            cursor.execute(sql_order,(client_id,reservation_id,order_date,order.Order_Type,table_id,order.Note))
             order_id = cursor.lastrowid
             
             # filling the  client items in the Order_items Table
             for item in data.order.items:
                 #checking if the is an Available Quantity  Product in stock
                 cursor.execute(
-                        "SELECT Quantity_Available FROM Product WHERE No_Product=%s",
+                        "SELECT Quantity_Available FROM Stock WHERE No_Product=%s",
                         (item.No_Product,)
                     )
                 stock = cursor.fetchone()
@@ -158,11 +164,11 @@ def create_order(data:FullOrderRequest):
 
             # 
             DB.commit()
-    except Exception as e:
-        raise HTTPException(status_code=404,detail=(e))
+    except Exception:
+        raise HTTPException(status_code=404,detail='Error in the SQL Command')
     return{
         'Message':'You Have successfully Place an Order',
-        'Order_ID': order_id 
+     
     }
             
         

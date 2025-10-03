@@ -15,7 +15,6 @@ cursor=DB.cursor()
 router = APIRouter( prefix="/reservation", tags=["reservation"])
 
 class Reservation(BaseModel):
-    No_Client:int
     No_Table:int
     Reservation_Date:date
     Reservation_Time:time

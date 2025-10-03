@@ -1,178 +1,132 @@
-from fastapi import FastAPI, Form, File, UploadFile, Depends
+from datetime import datetime
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import pymysql
-import shutil
-import os
+from routers import client, order, order_items, reservation, payment, product, stock
+from routers.client import Client
+from routers.order import Order
+from routers.payment import Payment
+from routers.reservation import Reservation
+from typing import Optional
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(title='Qrcode Order System')
 
-# -------------------------------
-# Database Connection
-# -------------------------------
-DB_HOST = "localhost"
-DB_USER = "root"
-DB_PASSWORD = "yourpassword"
-DB_NAME = "yourdatabase"
+class FullOrderRequest(BaseModel):
+    client: Client
+    reservation: Optional[Reservation] = None   # fixed typo
+    order: Order
+    payment: Payment
 
-def get_connection():
-    return pymysql.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
-        cursorclass=pymysql.cursors.DictCursor
-    )
+# Allow CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# -------------------------------
-# Upload Directory
-# -------------------------------
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+DB = pymysql.connect(
+    host="localhost",
+    user="root",
+    database="Order_System",
+    cursorclass=pymysql.cursors.DictCursor,
+    autocommit=True
+)
 
-# -------------------------------
-# Pydantic Model
-# -------------------------------
-class Product(BaseModel):
-    No_Product: int
-    Product_Name: str
-    Unit_Price: float
-    Category: str
-    Product_Description: str | None = None
+cursor = DB.cursor()
 
-# -------------------------------
-# Dependency: Convert Form → Pydantic
-# -------------------------------
-def product_as_form(
-    No_Product: int = Form(...),
-    Product_Name: str = Form(...),
-    Unit_Price: float = Form(...),
-    Category: str = Form(...),
-    Product_Description: str | None = Form(None),
-) -> Product:
-    return Product(
-        No_Product=No_Product,
-        Product_Name=Product_Name,
-        Unit_Price=Unit_Price,
-        Category=Category,
-        Product_Description=Product_Description,
-    )
+# Routers
+app.include_router(client.router, prefix="/client", tags=["client"])
+app.include_router(order.router, prefix="/order", tags=["order"])
+app.include_router(order_items.router, prefix="/order_items", tags=["order_items"])
+app.include_router(reservation.router, prefix="/reservation", tags=["reservation"])
+app.include_router(product.router, prefix="/product", tags=["product"])
+app.include_router(payment.router, prefix="/payment", tags=["payment"])
+app.include_router(stock.router, prefix="/stock", tags=["stock"])
 
-# -------------------------------
-# CREATE
-# -------------------------------
-@app.post("/add_product/")
-async def add_product(
-    product: Product = Depends(product_as_form),
-    Image: UploadFile = File(...)
-):
+@app.get('/')
+def greetings():
+    return {"Message": "Hello World"}
+
+@app.get('/database')
+def get_databases():
+    cursor.execute("SHOW DATABASES")
+    return cursor.fetchall()
+
+@app.post('/FullOrderRequest')
+def create_order(data: FullOrderRequest):
     try:
-        # Save image
-        file_path = os.path.join(UPLOAD_DIR, Image.filename)
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(Image.file, buffer)
+        # 1. Check if client exists
+        sql_command = """SELECT No_Client FROM Clients WHERE No_Telephone=%s"""
+        cursor.execute(sql_command, (data.client.No_Telephone,))
+        client_row = cursor.fetchone()
 
-        # Insert into DB
-        connection = get_connection()
-        with connection.cursor() as cursor:
-            sql = """
-                INSERT INTO Product 
-                (No_Product, Product_Name, Unit_Price, Category, Product_Description, Image_link)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """
-            cursor.execute(sql, (
-                product.No_Product,
-                product.Product_Name,
-                product.Unit_Price,
-                product.Category,
-                product.Product_Description,
-                file_path
-            ))
-            connection.commit()
-
-        return {"message": "Product created successfully", "product": product.dict(), "Image_Path": file_path}
-    except Exception as e:
-        return {"error": str(e)}
-
-# -------------------------------
-# READ (All products)
-# -------------------------------
-@app.get("/products/")
-async def get_products():
-    try:
-        connection = get_connection()
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM Product")
-            results = cursor.fetchall()
-        return {"products": results}
-    except Exception as e:
-        return {"error": str(e)}
-
-# -------------------------------
-# UPDATE
-# -------------------------------
-@app.put("/update_product/{product_id}")
-async def update_product(
-    product_id: int,
-    product: Product = Depends(product_as_form),
-    Image: UploadFile | None = File(None)
-):
-    try:
-        connection = get_connection()
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM Product WHERE No_Product=%s", (product_id,))
-            existing = cursor.fetchone()
-            if not existing:
-                return {"error": f"Product {product_id} not found"}
-
-        # Handle image (new or old)
-        if Image:
-            file_path = os.path.join(UPLOAD_DIR, Image.filename)
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(Image.file, buffer)
+        if client_row:
+            client_id = client_row['No_Client']
         else:
-            file_path = existing["Image_link"]
+            sql_command = """INSERT INTO Clients(Client_Name, No_Telephone) VALUES(%s,%s)"""
+            cursor.execute(sql_command, (data.client.Client_Name, data.client.No_Telephone))
+            client_id = cursor.lastrowid
 
-        # Update DB
-        with connection.cursor() as cursor:
-            sql = """
-                UPDATE Product
-                SET Product_Name=%s, Unit_Price=%s, Category=%s, Product_Description=%s, Image_link=%s
-                WHERE No_Product=%s
-            """
-            cursor.execute(sql, (
-                product.Product_Name,
-                product.Unit_Price,
-                product.Category,
-                product.Product_Description,
-                file_path,
-                product_id
-            ))
-            connection.commit()
+        # 2. Handle reservation / table
+        reservation_id = None
+        if data.order.Order_Type == 'Reservation':
+            if not data.reservation:
+                raise HTTPException(status_code=404, detail='Reservation Information is required')
+            r = data.reservation
+            sql_command = """INSERT INTO Reservation(No_Client,No_Table,Reservation_Date,Reservation_Time,No_Person)
+                             VALUES(%s,%s,%s,%s,%s)"""
+            cursor.execute(sql_command, (client_id, r.No_Table, r.Reservation_Date, r.Reservation_Time, r.No_Person))
+            reservation_id = cursor.lastrowid
+            table_id = r.No_Table
+        elif data.order.Order_Type == 'Dine In':
+            if not data.order.No_Table:
+                raise HTTPException(status_code=404, detail='A Table Number is required for Dine In')
+            table_id = data.order.No_Table
+        else:
+            table_id = None  # Takeaway
 
-        return {"message": f"Product {product_id} updated", "updated_data": product.dict(), "Image_Path": file_path}
+        # 3. Insert order
+        order = data.order
+        order_date = datetime.utcnow()
+        sql_command = """INSERT INTO Orders(No_Client, No_Reservation, Order_Date, Order_Type, No_Table, Note)
+                         VALUES(%s,%s,%s,%s,%s,%s)"""
+        cursor.execute(sql_command, (client_id, reservation_id, order_date, order.Order_Type, table_id, order.Note))
+        order_id = cursor.lastrowid
+
+        # 4. Insert order items & update stock
+        for item in data.order.items:
+            cursor.execute("SELECT Quantity_Available FROM Stock WHERE No_Product=%s", (item.No_Product,))
+            stock = cursor.fetchone()
+            if not stock:
+                raise HTTPException(status_code=404, detail=f'No stock found for product {item.No_Product}')
+            if stock["Quantity_Available"] < item.Quantity:
+                raise HTTPException(status_code=404, detail=f'Not enough stock for product {item.No_Product}')
+
+            cursor.execute("INSERT INTO Order_Items(Order_ID, No_Product, Quantity) VALUES(%s,%s,%s)",
+                           (order_id, item.No_Product, item.Quantity))
+            cursor.execute("UPDATE Stock SET Quantity_Available = Quantity_Available - %s WHERE No_Product=%s",
+                           (item.Quantity, item.No_Product))
+
+        # 5. Calculate total and insert payment
+        sql_total = """
+            SELECT SUM(oi.Quantity * p.Unit_Price) AS total
+            FROM Order_Items oi
+            JOIN Product p ON oi.No_Product = p.No_Product
+            WHERE oi.Order_ID = %s
+        """
+        cursor.execute(sql_total, (order_id,))
+        total_amount = cursor.fetchone()['total']
+        payment_date = datetime.utcnow()
+
+        sql_payment = """INSERT INTO Payment (Order_ID, Total_Amount, Payment_Date, Payment_Method, Payment_Status)
+                         VALUES (%s, %s, %s, %s, %s)"""
+        cursor.execute(sql_payment, (order_id, total_amount, payment_date, data.payment.Payment_Method, "Paid"))
+
+        DB.commit()
+
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
-# -------------------------------
-# DELETE
-# -------------------------------
-@app.delete("/delete_product/{product_id}")
-async def delete_product(product_id: int):
-    try:
-        connection = get_connection()
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM Product WHERE No_Product=%s", (product_id,))
-            product = cursor.fetchone()
-            if not product:
-                return {"error": f"Product {product_id} not found"}
-
-            cursor.execute("DELETE FROM Product WHERE No_Product=%s", (product_id,))
-            connection.commit()
-
-        # Remove image file
-        if product["Image_link"] and os.path.exists(product["Image_link"]):
-            os.remove(product["Image_link"])
-
-        return {"message": f"Product {product_id} deleted successfully"}
-    except Exception as e:
-        return {"error": str(e)}
+    return {"Message": "Order placed successfully", "Order_ID": order_id}

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Place Order</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f6fa;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1000px;
+        margin: auto;
+        display: flex;
+        gap: 20px;
+      }
+      .products {
+        flex: 3;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+      }
+      .product-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        background: #fff;
+      }
+      .cart {
+        flex: 1;
+        background: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        height: fit-content;
+      }
+      .cart-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      button {
+        cursor: pointer;
+        background: #44bd32;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 8px;
+      }
+      button:hover {
+        background: #40792a;
+      }
+      input {
+        padding: 5px;
+        width: 100%;
+        margin-bottom: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Product List -->
+      <div class="products" id="productList"></div>
+
+      <!-- Cart Sidebar -->
+      <div class="cart">
+        <h2>Cart</h2>
+        <div id="cartItems"></div>
+        <hr />
+        <h3>Total: <span id="cartTotal">0</span> FCFA</h3>
+        <h3>Client Info</h3>
+        <input type="text" id="clientName" placeholder="Name" />
+        <input type="text" id="clientPhone" placeholder="Telephone" />
+        <select id="orderType" onchange="toggleExtraFields()">
+          <option value="">Select Order Type</option>
+          <option value="Reservation">Reservation</option>
+          <option value="Dine In">Dine In</option>
+          <option value="Take Away">Take Away</option>
+        </select>
+        <div id="reservationFields" style="display: none">
+          <input type="date" id="reservationDate" />
+          <input type="time" id="reservationTime" />
+          <input type="number" id="reservationGuests" placeholder="Guests" />
+          <input
+            type="number"
+            id="tableNumberReservation"
+            placeholder="Table Number"
+          />
+        </div>
+        <div id="dineinFields" style="display: none">
+          <input
+            type="number"
+            id="tableNumberDineIn"
+            placeholder="Table Number"
+          />
+        </div>
+        <button onclick="goToPayment()">Next: Payment</button>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://127.0.0.1:8000";
+      let products = [];
+      let cart = [];
+
+      // Fetch products
+      async function loadProducts() {
+        const res = await fetch(API_BASE + "/product/product/Product");
+        products = await res.json();
+        const container = document.getElementById("productList");
+        container.innerHTML = "";
+        products.forEach((p) => {
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.innerHTML = `<h3>${p.Product_Name}</h3><p>${p.Unit_Price} FCFA</p>
+      <button onclick="addToCart(${p.No_Product}, '${p.Product_Name}', ${p.Unit_Price})">Add</button>`;
+          container.appendChild(card);
+        });
+      }
+
+      // Cart functions
+      function addToCart(id, name, price) {
+        const existing = cart.find((i) => i.No_Product === id);
+        if (existing) existing.Quantity += 1;
+        else
+          cart.push({
+            No_Product: id,
+            Product_Name: name,
+            Quantity: 1,
+            Unit_Price: price,
+          });
+        renderCart();
+      }
+      function updateQuantity(id, qty) {
+        cart = cart
+          .map((i) => (i.No_Product === id ? { ...i, Quantity: qty } : i))
+          .filter((i) => i.Quantity > 0);
+        renderCart();
+      }
+      function renderCart() {
+        const container = document.getElementById("cartItems");
+        container.innerHTML = "";
+        let total = 0;
+        cart.forEach((i) => {
+          total += i.Quantity * i.Unit_Price;
+          const div = document.createElement("div");
+          div.className = "cart-item";
+          div.innerHTML = `<span>${i.Product_Name}</span>
+      <input type="number" value="${i.Quantity}" min="1" onchange="updateQuantity(${i.No_Product}, this.value)">
+      <button onclick="updateQuantity(${i.No_Product},0)">Remove</button>`;
+          container.appendChild(div);
+        });
+        document.getElementById("cartTotal").innerText = total;
+      }
+
+      // Toggle fields
+      function toggleExtraFields() {
+        const type = document.getElementById("orderType").value;
+        document.getElementById("reservationFields").style.display =
+          type === "Reservation" ? "block" : "none";
+        document.getElementById("dineinFields").style.display =
+          type === "Dine In" ? "block" : "none";
+      }
+
+      // Go to Payment page
+      function goToPayment() {
+        if (cart.length === 0) {
+          alert("Add products first");
+          return;
+        }
+        const client = {
+          Client_Name: document.getElementById("clientName").value,
+          No_Telephone: document.getElementById("clientPhone").value,
+        };
+        const orderType = document.getElementById("orderType").value;
+        let order = {
+          Order_Type: orderType,
+          items: cart.map((i) => ({
+            No_Product: i.No_Product,
+            Quantity: i.Quantity,
+          })),
+          Note: "",
+        };
+        if (orderType === "Dine In")
+          order.No_Table = parseInt(
+            document.getElementById("tableNumberDineIn").value
+          );
+        let reservation = null;
+        if (orderType === "Reservation") {
+          reservation = {
+            No_Table: parseInt(
+              document.getElementById("tableNumberReservation").value
+            ),
+            Reservation_Date: document.getElementById("reservationDate").value,
+            Reservation_Time: document.getElementById("reservationTime").value,
+            No_Person: parseInt(
+              document.getElementById("reservationGuests").value
+            ),
+          };
+        }
+        const payload = { client, order, reservation, cart };
+        localStorage.setItem("fullOrder", JSON.stringify(payload));
+        window.location.href = "payment.html";
+      }
+
+      window.onload = loadProducts;
+    </script>
+  </body>
+</html>

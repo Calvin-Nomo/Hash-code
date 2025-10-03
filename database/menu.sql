@@ -35,8 +35,7 @@ Foreign key (Order_ID ) References Orders(Order_ID)
 Create Table Tab(
 Table_ID int AUTO_INCREMENT primary key,
 No_Table int Unique,
-Seat_Number int,
-Is_Occupied Boolean
+Seat_Number int
 );
 Create table Payment (
 Payment_ID int AUTO_INCREMENT primary key, 
@@ -119,3 +118,39 @@ SET
 WHERE p.Order_ID = calculated.Order_ID;
 
 SET SQL_SAFE_UPDATES =1;
+INSERT INTO Product (Product_Name, Unit_Price, Category, Product_Description, Image_Link) VALUES
+('Margherita Pizza', 8.99, 'Pizza', 'Classic pizza with tomato sauce and cheese', 'images/margherita.jpg'),
+('Pepperoni Pizza', 10.99, 'Pizza', 'Pizza topped with pepperoni slices', 'images/pepperoni.jpg'),
+('Cheeseburger', 7.50, 'Burger', 'Juicy beef burger with cheese', 'images/cheeseburger.jpg'),
+('Chicken Burger', 7.00, 'Burger', 'Grilled chicken burger with lettuce and mayo', 'images/chicken_burger.jpg'),
+('Veggie Burger', 6.50, 'Burger', 'Vegetarian burger with grilled veggies', 'images/veggie_burger.jpg'),
+('French Fries', 3.00, 'Sides', 'Crispy golden fries', 'images/fries.jpg'),
+('Onion Rings', 3.50, 'Sides', 'Crispy fried onion rings', 'images/onion_rings.jpg'),
+('Caesar Salad', 5.50, 'Salad', 'Fresh romaine lettuce with Caesar dressing', 'images/caesar_salad.jpg'),
+('Greek Salad', 5.99, 'Salad', 'Salad with feta, olives, and tomatoes', 'images/greek_salad.jpg'),
+('Spaghetti Bolognese', 9.50, 'Pasta', 'Spaghetti with rich meat sauce', 'images/spaghetti.jpg'),
+('Fettuccine Alfredo', 9.99, 'Pasta', 'Creamy Alfredo sauce with fettuccine', 'images/fettuccine.jpg'),
+('Chicken Wings', 6.99, 'Sides', 'Spicy grilled chicken wings', 'images/wings.jpg'),
+('Mozzarella Sticks', 4.99, 'Sides', 'Fried mozzarella cheese sticks', 'images/mozzarella.jpg'),
+('Taco', 3.99, 'Mexican', 'Soft taco with beef and veggies', 'images/taco.jpg'),
+('Burrito', 7.50, 'Mexican', 'Flour tortilla with rice, beans, and meat', 'images/burrito.jpg');
+INSERT INTO Stock (No_Product, Quantity_Available) VALUES
+(1, 50),
+(2, 40),
+(3, 60),
+(4, 50),
+(5, 30),
+(6, 100),
+(7, 80),
+(8, 40),
+(9, 35),
+(10, 45),
+(11, 40),
+(12, 60),
+(13, 50),
+(14, 70),
+(15, 50);
+INSERT INTO Tab (No_Table, Seat_Number) VALUES
+(1,4),
+(2, 5),
+(3,5);
