@@ -1,146 +1,231 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kitchen Interface</title>
-<style>
-/* ---------------- Global ---------------- */
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f7fa; margin:0; padding:0; }
-h2 { text-align:center; margin:20px 0; color:#007bff; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kitchen Interface</title>
+    <style>
+      /* ---------------- Global ---------------- */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f4f7fa;
+        margin: 0;
+        padding: 0;
+      }
+      h2 {
+        text-align: center;
+        margin: 20px 0;
+        color: #007bff;
+      }
 
-/* ---------------- Kitchen Header ---------------- */
-.kitchen-header { display:flex; justify-content: space-between; align-items:center; padding:0 20px; background:#007bff; color:#fff; height:50px; }
-.kitchen-header span { font-weight:bold; }
+      /* ---------------- Kitchen Header ---------------- */
+      .kitchen-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        background: #007bff;
+        color: #fff;
+        height: 50px;
+      }
+      .kitchen-header span {
+        font-weight: bold;
+      }
 
-/* ---------------- Filters ---------------- */
-.filters { display:flex; justify-content:center; gap:10px; margin:15px 0; }
-.filters select { padding:5px 10px; border-radius:5px; border:1px solid #ccc; }
+      /* ---------------- Filters ---------------- */
+      .filters {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 15px 0;
+      }
+      .filters select {
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
 
-/* ---------------- Orders Container ---------------- */
-.kitchen-orders { display:flex; flex-wrap:wrap; gap:15px; padding:20px; justify-content:center; }
+      /* ---------------- Orders Container ---------------- */
+      .kitchen-orders {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        padding: 20px;
+        justify-content: center;
+      }
 
-/* ---------------- Order Cards ---------------- */
-.order-card { background:#fff; border-radius:10px; width:300px; padding:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1); display:flex; flex-direction:column; gap:10px; transition: transform 0.2s; }
-.order-card:hover { transform: scale(1.02); }
-.order-info p, .order-items p { margin:5px 0; }
-.order-status { display:flex; gap:10px; justify-content:center; }
-.order-status button { flex:1; padding:8px 10px; border:none; border-radius:5px; cursor:pointer; font-weight:bold; transition:0.3s; color:#fff; }
-.order-status button.pending { background:#f44336; }
-.order-status button.cooking { background:#ff9800; }
-.order-status button.ready { background:#4caf50; }
-.status-label { font-weight:bold; text-align:center; margin-top:5px; }
-</style>
-</head>
-<body>
+      /* ---------------- Order Cards ---------------- */
+      .order-card {
+        background: #fff;
+        border-radius: 10px;
+        width: 300px;
+        padding: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: transform 0.2s;
+      }
+      .order-card:hover {
+        transform: scale(1.02);
+      }
+      .order-info p,
+      .order-items p {
+        margin: 5px 0;
+      }
+      .order-status {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+      .order-status button {
+        flex: 1;
+        padding: 8px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+        color: #fff;
+      }
+      .order-status button.pending {
+        background: #f44336;
+      }
+      .order-status button.cooking {
+        background: #ff9800;
+      }
+      .order-status button.ready {
+        background: #4caf50;
+      }
+      .status-label {
+        font-weight: bold;
+        text-align: center;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ---------------- Header ---------------- -->
+    <div class="kitchen-header">
+      <h2>Kitchen Panel</h2>
+      <span id="currentTime"></span>
+    </div>
 
-<!-- ---------------- Header ---------------- -->
-<div class="kitchen-header">
-  <h2>Kitchen Panel</h2>
-  <span id="currentTime"></span>
-</div>
+    <!-- ---------------- Filters ---------------- -->
+    <div class="filters">
+      <select id="statusFilter" onchange="renderOrders()">
+        <option value="all">All Status</option>
+        <option value="Pending">Pending</option>
+        <option value="Cooking">Cooking</option>
+        <option value="Ready">Ready</option>
+      </select>
+      <select id="typeFilter" onchange="renderOrders()">
+        <option value="all">All Types</option>
+        <option value="Dine In">Dine In</option>
+        <option value="Take Away">Take Away</option>
+        <option value="Reserve">Reserve</option>
+      </select>
+    </div>
 
-<!-- ---------------- Filters ---------------- -->
-<div class="filters">
-  <select id="statusFilter" onchange="renderOrders()">
-    <option value="all">All Status</option>
-    <option value="Pending">Pending</option>
-    <option value="Cooking">Cooking</option>
-    <option value="Ready">Ready</option>
-  </select>
-  <select id="typeFilter" onchange="renderOrders()">
-    <option value="all">All Types</option>
-    <option value="Dine In">Dine In</option>
-    <option value="Take Away">Take Away</option>
-    <option value="Reserve">Reserve</option>
-  </select>
-</div>
+    <!-- ---------------- Orders ---------------- -->
+    <div class="kitchen-orders" id="kitchenOrders"></div>
 
-<!-- ---------------- Orders ---------------- -->
-<div class="kitchen-orders" id="kitchenOrders"></div>
+    <script>
+      // ---------------- Orders Array ----------------
+      let orders = [];
 
-<script>
-// ---------------- Orders Array ----------------
-let orders = [];
+      // ---------------- Fetch Orders ----------------
+      function fetchOrders() {
+        fetch("http://127.0.0.1:8000/order/order/Order")
+          .then((r) => r.json())
+          .then((d) => {
+            orders = d.map((o) => ({
+              ...o,
+              Status: o.Status || "Pending",
+              Items: o.Items || [],
+            }));
+            renderOrders();
+          })
+          .catch((err) => console.error("Error fetching orders:", err));
+      }
 
-// ---------------- Fetch Orders ----------------
-function fetchOrders(){
-  fetch("http://127.0.0.1:8000/order/order/Order")
-    .then(r => r.json())
-    .then(d => {
-      orders = d.map(o => ({
-        ...o,
-        Status: o.Status || "Pending",
-        Items: o.Items || []
-      }));
-      renderOrders();
-    })
-    .catch(err => console.error("Error fetching orders:", err));
-}
+      // ---------------- Render Orders ----------------
+      function renderOrders() {
+        const container = document.getElementById("kitchenOrders");
+        container.innerHTML = "";
 
-// ---------------- Render Orders ----------------
-function renderOrders(){
-  const container = document.getElementById('kitchenOrders');
-  container.innerHTML = "";
+        const statusFilter = document.getElementById("statusFilter").value;
+        const typeFilter = document.getElementById("typeFilter").value;
 
-  const statusFilter = document.getElementById('statusFilter').value;
-  const typeFilter = document.getElementById('typeFilter').value;
+        const filteredOrders = orders.filter(
+          (o) =>
+            (statusFilter === "all" || o.Status === statusFilter) &&
+            (typeFilter === "all" || o.Order_Type === typeFilter)
+        );
 
-  const filteredOrders = orders.filter(o => 
-    (statusFilter === 'all' || o.Status === statusFilter) &&
-    (typeFilter === 'all' || o.Order_Type === typeFilter)
-  );
+        filteredOrders.forEach((o) => {
+          const card = document.createElement("div");
+          card.classList.add("order-card");
 
-  filteredOrders.forEach(o => {
-    const card = document.createElement('div');
-    card.classList.add('order-card');
-
-    card.innerHTML = `
+          card.innerHTML = `
       <div class="order-info">
-        <p>Order #${o.Order_ID} | Table: ${o.No_Table || 'N/A'} | ${o.Order_Type}</p>
+        <p>Order #${o.Order_ID} | Table: ${o.No_Table || "N/A"} | ${
+            o.Order_Type
+          }</p>
         <p>Time: ${new Date(o.Order_Date).toLocaleTimeString()}</p>
       </div>
       <div class="order-items">
-        ${o.Items.length > 0 ? o.Items.map(i => `<p>${i.Quantity} x ${i.Product_Name}</p>`).join('') : '<p>No items yet</p>'}
-        ${o.Note ? `<p>Note: ${o.Note}</p>` : ''}
+        ${
+          o.Items.length > 0
+            ? o.Items.map(
+                (i) => `<p>${i.Quantity} x ${i.Product_Name}</p>`
+              ).join("")
+            : "<p>No items yet</p>"
+        }
+        ${o.Note ? `<p>Note: ${o.Note}</p>` : ""}
       </div>
       <div class="order-status">
-        <button class="pending" onclick="updateStatus(${o.Order_ID}, 'Pending')">Pending</button>
-        <button class="cooking" onclick="updateStatus(${o.Order_ID}, 'Cooking')">Cooking</button>
-        <button class="ready" onclick="updateStatus(${o.Order_ID}, 'Ready')">Ready</button>
+        <button class="pending" onclick="updateStatus(${
+          o.Order_ID
+        }, 'Pending')">Pending</button>
+        <button class="cooking" onclick="updateStatus(${
+          o.Order_ID
+        }, 'Cooking')">Cooking</button>
+        <button class="ready" onclick="updateStatus(${
+          o.Order_ID
+        }, 'Ready')">Ready</button>
       </div>
       <div class="status-label">${o.Status}</div>
     `;
-    container.appendChild(card);
-  });
-}
+          container.appendChild(card);
+        });
+      }
 
-// ---------------- Update Order Status ----------------
-function updateStatus(orderId, status){
-  const order = orders.find(o => o.Order_ID === orderId);
-  if(order){
-    order.Status = status;
-    renderOrders();
-  }
+      // ---------------- Update Order Status ----------------
+      function updateStatus(orderId, status) {
+        const order = orders.find((o) => o.Order_ID === orderId);
+        if (order) {
+          order.Status = status;
+          renderOrders();
+        }
 
-  // Optional: Send status to backend if you have API endpoint
-  // fetch(`http://127.0.0.1:8000/order/order/update_status/${orderId}`, {
-  //   method:"PUT",
-  //   headers:{"Content-Type":"application/json"},
-  //   body:JSON.stringify({Status: status})
-  // });
-}
+        // Optional: Send status to backend if you have API endpoint
+        // fetch(`http://127.0.0.1:8000/order/order/update_status/${orderId}`, {
+        //   method:"PUT",
+        //   headers:{"Content-Type":"application/json"},
+        //   body:JSON.stringify({Status: status})
+        // });
+      }
 
-// ---------------- Live Clock ----------------
-function updateClock(){
-  document.getElementById('currentTime').textContent = new Date().toLocaleTimeString();
-}
-setInterval(updateClock, 1000);
+      // ---------------- Live Clock ----------------
+      function updateClock() {
+        document.getElementById("currentTime").textContent =
+          new Date().toLocaleTimeString();
+      }
+      setInterval(updateClock, 1000);
 
-// ---------------- Initial Load ----------------
-fetchOrders();
-</script>
-
-</body>
+      // ---------------- Initial Load ----------------
+      fetchOrders();
+    </script>
+  </body>
 </html>

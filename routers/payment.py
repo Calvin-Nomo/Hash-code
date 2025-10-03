@@ -6,7 +6,7 @@ import pymysql
 DB= pymysql.connect(
     host="localhost",
     user="root",
-    password="Bineli2006",
+    password="Bineli26",
     database="Order_System", 
    cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
 )
@@ -16,10 +16,7 @@ cursor=DB.cursor()
 router = APIRouter( prefix="/payment", tags=["payment"])
 
 class Payment(BaseModel):
-    Order_ID:int 
-    Total_Amount:float 
     Payment_Method:str
-    Payment_Status:str
 
 
 @router.get('/')
@@ -35,19 +32,19 @@ def get_payment():
     payments=cursor.fetchall()
     return payments
 
-@router.post("/create_payment")
-def create_payment(pay:Payment):
-    try:
-        payment_date=datetime.utcnow()
-        sql_command="""INSERT INTO Payment(Order_ID,Total_Amount,Payment_Date,Payment_Method,Payment_Status)
-        VALUES(%s,%s,%s,%s,%s)"""
-        cursor.execute(sql_command,(pay.Order_ID,pay.Total_Amount,payment_date,pay.Payment_Method,pay.Payment_Status))
-        DB.commit()
-    except Exception as e:
-        raise HTTPException(status_code=404,detail=(e))
-    return{
-'Message':'You Have successfully added the Payment data to your database'
-    }
+# @router.post("/create_payment")
+# def create_payment(pay:Payment):
+#     try:
+#         payment_date=datetime.utcnow()
+#         sql_command="""INSERT INTO Payment(Order_ID,Total_Amount,Payment_Date,Payment_Method,Payment_Status)
+#         VALUES(%s,%s,%s,%s,%s)"""
+#         cursor.execute(sql_command,(pay.Order_ID,pay.Total_Amount,payment_date,pay.Payment_Method,pay.Payment_Status))
+#         DB.commit()
+#     except Exception as e:
+#         raise HTTPException(status_code=404,detail=(e))
+#     return{
+# 'Message':'You Have successfully added the Payment data to your database'
+#     }
 
 @router.put('/updated_payment/{payment_id}')
 def update_order(payment_id:int,pay:Payment):

@@ -5,14 +5,16 @@ Client_Name VARCHAR (255),
 No_Telephone VARCHAR (255) Unique 
 );
 Create table Orders(
-Order_ID int AUTO_INCREMENT primary key, 
+Order_ID int AUTO_INCREMENT primary key,
+No_Client int,
 No_Reservation int NULL  Unique,
 Order_Date datetime Not Null, 
-Order_Type enum("Dine In", "Take Away", "Reserve" ) NOT NULL , 
-No_Table int Not Null, 
-Note VARCHAR(255) Null, 
-Foreign key (No_Reservation ) References Reservation (No_Reservation ) 
-Foreign key (No_Table ) References Tables (Table_ID) 
+Order_Type Enum("Dine In", "Take Away", "Reservation" ) NOT NULL , 
+No_Table int  Null, 
+Note VARCHAR(255) Null,
+Foreign key(No_Client) References Clients(No_Client),
+Foreign key (No_Reservation ) References Reservation (No_Reservation ), 
+Foreign key (No_Table ) References Tab(Table_ID) 
 ); 
 Create table Product(
 No_Product int AUTO_INCREMENT primary key, 
@@ -24,18 +26,18 @@ Image_link VARCHAR(255)
 );
 Create table Order_Items(
 Item_ID int AUTO_INCREMENT primary key, 
-Order_ID int, 
+Order_ID int,
 No_Product int, 
 Quantity int, 
 Foreign key (No_Product) References Product(No_Product), 
 Foreign key (Order_ID ) References Orders(Order_ID) 
 );
-Create Table Tables(
+Create Table Tab(
 Table_ID int AUTO_INCREMENT primary key,
-No_Table Unique 
-Num_Place int
+No_Table int Unique,
+Seat_Number int,
+Is_Occupied Boolean
 );
-
 Create table Payment (
 Payment_ID int AUTO_INCREMENT primary key, 
 Order_ID int, 
@@ -48,11 +50,13 @@ Foreign key (Order_ID ) References Orders(Order_ID)
 
 Create table Reservation (
 No_Reservation int AUTO_INCREMENT primary key, 
-No_Client int,
+No_Client int Unique,
+No_Table int,
 Reservation_Date Date, 
 Reservation_Time Time, 
 No_Person int, 
-Foreign key (No_Client ) References Clients(No_Client)
+Foreign key (No_Client ) References Clients(No_Client),
+Foreign key(No_Table) References Tab(Table_ID)
 );
 
 create table Stock(

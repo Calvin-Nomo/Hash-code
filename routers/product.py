@@ -5,7 +5,7 @@ import pymysql
 DB= pymysql.connect(
     host="localhost",
     user="root",
-    password="Bineli2006",
+    password="Bineli26",
     database="Order_System", 
    cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
 )
