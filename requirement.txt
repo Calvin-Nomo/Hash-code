@@ -1,4 +1,4 @@
-hashlib
+I 9hashlib
 streamlit
 Fastapi
 Pydantic
@@ -38,3 +38,136 @@ post
   http://127.0.0.1:8000/order/order/create order
 
 http://127.0.0.1:8000/payment/payment/create_payment
+
+
+
+
+
+
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+from db import get_db_connection
+
+app = FastAPI(title="QR Code Order System")
+
+# --------- Pydantic Models ---------
+class ClientData(BaseModel):
+    Name: str
+    Phone: str
+    Email: Optional[str] = None
+
+class ReservationData(BaseModel):
+    Table_ID: int
+    Reservation_Date: datetime
+    Guests: int
+    Note: Optional[str] = None
+
+class OrderItem(BaseModel):
+    No_Product: int
+    Quantity: int
+
+class OrderData(BaseModel):
+    Order_Type: str  # Takeaway, Dine-in, Reservation
+    Table_ID: Optional[int] = None  # Required for Dine-in and Reservation
+    Note: Optional[str] = None
+    items: List[OrderItem]
+
+class FullOrderRequest(BaseModel):
+    client: ClientData
+    reservation: Optional[ReservationData] = None
+    order: OrderData
+
+# --------- API Route ---------
+@app.post("/create_order")
+def create_order(data: FullOrderRequest):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Step 1: Check or create client
+        cursor.execute("SELECT Client_ID FROM Client WHERE Phone=%s", (data.client.Phone,))
+        client = cursor.fetchone()
+        if client:
+            client_id = client['Client_ID']
+        else:
+            cursor.execute("INSERT INTO Client(Name, Phone, Email) VALUES (%s,%s,%s)",
+                           (data.client.Name, data.client.Phone, data.client.Email))
+            client_id = cursor.lastrowid
+
+        reservation_id = None
+
+        # Step 2: Handle Reservation order
+        if data.order.Order_Type == "Reservation":
+            if not data.reservation:
+                raise HTTPException(status_code=400, detail="Reservation info required")
+            
+            res = data.reservation
+            cursor.execute("""
+                INSERT INTO Reservation(Client_ID, Table_ID, Reservation_Date, Guests, Note)
+                VALUES (%s,%s,%s,%s,%s)
+            """, (client_id, res.Table_ID, res.Reservation_Date, res.Guests, res.Note))
+            reservation_id = cursor.lastrowid
+            table_id = res.Table_ID
+
+        # Step 3: Handle Dine-in order
+        elif data.order.Order_Type == "Dine-in":
+            if not data.order.Table_ID:
+                raise HTTPException(status_code=400, detail="Table_ID required for Dine-in orders")
+            table_id = data.order.Table_ID
+
+        # Step 4: Handle Takeaway order
+        else:
+            table_id = None  # Takeaway doesn't need table
+
+        # Step 5: Insert Order
+        cursor.execute("""
+            INSERT INTO Orders(Reservation_ID, Client_ID, Table_ID, Order_Date, Order_Type, Note)
+            VALUES (%s,%s,%s,%s,%s,%s)
+        """, (
+            reservation_id,
+            client_id,
+            table_id,
+            datetime.utcnow(),
+            data.order.Order_Type,
+            data.order.Note
+        ))
+        order_id = cursor.lastrowid
+
+        # Step 6: Insert Order Items
+        for item in data.order.items:
+            cursor.execute("""
+                INSERT INTO Order_Items(Order_ID, No_Product, Quantity)
+                VALUES (%s,%s,%s)
+            """, (order_id, item.No_Product, item.Quantity))
+
+        conn.commit()
+        return {"message": "Order created successfully", "order_id": order_id, "reservation_id": reservation_id}
+
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.get("/orders/{order_id}")
+def get_order(order_id: int):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT * FROM Orders WHERE Order_ID=%s", (order_id,))
+        order = cursor.fetchone()
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+
+        cursor.execute("SELECT * FROM Order_Items WHERE Order_ID=%s", (order_id,))
+        items = cursor.fetchall()
+
+        return {"order": order, "items": items}
+    finally:
+        cursor.close()
+        conn.close() 
