@@ -2,324 +2,457 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <title>Admin Panel - Restaurant</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QR Code Order System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #f9f9f9;
+      /* ---------------- Global Styles ---------------- */
+      * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        display: flex;
+        height: 100vh;
+        background: #f0f2f5;
+        overflow: hidden;
       }
 
-      .container {
-        max-width: 800px;
-        margin: 20px auto;
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      /* ---------------- Sidebar ---------------- */
+      .sidebar {
+        width: 260px;
+        background: linear-gradient(180deg, #007bff, #00c6ff);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        padding-top: 20px;
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
       }
-
-      h1,
-      h2 {
+      .sidebar h2 {
         text-align: center;
+        font-size: 1.6em;
+        margin-bottom: 30px;
+        font-weight: bold;
+        text-shadow: 1px 1px rgba(0, 0, 0, 0.3);
+      }
+      .menu-btn {
+        background: transparent;
+        border: none;
+        color: #fff;
+        padding: 14px 25px;
+        text-align: left;
+        font-size: 1em;
+        cursor: pointer;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: 0.3s;
+        position: relative;
+      }
+      .menu-btn:hover,
+      .menu-btn.active {
+        background: rgba(255, 255, 255, 0.15);
+      }
+      .menu-btn span {
+        transition: transform 0.3s ease;
+      }
+      .dropdown-content {
+        display: none;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.1);
+        padding-left: 20px;
+        animation: fadeIn 0.3s ease;
+      }
+      .dropdown-content button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        text-align: left;
+        padding: 10px 25px;
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 0.95em;
+      }
+      .dropdown-content button:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+      .menu-btn.open span {
+        transform: rotate(90deg);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
+      /* ---------------- Main Content ---------------- */
+      .main-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background: #f4f7fa;
+      }
       .section {
         display: none;
-        margin-bottom: 20px;
+        animation: fadeIn 0.3s ease;
+      }
+      .section.active {
+        display: block;
       }
 
+      /* ---------------- Dashboard Cards ---------------- */
+      .dashboard-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      .card {
+        flex: 1 1 250px;
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+      .card h3 {
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      /* ---------------- Tables ---------------- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+      }
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+      th {
+        background: #f7f7f7;
+        color: #333;
+      }
+      table tr:hover {
+        background: rgba(0, 123, 255, 0.05);
+        transition: 0.3s;
+      }
+      table img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+
+      /* ---------------- Forms ---------------- */
       input,
       select,
-      textarea,
       button {
-        width: 100%;
-        padding: 8px;
-        margin: 5px 0 10px 0;
-        border-radius: 5px;
+        margin: 5px;
+        padding: 8px 10px;
+        border-radius: 6px;
         border: 1px solid #ccc;
-        box-sizing: border-box;
+        font-size: 0.95em;
       }
-
-      textarea {
-        resize: none;
-        height: 60px;
-      }
-
       button {
-        background: #28a745;
-        color: white;
         border: none;
-        cursor: pointer;
-      }
-
-      button:hover {
-        background: #218838;
-      }
-
-      .submitBtn {
-        margin-top: 10px;
-      }
-
-      .productItem {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 5px;
-      }
-
-      .productItem input,
-      .productItem select {
-        flex: 1;
-      }
-
-      pre {
-        background: #f1f1f1;
-        padding: 10px;
-        border-radius: 5px;
-        overflow-x: auto;
-      }
-
-      #tabs {
-        display: flex;
-        justify-content: space-around;
-        margin-bottom: 20px;
-      }
-
-      #tabs button {
-        width: 30%;
         background: #007bff;
+        color: #fff;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      button:hover {
+        background: #0056b3;
       }
 
-      #tabs button.active {
-        background: #0056b3;
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 220px;
+        }
+        .card {
+          flex: 1 1 100%;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>QR Code Order System</h1>
+    <!-- ---------------- Sidebar ---------------- -->
+    <div class="sidebar">
+      <h2>Admin Panel</h2>
+      <button class="menu-btn active" onclick="showSection('dashboard')">
+        Dashboard
+      </button>
 
-      <div id="tabs">
-        <button class="tabBtn active" data-section="orderSection">
-          Place Order
-        </button>
-        <button class="tabBtn" data-section="paymentSection">Payment</button>
-        <button class="tabBtn" data-section="receiptSection">Receipt</button>
+      <button class="menu-btn" onclick="toggleDropdown(this)">
+        Orders & Reservations <span>▶</span>
+      </button>
+      <div class="dropdown-content">
+        <button onclick="showSection('order')">Orders</button>
+        <button onclick="showSection('orderItems')">Order Items</button>
+        <button onclick="showSection('reservation')">Reservations</button>
+        <button onclick="showSection('payment')">Payments</button>
+        <button onclick="showSection('newOrder')">Add Full Order</button>
       </div>
 
-      <!-- Place Order -->
-      <div class="section" id="orderSection" style="display: block">
-        <h2>Client Information</h2>
-        <input type="text" id="clientName" placeholder="Client Name" />
-        <input type="text" id="clientPhone" placeholder="Phone Number" />
+      <button class="menu-btn" onclick="toggleDropdown(this)">
+        Inventory <span>▶</span>
+      </button>
+      <div class="dropdown-content">
+        <button onclick="showSection('product')">Products</button>
+        <button onclick="showSection('stock')">Stock</button>
+        <button onclick="showSection('table')">Tables</button>
+      </div>
 
-        <h2>Order Items</h2>
-        <div id="productList"></div>
-        <button id="addProductBtn">Add Product</button>
+      <button class="menu-btn" onclick="showSection('client')">Clients</button>
+      <button class="menu-btn" onclick="showSection('system')">
+        System Settings
+      </button>
+      <button class="menu-btn" style="background: #ff4d4f" onclick="logout()">
+        Logout
+      </button>
+    </div>
 
-        <h2>Order Type</h2>
-        <select id="orderType">
-          <option value="Takeaway">Takeaway</option>
-          <option value="Dine In">Dine In</option>
-          <option value="Reservation">Reservation</option>
-        </select>
-        <input
-          type="number"
-          id="tableNumber"
-          placeholder="Table Number (if Dine In / Reservation)"
-        />
+    <!-- ---------------- Main Content ---------------- -->
+    <div class="main-content">
+      <!-- Dashboard -->
+      <div id="dashboard" class="section active">
+        <h1>Dashboard</h1>
+        <div class="dashboard-cards">
+          <div class="card">
+            <h3>Total Orders</h3>
+            <p id="total-orders">0</p>
+          </div>
+          <div class="card">
+            <h3>Total Revenue</h3>
+            <p id="total-revenue">0 FCFA</p>
+          </div>
+          <div class="card">
+            <h3>Total Reservations</h3>
+            <p id="total-reservations">0</p>
+          </div>
+        </div>
+        <div>
+          <label for="revenueFilter">Filter:</label>
+          <select id="revenueFilter" onchange="updateRevenueChart()">
+            <option value="day">Per Day</option>
+            <option value="month">Per Month</option>
+            <option value="year">Per Year</option>
+          </select>
+          <canvas id="revenueChart" height="150"></canvas>
+        </div>
+      </div>
 
-        <section id="reservationSection" style="display: none">
-          <h2>Reservation Details</h2>
-          <input type="date" id="reservationDate" />
-          <input type="time" id="reservationTime" />
+      <!-- Other Sections -->
+      <div id="client" class="section"><h1>Clients</h1></div>
+      <div id="product" class="section"><h1>Products</h1></div>
+      <div id="order" class="section"><h1>Orders</h1></div>
+      <div id="orderItems" class="section"><h1>Order Items</h1></div>
+      <div id="reservation" class="section"><h1>Reservations</h1></div>
+      <div id="payment" class="section"><h1>Payments</h1></div>
+      <div id="stock" class="section"><h1>Stock</h1></div>
+      <div id="table" class="section"><h1>Tables</h1></div>
+      <div id="system" class="section"><h1>System Settings</h1></div>
+
+      <!-- Add Full Order Section -->
+      <div id="newOrder" class="section">
+        <h1>Add Full Order</h1>
+        <form id="fullOrderForm">
+          <h3>Client</h3>
+          <input
+            type="text"
+            name="client_name"
+            placeholder="Client Name"
+            required
+          />
+          <input type="text" name="client_contact" placeholder="Contact" />
+          <h3>Reservation</h3>
+          <input type="number" name="table_id" placeholder="Table ID" />
+          <input type="number" name="seat_no" placeholder="Seat Number" />
+          <h3>Order</h3>
           <input
             type="number"
-            id="reservationPersons"
-            placeholder="Number of Persons"
+            name="order_id"
+            placeholder="Order ID"
+            required
           />
-        </section>
-
-        <button id="nextPaymentBtn" class="submitBtn">Next: Payment</button>
-      </div>
-
-      <!-- Payment Section -->
-      <div class="section" id="paymentSection">
-        <h2>Payment</h2>
-        <select id="paymentMethod">
-          <option value="Cash">Cash</option>
-          <option value="Card">Card</option>
-          <option value="Mobile Money">Mobile Money</option>
-        </select>
-        <button id="payBtn" class="submitBtn">Pay & Place Order</button>
-        <pre id="paymentResponse"></pre>
-      </div>
-
-      <!-- Receipt Section -->
-      <div class="section" id="receiptSection">
-        <h2>Receipt</h2>
-        <pre id="receiptContent"></pre>
-        <button onclick="window.print()">Print Receipt</button>
+          <input
+            type="text"
+            name="order_type"
+            placeholder="Order Type"
+            required
+          />
+          <input type="text" name="note" placeholder="Note" />
+          <h3>Payment</h3>
+          <input type="number" name="total" placeholder="Total" required />
+          <input
+            type="text"
+            name="method"
+            placeholder="Payment Method"
+            required
+          />
+          <button type="submit">Submit Full Order</button>
+        </form>
+        <p id="orderMessage"></p>
       </div>
     </div>
 
     <script>
-      // Tabs
-      const tabBtns = document.querySelectorAll(".tabBtn");
-      const sections = document.querySelectorAll(".section");
-      tabBtns.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          tabBtns.forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          sections.forEach((s) => (s.style.display = "none"));
-          document.getElementById(btn.dataset.section).style.display = "block";
-        });
-      });
+      const API_BASE = "http://127.0.0.1:8000";
+      let revenueChart;
 
-      // Products
-      let products = [];
-      async function fetchProducts() {
+      // ---------------- Dashboard ----------------
+      async function loadDashboard() {
+        await updateRevenueChart();
+        // Example totals
+        document.getElementById("total-orders").textContent = 120;
+        document.getElementById("total-reservations").textContent = 48;
+        document.getElementById("total-revenue").textContent = "1,200,000 FCFA";
+      }
+
+      async function updateRevenueChart() {
+        const filter = document.getElementById("revenueFilter").value;
         try {
-          const res = await fetch(
-            "http://localhost:8000/product/product/Product"
+          const response = await fetch(
+            `${API_BASE}/revenue_over_time?filter=${filter}`
           );
-          products = await res.json();
-        } catch (err) {
-          console.error(err);
-        }
-      }
+          const data = await response.json();
+          const labels = data.map((d) => d.date);
+          const revenues = data.map((d) => d.revenue);
 
-      const productList = document.getElementById("productList");
-      const addProductBtn = document.getElementById("addProductBtn");
-
-      addProductBtn.addEventListener("click", () => {
-        if (products.length === 0) return alert("No products available!");
-        const div = document.createElement("div");
-        div.className = "productItem";
-        div.innerHTML = `
-        <select class="productSelect">
-            ${products
-              .map(
-                (p) =>
-                  `<option value="${p.No_Product}">${p.Product_Name}</option>`
-              )
-              .join("")}
-        </select>
-        <input type="number" class="productQty" placeholder="Quantity" min="1">
-        <button type="button" class="removeBtn">Remove</button>
-    `;
-        productList.appendChild(div);
-        div
-          .querySelector(".removeBtn")
-          .addEventListener("click", () => div.remove());
-      });
-
-      // Show reservation section
-      const orderType = document.getElementById("orderType");
-      const reservationSection = document.getElementById("reservationSection");
-      orderType.addEventListener("change", () => {
-        reservationSection.style.display =
-          orderType.value === "Reservation" ? "block" : "none";
-      });
-
-      // Save order and move to payment
-      const nextPaymentBtn = document.getElementById("nextPaymentBtn");
-      nextPaymentBtn.addEventListener("click", () => {
-        const client = {
-          Client_Name: document.getElementById("clientName").value,
-          No_Telephone: document.getElementById("clientPhone").value,
-        };
-        const order = {
-          Order_Type: orderType.value,
-          No_Table: document.getElementById("tableNumber").value || null,
-          Note: "",
-          items: Array.from(document.querySelectorAll(".productItem")).map(
-            (div) => ({
-              No_Product: parseInt(div.querySelector(".productSelect").value),
-              Quantity: parseInt(div.querySelector(".productQty").value),
-            })
-          ),
-        };
-        let reservation = null;
-        if (orderType.value === "Reservation") {
-          reservation = {
-            No_Table: parseInt(document.getElementById("tableNumber").value),
-            Reservation_Date: document.getElementById("reservationDate").value,
-            Reservation_Time: document.getElementById("reservationTime").value,
-            No_Person: parseInt(
-              document.getElementById("reservationPersons").value
-            ),
-          };
-        }
-        sessionStorage.setItem(
-          "fullOrder",
-          JSON.stringify({ client, order, reservation })
-        );
-        document.querySelector('[data-section="paymentSection"]').click();
-      });
-
-      // Payment
-      const payBtn = document.getElementById("payBtn");
-      const paymentResponse = document.getElementById("paymentResponse");
-      payBtn.addEventListener("click", async () => {
-        const fullOrder = JSON.parse(sessionStorage.getItem("fullOrder"));
-        if (!fullOrder) return alert("No order found.");
-
-        fullOrder.payment = {
-          Payment_Method: document.getElementById("paymentMethod").value,
-        };
-
-        try {
-          const res = await fetch("http://localhost:8000/FullOrderRequest", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(fullOrder),
+          const ctx = document.getElementById("revenueChart").getContext("2d");
+          if (revenueChart) revenueChart.destroy();
+          revenueChart = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: "Revenue (FCFA)",
+                  data: revenues,
+                  borderColor: "#007bff",
+                  backgroundColor: "rgba(0,123,255,0.2)",
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { display: true },
+                title: { display: true, text: `Revenue Over Time (${filter})` },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  title: { display: true, text: "Revenue (FCFA)" },
+                },
+                x: { title: { display: true, text: "Period" } },
+              },
+            },
           });
-          const data = await res.json();
-          paymentResponse.innerText = JSON.stringify(data, null, 2);
-          if (res.ok) {
-            sessionStorage.setItem(
-              "receipt",
-              JSON.stringify({ ...fullOrder, orderResponse: data })
-            );
-            document.querySelector('[data-section="receiptSection"]').click();
-          } else alert("Payment failed: " + data.detail);
         } catch (err) {
-          paymentResponse.innerText = "Error: " + err.message;
+          console.error("Error fetching revenue data:", err);
         }
-      });
-
-      // Display receipt
-      const receiptContent = document.getElementById("receiptContent");
-      function showReceipt() {
-        const receiptData = JSON.parse(sessionStorage.getItem("receipt"));
-        if (!receiptData) {
-          receiptContent.innerText = "No receipt available.";
-          return;
-        }
-        const order = receiptData.order;
-        const payment = receiptData.payment;
-        const response = receiptData.orderResponse;
-        receiptContent.innerText = `
-Order ID: ${response.Order_ID}
-Client: ${receiptData.client.Client_Name} (${receiptData.client.No_Telephone})
-Order Type: ${order.Order_Type}
-Table Number: ${order.No_Table || "N/A"}
-Items:
-${order.items
-  .map((i) => ` - Product ID: ${i.No_Product}, Quantity: ${i.Quantity}`)
-  .join("\n")}
-Payment Method: ${payment.Payment_Method}
-Payment Status: Paid
-`;
       }
-      document
-        .querySelector('[data-section="receiptSection"]')
-        .addEventListener("click", showReceipt);
 
-      fetchProducts();
+      // ---------------- Sidebar ----------------
+      function toggleDropdown(button) {
+        const content = button.nextElementSibling;
+        const isOpen = button.classList.contains("open");
+        document
+          .querySelectorAll(".dropdown-content")
+          .forEach((d) => (d.style.display = "none"));
+        document
+          .querySelectorAll(".menu-btn")
+          .forEach((b) => b.classList.remove("open"));
+        if (!isOpen) {
+          content.style.display = "flex";
+          button.classList.add("open");
+        }
+      }
+
+      function showSection(sectionId) {
+        document
+          .querySelectorAll(".section")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(sectionId).classList.add("active");
+        document
+          .querySelectorAll(".menu-btn")
+          .forEach((b) => b.classList.remove("active"));
+        event.target.classList.add("active");
+      }
+
+      function logout() {
+        alert("You have been logged out successfully!");
+      }
+
+      // ---------------- Full Order Form ----------------
+      document
+        .getElementById("fullOrderForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const form = e.target;
+          const payload = {
+            client: {
+              name: form.client_name.value,
+              contact: form.client_contact.value,
+            },
+            reversation: form.table_id.value
+              ? {
+                  table_id: parseInt(form.table_id.value),
+                  seat_no: form.seat_no.value
+                    ? parseInt(form.seat_no.value)
+                    : null,
+                }
+              : null,
+            order: {
+              order_id: parseInt(form.order_id.value),
+              order_date: new Date().toISOString(),
+              order_type: form.order_type.value,
+              no_table: form.table_id.value ? parseInt(form.table_id.value) : 0,
+              note: form.note.value,
+            },
+            payment: {
+              total: parseFloat(form.total.value),
+              method: form.method.value,
+            },
+          };
+          try {
+            const res = await fetch(`${API_BASE}/FullOrderRequest`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            document.getElementById("orderMessage").textContent =
+              data.message || "Order submitted!";
+            form.reset();
+            loadDashboard();
+          } catch (err) {
+            console.error(err);
+            document.getElementById("orderMessage").textContent =
+              "Error submitting order";
+          }
+        });
+
+      window.onload = loadDashboard;
     </script>
   </body>
 </html>

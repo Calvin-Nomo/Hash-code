@@ -3,212 +3,268 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Place Order</title>
+    <title>QR Code Order System</title>
     <style>
       body {
         font-family: Arial, sans-serif;
-        background: #f5f6fa;
+        background: #f7f7f7;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background: #007bff;
+        color: white;
+        padding: 15px;
+        text-align: center;
+      }
+      main {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
         padding: 20px;
       }
-      .container {
-        max-width: 1000px;
-        margin: auto;
-        display: flex;
-        gap: 20px;
+      section {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 400px;
+        margin: 10px;
       }
-      .products {
-        flex: 3;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 15px;
+      h2,
+      h3 {
+        margin-top: 0;
       }
-      .product-card {
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 10px;
-        text-align: center;
-        background: #fff;
+      label {
+        display: block;
+        margin: 10px 0 5px;
       }
-      .cart {
-        flex: 1;
-        background: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        height: fit-content;
-      }
-      .cart-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
       }
       button {
         cursor: pointer;
-        background: #44bd32;
-        color: #fff;
+        background: #007bff;
+        color: white;
         border: none;
         border-radius: 5px;
-        padding: 5px 8px;
       }
       button:hover {
-        background: #40792a;
+        background: #0056b3;
       }
-      input {
-        padding: 5px;
-        width: 100%;
-        margin-bottom: 8px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
+      .hidden {
+        display: none;
+      }
+      .productRow {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 5px;
+      }
+      .productRow select,
+      .productRow input {
+        flex: 1;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <!-- Product List -->
-      <div class="products" id="productList"></div>
-
-      <!-- Cart Sidebar -->
-      <div class="cart">
-        <h2>Cart</h2>
-        <div id="cartItems"></div>
-        <hr />
-        <h3>Total: <span id="cartTotal">0</span> FCFA</h3>
-        <h3>Client Info</h3>
-        <input type="text" id="clientName" placeholder="Name" />
-        <input type="text" id="clientPhone" placeholder="Telephone" />
-        <select id="orderType" onchange="toggleExtraFields()">
-          <option value="">Select Order Type</option>
-          <option value="Reservation">Reservation</option>
-          <option value="Dine In">Dine In</option>
-          <option value="Take Away">Take Away</option>
+    <header>
+      <h1>QR Code Order System</h1>
+    </header>
+    <main>
+      <section class="order-section">
+        <h2>Create New Order</h2>
+        <!-- Client Dropdown -->
+        <label for="clientSelect">Select Client:</label>
+        <select id="clientSelect">
+          <option value="">-- Select Client --</option>
         </select>
-        <div id="reservationFields" style="display: none">
-          <input type="date" id="reservationDate" />
-          <input type="time" id="reservationTime" />
-          <input type="number" id="reservationGuests" placeholder="Guests" />
-          <input
-            type="number"
-            id="tableNumberReservation"
-            placeholder="Table Number"
-          />
+        <!-- New Client -->
+        <div id="newClientForm">
+          <input type="text" id="clientName" placeholder="Client Name" />
+          <input type="text" id="clientPhone" placeholder="Client Phone" />
         </div>
-        <div id="dineinFields" style="display: none">
-          <input
-            type="number"
-            id="tableNumberDineIn"
-            placeholder="Table Number"
-          />
+        <!-- Order Type -->
+        <label for="orderType">Order Type:</label>
+        <select id="orderType">
+          <option value="Take Away">Take Away</option>
+          <option value="Dine In">Dine In</option>
+          <option value="Reservation">Reservation</option>
+        </select>
+        <!-- Table Dropdown -->
+        <div id="tableSelection" class="hidden">
+          <label for="tableNumber">Select Table:</label>
+          <select id="tableNumber">
+            <option value="">-- Select Table --</option>
+          </select>
         </div>
-        <button onclick="goToPayment()">Next: Payment</button>
-      </div>
-    </div>
+        <!-- Products -->
+        <h3>Order Items</h3>
+        <div id="productsContainer"></div>
+        <button id="addProductBtn">Add Product</button>
+        <!-- Payment -->
+        <label for="paymentMethod">Payment Method:</label>
+        <select id="paymentMethod">
+          <option value="Cash">Cash</option>
+          <option value="Card">Card</option>
+          <option value="Mobile Money">Mobile Money</option>
+        </select>
+        <button id="placeOrderBtn">Place Order</button>
+      </section>
+
+      <section class="orders-section">
+        <h2>Orders</h2>
+        <div id="ordersList"></div>
+      </section>
+    </main>
 
     <script>
-      const API_BASE = "http://127.0.0.1:8000";
-      let products = [];
-      let cart = [];
+      const apiBase = "http://localhost:8000";
 
-      // Fetch products
-      async function loadProducts() {
-        const res = await fetch(API_BASE + "/product/product/Product");
-        products = await res.json();
-        const container = document.getElementById("productList");
-        container.innerHTML = "";
-        products.forEach((p) => {
-          const card = document.createElement("div");
-          card.className = "product-card";
-          card.innerHTML = `<h3>${p.Product_Name}</h3><p>${p.Unit_Price} FCFA</p>
-      <button onclick="addToCart(${p.No_Product}, '${p.Product_Name}', ${p.Unit_Price})">Add</button>`;
-          container.appendChild(card);
-        });
-      }
-
-      // Cart functions
-      function addToCart(id, name, price) {
-        const existing = cart.find((i) => i.No_Product === id);
-        if (existing) existing.Quantity += 1;
-        else
-          cart.push({
-            No_Product: id,
-            Product_Name: name,
-            Quantity: 1,
-            Unit_Price: price,
+      // Load clients
+      async function loadClients() {
+        try {
+          const res = await fetch(`${apiBase}/client/client/Client`);
+          const data = await res.json();
+          const select = document.getElementById("clientSelect");
+          select.innerHTML = '<option value="">-- Select Client --</option>';
+          data.forEach((client) => {
+            const option = document.createElement("option");
+            option.value = client.No_Client;
+            option.textContent = client.Client_Name;
+            select.appendChild(option);
           });
-        renderCart();
-      }
-      function updateQuantity(id, qty) {
-        cart = cart
-          .map((i) => (i.No_Product === id ? { ...i, Quantity: qty } : i))
-          .filter((i) => i.Quantity > 0);
-        renderCart();
-      }
-      function renderCart() {
-        const container = document.getElementById("cartItems");
-        container.innerHTML = "";
-        let total = 0;
-        cart.forEach((i) => {
-          total += i.Quantity * i.Unit_Price;
-          const div = document.createElement("div");
-          div.className = "cart-item";
-          div.innerHTML = `<span>${i.Product_Name}</span>
-      <input type="number" value="${i.Quantity}" min="1" onchange="updateQuantity(${i.No_Product}, this.value)">
-      <button onclick="updateQuantity(${i.No_Product},0)">Remove</button>`;
-          container.appendChild(div);
-        });
-        document.getElementById("cartTotal").innerText = total;
-      }
-
-      // Toggle fields
-      function toggleExtraFields() {
-        const type = document.getElementById("orderType").value;
-        document.getElementById("reservationFields").style.display =
-          type === "Reservation" ? "block" : "none";
-        document.getElementById("dineinFields").style.display =
-          type === "Dine In" ? "block" : "none";
-      }
-
-      // Go to Payment page
-      function goToPayment() {
-        if (cart.length === 0) {
-          alert("Add products first");
-          return;
+        } catch (e) {
+          console.error("Error loading clients:", e);
         }
-        const client = {
-          Client_Name: document.getElementById("clientName").value,
-          No_Telephone: document.getElementById("clientPhone").value,
-        };
-        const orderType = document.getElementById("orderType").value;
-        let order = {
-          Order_Type: orderType,
-          items: cart.map((i) => ({
-            No_Product: i.No_Product,
-            Quantity: i.Quantity,
-          })),
-          Note: "",
-        };
-        if (orderType === "Dine In")
-          order.No_Table = parseInt(
-            document.getElementById("tableNumberDineIn").value
-          );
-        let reservation = null;
-        if (orderType === "Reservation") {
-          reservation = {
-            No_Table: parseInt(
-              document.getElementById("tableNumberReservation").value
-            ),
-            Reservation_Date: document.getElementById("reservationDate").value,
-            Reservation_Time: document.getElementById("reservationTime").value,
-            No_Person: parseInt(
-              document.getElementById("reservationGuests").value
-            ),
+      }
+
+      // Load tables
+      function loadTables() {
+        const select = document.getElementById("tableNumber");
+        select.innerHTML = `<option value="">-- Select Table --</option>`;
+        for (let i = 1; i <= 10; i++) {
+          const option = document.createElement("option");
+          option.value = i;
+          option.textContent = "Table " + i;
+          select.appendChild(option);
+        }
+      }
+
+      // Load products
+      async function loadProducts() {
+        try {
+          const res = await fetch(`${apiBase}/product/product/Product`);
+          return await res.json();
+        } catch (e) {
+          console.error("Error loading products:", e);
+          return [];
+        }
+      }
+
+      // Add product row
+      let productsData = [];
+      async function addProductRow() {
+        if (productsData.length === 0) productsData = await loadProducts();
+        const container = document.getElementById("productsContainer");
+        const div = document.createElement("div");
+        div.className = "productRow";
+        div.innerHTML = `
+        <select class="productSelect">
+            ${productsData
+              .map(
+                (p) =>
+                  `<option value="${p.No_Product}">${p.Product_Name} ($${p.Unit_Price})</option>`
+              )
+              .join("")}
+        </select>
+        <input type="number" class="productQty" min="1" value="1">
+        <button class="removeProductBtn">Remove</button>
+    `;
+        container.appendChild(div);
+        div
+          .querySelector(".removeProductBtn")
+          .addEventListener("click", () => div.remove());
+      }
+
+      // Show/hide table selection
+      document.getElementById("orderType").addEventListener("change", (e) => {
+        const val = e.target.value;
+        const tableDiv = document.getElementById("tableSelection");
+        tableDiv.classList.toggle(
+          "hidden",
+          !(val == "Dine In" || val == "Reservation")
+        );
+      });
+
+      // Place Order
+      document
+        .getElementById("placeOrderBtn")
+        .addEventListener("click", async () => {
+          const clientId = document.getElementById("clientSelect").value;
+          const clientName = document.getElementById("clientName").value;
+          const clientPhone = document.getElementById("clientPhone").value;
+
+          const orderType = document.getElementById("orderType").value;
+          const tableNumber =
+            document.getElementById("tableNumber").value || null;
+          const paymentMethod = document.getElementById("paymentMethod").value;
+
+          const items = [];
+          document.querySelectorAll(".productRow").forEach((row) => {
+            items.push({
+              No_Product: parseInt(row.querySelector(".productSelect").value),
+              Quantity: parseInt(row.querySelector(".productQty").value),
+            });
+          });
+
+          if (items.length === 0) {
+            alert("Add at least one product!");
+            return;
+          }
+
+          const payload = {
+            client: clientId
+              ? { No_Client: parseInt(clientId) }
+              : { Client_Name: clientName, No_Telephone: clientPhone },
+            order: {
+              Order_Type: orderType,
+              No_Table: tableNumber ? parseInt(tableNumber) : null,
+              items: items,
+              Note: "",
+            },
+            payment: { Payment_Method: paymentMethod },
           };
-        }
-        const payload = { client, order, reservation, cart };
-        localStorage.setItem("fullOrder", JSON.stringify(payload));
-        window.location.href = "payment.html";
-      }
 
-      window.onload = loadProducts;
+          try {
+            const res = await fetch(`${apiBase}/FullOrderRequest`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            alert(data.Message);
+            loadClients(); // refresh clients
+            document.getElementById("productsContainer").innerHTML = "";
+            addProductRow();
+          } catch (e) {
+            console.error("Error placing order:", e);
+            alert("Error placing order.");
+          }
+        });
+
+      // Add product button
+      document
+        .getElementById("addProductBtn")
+        .addEventListener("click", addProductRow);
+
+      // Initialize
+      loadClients();
+      loadTables();
+      addProductRow();
     </script>
   </body>
 </html>

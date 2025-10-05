@@ -1,241 +1,261 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR Order System - System Settings</title>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f7fa;
-    margin: 0;
-    padding: 0;
-  }
-  .section {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 25px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-  }
-  .section h1 {
-    font-size: 30px;
-    color: #333;
-    margin-bottom: 25px;
-  }
-  form {
-    display: grid;
-    gap: 25px;
-  }
-  fieldset {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-  }
-  fieldset legend {
-    font-weight: bold;
-    color: #555;
-    padding: 0 10px;
-  }
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 12px;
-  }
-  .form-group label {
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
-  .form-group input[type="text"],
-  .form-group input[type="url"],
-  .form-group input[type="color"],
-  .form-group select,
-  .form-group input[type="number"] {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-  }
-  .form-group input[type="checkbox"] {
-    width: auto;
-    margin-top: 5px;
-  }
-  .toggle-group {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .form-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: flex-end;
-    margin-top: 10px;
-  }
-  .form-actions button {
-    padding: 10px 20px;
-    font-size: 15px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-  }
-  .form-actions button[type="submit"] {
-    background: #28a745;
-    color: #fff;
-  }
-  .form-actions button[type="reset"] {
-    background: #e0e0e0;
-    color: #333;
-  }
-  @media (min-width: 768px) {
-    form {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 25px;
-    }
-    fieldset {
-      grid-column: span 2;
-    }
-  }
-</style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Order System - System Settings</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f7fa;
+        margin: 0;
+        padding: 0;
+      }
+      .section {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 25px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      }
+      .section h1 {
+        font-size: 30px;
+        color: #333;
+        margin-bottom: 25px;
+      }
+      form {
+        display: grid;
+        gap: 25px;
+      }
+      fieldset {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+      }
+      fieldset legend {
+        font-weight: bold;
+        color: #555;
+        padding: 0 10px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 12px;
+      }
+      .form-group label {
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
+      .form-group input[type="text"],
+      .form-group input[type="url"],
+      .form-group input[type="color"],
+      .form-group select,
+      .form-group input[type="number"] {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+      }
+      .form-group input[type="checkbox"] {
+        width: auto;
+        margin-top: 5px;
+      }
+      .toggle-group {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        margin-top: 10px;
+      }
+      .form-actions button {
+        padding: 10px 20px;
+        font-size: 15px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+      }
+      .form-actions button[type="submit"] {
+        background: #28a745;
+        color: #fff;
+      }
+      .form-actions button[type="reset"] {
+        background: #e0e0e0;
+        color: #333;
+      }
+      @media (min-width: 768px) {
+        form {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 25px;
+        }
+        fieldset {
+          grid-column: span 2;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="system" class="section">
+      <h1>System Settings - QR Order System</h1>
 
-<div id="system" class="section">
-  <h1>System Settings - QR Order System</h1>
+      <form id="systemSettingsForm">
+        <!-- General Restaurant Settings -->
+        <fieldset>
+          <legend>Restaurant Info</legend>
+          <div class="form-group">
+            <label for="restaurantName">Restaurant Name</label>
+            <input
+              type="text"
+              id="restaurantName"
+              placeholder="Enter restaurant name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="restaurantLogo">Logo URL</label>
+            <input
+              type="url"
+              id="restaurantLogo"
+              placeholder="Enter logo URL"
+            />
+          </div>
+          <div class="form-group">
+            <label for="restaurantAddress">Address</label>
+            <input
+              type="text"
+              id="restaurantAddress"
+              placeholder="Enter address"
+            />
+          </div>
+        </fieldset>
 
-  <form id="systemSettingsForm">
+        <!-- QR Code Settings -->
+        <fieldset>
+          <legend>QR Code Settings</legend>
+          <div class="form-group">
+            <label for="qrPrefix">QR Code URL Prefix</label>
+            <input
+              type="text"
+              id="qrPrefix"
+              placeholder="https://yourdomain.com/order/"
+            />
+          </div>
+          <div class="form-group">
+            <label for="tableNumberStart">Table Number Start</label>
+            <input type="number" id="tableNumberStart" value="1" />
+          </div>
+          <div class="form-group toggle-group">
+            <label for="autoGenerateQR">Auto-generate QR codes</label>
+            <input type="checkbox" id="autoGenerateQR" checked />
+          </div>
+        </fieldset>
 
-    <!-- General Restaurant Settings -->
-    <fieldset>
-      <legend>Restaurant Info</legend>
-      <div class="form-group">
-        <label for="restaurantName">Restaurant Name</label>
-        <input type="text" id="restaurantName" placeholder="Enter restaurant name">
-      </div>
-      <div class="form-group">
-        <label for="restaurantLogo">Logo URL</label>
-        <input type="url" id="restaurantLogo" placeholder="Enter logo URL">
-      </div>
-      <div class="form-group">
-        <label for="restaurantAddress">Address</label>
-        <input type="text" id="restaurantAddress" placeholder="Enter address">
-      </div>
-    </fieldset>
+        <!-- Menu / Ordering Settings -->
+        <fieldset>
+          <legend>Menu & Ordering</legend>
+          <div class="form-group toggle-group">
+            <label for="allowMultipleOrders"
+              >Allow multiple orders per table</label
+            >
+            <input type="checkbox" id="allowMultipleOrders" checked />
+          </div>
+          <div class="form-group toggle-group">
+            <label for="enableOrderNotes">Enable order notes</label>
+            <input type="checkbox" id="enableOrderNotes" checked />
+          </div>
+          <div class="form-group">
+            <label for="maxItemsPerOrder">Max items per order</label>
+            <input type="number" id="maxItemsPerOrder" value="10" />
+          </div>
+        </fieldset>
 
-    <!-- QR Code Settings -->
-    <fieldset>
-      <legend>QR Code Settings</legend>
-      <div class="form-group">
-        <label for="qrPrefix">QR Code URL Prefix</label>
-        <input type="text" id="qrPrefix" placeholder="https://yourdomain.com/order/">
-      </div>
-      <div class="form-group">
-        <label for="tableNumberStart">Table Number Start</label>
-        <input type="number" id="tableNumberStart" value="1">
-      </div>
-      <div class="form-group toggle-group">
-        <label for="autoGenerateQR">Auto-generate QR codes</label>
-        <input type="checkbox" id="autoGenerateQR" checked>
-      </div>
-    </fieldset>
+        <!-- Payment Settings -->
+        <fieldset>
+          <legend>Payment Settings</legend>
+          <div class="form-group toggle-group">
+            <label for="enableCashPayment">Enable Cash Payment</label>
+            <input type="checkbox" id="enableCashPayment" checked />
+          </div>
+          <div class="form-group toggle-group">
+            <label for="enableMobilePayment">Enable Mobile Payment</label>
+            <input type="checkbox" id="enableMobilePayment" checked />
+          </div>
+          <div class="form-group">
+            <label for="currency">Currency</label>
+            <select id="currency">
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="XAF">XAF (FCFA)</option>
+            </select>
+          </div>
+        </fieldset>
 
-    <!-- Menu / Ordering Settings -->
-    <fieldset>
-      <legend>Menu & Ordering</legend>
-      <div class="form-group toggle-group">
-        <label for="allowMultipleOrders">Allow multiple orders per table</label>
-        <input type="checkbox" id="allowMultipleOrders" checked>
-      </div>
-      <div class="form-group toggle-group">
-        <label for="enableOrderNotes">Enable order notes</label>
-        <input type="checkbox" id="enableOrderNotes" checked>
-      </div>
-      <div class="form-group">
-        <label for="maxItemsPerOrder">Max items per order</label>
-        <input type="number" id="maxItemsPerOrder" value="10">
-      </div>
-    </fieldset>
+        <!-- Notifications & Alerts -->
+        <fieldset>
+          <legend>Notifications</legend>
+          <div class="form-group toggle-group">
+            <label for="emailNotifications">Email notifications</label>
+            <input type="checkbox" id="emailNotifications" checked />
+          </div>
+          <div class="form-group toggle-group">
+            <label for="smsNotifications">SMS notifications</label>
+            <input type="checkbox" id="smsNotifications" />
+          </div>
+          <div class="form-group toggle-group">
+            <label for="pushNotifications">Push notifications</label>
+            <input type="checkbox" id="pushNotifications" />
+          </div>
+        </fieldset>
 
-    <!-- Payment Settings -->
-    <fieldset>
-      <legend>Payment Settings</legend>
-      <div class="form-group toggle-group">
-        <label for="enableCashPayment">Enable Cash Payment</label>
-        <input type="checkbox" id="enableCashPayment" checked>
-      </div>
-      <div class="form-group toggle-group">
-        <label for="enableMobilePayment">Enable Mobile Payment</label>
-        <input type="checkbox" id="enableMobilePayment" checked>
-      </div>
-      <div class="form-group">
-        <label for="currency">Currency</label>
-        <select id="currency">
-          <option value="USD">USD ($)</option>
-          <option value="EUR">EUR (€)</option>
-          <option value="XAF">XAF (FCFA)</option>
-        </select>
-      </div>
-    </fieldset>
+        <!-- Security & Maintenance -->
+        <fieldset>
+          <legend>Security & Maintenance</legend>
+          <div class="form-group toggle-group">
+            <label for="maintenanceMode">Maintenance Mode</label>
+            <input type="checkbox" id="maintenanceMode" />
+          </div>
+          <div class="form-group">
+            <label for="apiKey">API Key</label>
+            <input type="text" id="apiKey" placeholder="Enter API Key" />
+            <button type="button" onclick="generateApiKey()">
+              Generate New
+            </button>
+          </div>
+          <div class="form-group">
+            <label for="themeColor">Theme Color</label>
+            <input type="color" id="themeColor" value="#007bff" />
+          </div>
+        </fieldset>
 
-    <!-- Notifications & Alerts -->
-    <fieldset>
-      <legend>Notifications</legend>
-      <div class="form-group toggle-group">
-        <label for="emailNotifications">Email notifications</label>
-        <input type="checkbox" id="emailNotifications" checked>
-      </div>
-      <div class="form-group toggle-group">
-        <label for="smsNotifications">SMS notifications</label>
-        <input type="checkbox" id="smsNotifications">
-      </div>
-      <div class="form-group toggle-group">
-        <label for="pushNotifications">Push notifications</label>
-        <input type="checkbox" id="pushNotifications">
-      </div>
-    </fieldset>
-
-    <!-- Security & Maintenance -->
-    <fieldset>
-      <legend>Security & Maintenance</legend>
-      <div class="form-group toggle-group">
-        <label for="maintenanceMode">Maintenance Mode</label>
-        <input type="checkbox" id="maintenanceMode">
-      </div>
-      <div class="form-group">
-        <label for="apiKey">API Key</label>
-        <input type="text" id="apiKey" placeholder="Enter API Key">
-        <button type="button" onclick="generateApiKey()">Generate New</button>
-      </div>
-      <div class="form-group">
-        <label for="themeColor">Theme Color</label>
-        <input type="color" id="themeColor" value="#007bff">
-      </div>
-    </fieldset>
-
-    <div class="form-actions">
-      <button type="submit">Save Settings</button>
-      <button type="reset">Reset</button>
+        <div class="form-actions">
+          <button type="submit">Save Settings</button>
+          <button type="reset">Reset</button>
+        </div>
+      </form>
     </div>
 
-  </form>
-</div>
+    <script>
+      // Generate random API key
+      function generateApiKey() {
+        const apiKey = Math.random()
+          .toString(36)
+          .substring(2, 18)
+          .toUpperCase();
+        document.getElementById("apiKey").value = apiKey;
+        alert("New API Key Generated!");
+      }
 
-<script>
-  // Generate random API key
-  function generateApiKey() {
-    const apiKey = Math.random().toString(36).substring(2, 18).toUpperCase();
-    document.getElementById('apiKey').value = apiKey;
-    alert('New API Key Generated!');
-  }
-
-  // Handle form submission
-  document.getElementById('systemSettingsForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    alert('System settings saved successfully!');
-    // TODO: Add real saving logic (API call, database update, etc.)
-  });
-</script>
-
-</body>
+      // Handle form submission
+      document
+        .getElementById("systemSettingsForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          alert("System settings saved successfully!");
+          // TODO: Add real saving logic (API call, database update, etc.)
+        });
+    </script>
+  </body>
 </html>

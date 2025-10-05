@@ -64,7 +64,23 @@ def get_databases():
     cursor.execute(sql_command)
     data=cursor.fetchall()
     return data
+@app.get('/Revenue_Time')
+def get_data():
+    sql_command="""Select Date(o.Order_Date),Sum(P.Total_Amount) AS Total
+    From Orders o
+    JOIN Payment p    
+    ON
+    o.Order_ID=p.Order_ID
+    GROUP BY DATE(o.Order_Date);
+    """
+    cursor.execute(sql_command)
+    data=cursor.fetchall()
+    return data
+    
 
+    cursor.execute(sql_command)
+    data=cursor.fetchall()
+    return data
 
 ###### Post Method #####
 @app.post('/FullOrderRequest')
@@ -90,6 +106,9 @@ def create_order(data:FullOrderRequest):
             if data.order.Order_Type=='Reservation':
                 if not data.reversation:
                     raise HTTPException(status_code=404,detail='The Reservation Information is needed')
+                if data.reservation and data.order.Order_Type=='Dine In':
+                    raise HTTPException(status_code=404,detail='Error th Order Type most be Reservation')
+                    
                 reverse=data.reversation
                 sql_command=""" INSERT INTO 
                 Reservation(No_Client,No_Table,Reservation_Date,Reservation_Time,No_Person)
@@ -130,8 +149,8 @@ def create_order(data:FullOrderRequest):
                 if not stock:
                         raise HTTPException(status_code=404,detail=f'No Quantity_Available Found For {item.No_Product}')
                         
-                if stock["Quantity_Available"] < item.Quantity:
-                        
+                elif stock["Quantity_Available"] < item.Quantity:
+                            
                             raise HTTPException(status_code=404, detail=f"Not enough stock for product {item.No_Product}")
 
                 sql_command="""INSERT INTO Order_Items(Order_ID,No_Product,Quantity) 

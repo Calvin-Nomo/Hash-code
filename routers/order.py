@@ -53,19 +53,19 @@ def get_order():
 #     return{
 #         'Message':'You have updated successfully the Orders data from the database'
 #     }
-# @router.delete('/delete order/{order_id}')
-# def delete_order(order_id: int):
-#     try:
-#         sql_command = """
-#         DELETE FROM Orders
-#         WHERE Order_ID = %s
-#         """
-#         cursor.execute(sql_command, (order_id,))
-#         DB.commit()
+@router.delete('/delete order/{order_id}')
+def delete_order(order_id: int):
+    try:
+        sql_command = """
+        DELETE FROM Orders
+        WHERE Order_ID = %s
+        """
+        cursor.execute(sql_command, (order_id,))
+        DB.commit()
 
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-#     return {
-#         'Message': f'Order with ID {order_id} has been successfully deleted.'
-#     }
+    return {
+        'Message': f'Order with ID {order_id} has been successfully deleted.'
+    }

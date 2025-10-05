@@ -173,6 +173,8 @@
       <button onclick="showSection('orderItems')">Order Items</button>
       <button onclick="showSection('reservation')">Reservations</button>
       <button onclick="showSection('payment')">Payments</button>
+      <button onclick="showSection('stock')">Stock</button>
+      <button onclick="showSection('table')">Table</button>
       <button onclick="showSection('system')">System Settings</button>
       <button onclick="logout()">Logout</button>
     </div>
@@ -416,6 +418,26 @@
             </tr>
           </thead>
           <tbody id="stockTable"></tbody>
+        </table>
+      </div>
+      <!-- ---------------- Stock Section ---------------- -->
+      <div id="table" class="section">
+        <h1>Table Management</h1>
+        <div class="add-stock-form" style="margin-bottom: 15px">
+          <input type="number" id="newtable" placeholder="Table Number" />
+          <input type="number" id="newseat" placeholder="Seat Number" />
+          <button onclick="addtable()">Add Table</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Table_ID</th>
+              <th>No_Table</th>
+              <th>Seat Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableTable"></tbody>
         </table>
       </div>
 
