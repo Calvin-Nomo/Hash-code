@@ -32,35 +32,35 @@ def get_orderitems():
     Items=cursor.fetchall()
     return Items
 # Here i have tto manage thye Order _ID
-# @router.put('/update_order_items/{items_id}')
-# def update_orderitems(items_id:int,item:Items):
-#     try:
-#         sql_command="""Update Order_Items
-#         SET
-#         Order_ID=%s, No_Product=%s,Quantity=%s
-#         WHERE Item_ID=%s
-#         """
-#         cursor.execute(sql_command,(item.Order_ID,item.No_Product,item.Quantity,items_id))
-#         DB.commit()
-#     except Exception as e:
-#         raise HTTPException(status_code=404,detail=(e))
-#     return{
-# 'Message':'You have updated successfully the Items data from the database'
-#     }
+@router.put('/update_order_items/{items_id}')
+def update_orderitems(items_id:int,item:Items):
+    try:
+        sql_command="""Update Order_Items
+        SET
+        Order_ID=%s, No_Product=%s,Quantity=%s
+        WHERE Item_ID=%s
+        """
+        cursor.execute(sql_command,(item.Order_ID,item.No_Product,item.Quantity,items_id))
+        DB.commit()
+    except Exception as e:
+        raise HTTPException(status_code=404,detail=(e))
+    return{
+'Message':'You have updated successfully the Items data from the database'
+    }
 
-# @router.delete('/delete-order-item/{item_id}')
-# def delete_order_item(item_id: int):
-#     try:
-#         sql_command = """
-#             DELETE FROM Order_Items
-#             WHERE Item_ID = %s
-#         """
-#         cursor.execute(sql_command, (item_id,))
-#         DB.commit()
+@router.delete('/delete-order-item/{item_id}')
+def delete_order_item(item_id: int):
+    try:
+        sql_command = """
+            DELETE FROM Order_Items
+            WHERE Item_ID = %s
+        """
+        cursor.execute(sql_command, (item_id,))
+        DB.commit()
 
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-#     return {
-#         'Message': f'Order item with ID {item_id} has been successfully deleted.'
-#     }
+    return {
+        'Message': f'Order item with ID {item_id} has been successfully deleted.'
+    }

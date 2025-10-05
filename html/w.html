@@ -207,7 +207,6 @@
         <button onclick="showSection('orderItems')">Order Items</button>
         <button onclick="showSection('reservation')">Reservations</button>
         <button onclick="showSection('payment')">Payments</button>
-        <button onclick="showSection('newOrder')">Add Full Order</button>
       </div>
 
       <button class="menu-btn" onclick="toggleDropdown(this)">
@@ -258,60 +257,215 @@
         </div>
       </div>
 
-      <!-- Other Sections -->
-      <div id="client" class="section"><h1>Clients</h1></div>
-      <div id="product" class="section"><h1>Products</h1></div>
-      <div id="order" class="section"><h1>Orders</h1></div>
-      <div id="orderItems" class="section"><h1>Order Items</h1></div>
-      <div id="reservation" class="section"><h1>Reservations</h1></div>
-      <div id="payment" class="section"><h1>Payments</h1></div>
-      <div id="stock" class="section"><h1>Stock</h1></div>
-      <div id="table" class="section"><h1>Tables</h1></div>
-      <div id="system" class="section"><h1>System Settings</h1></div>
-
-      <!-- Add Full Order Section -->
-      <div id="newOrder" class="section">
-        <h1>Add Full Order</h1>
-        <form id="fullOrderForm">
-          <h3>Client</h3>
+      <!-- Client Sections -->
+      <div id="client" class="section"><h1>Clients</h1>
+        <div class="add-client-form" style="margin-bottom: 15px">
+          <input type="text" id="newClientName" placeholder="Name" />
+          <input type="text" id="newClientPhone" placeholder="Phone" />
+          <button onclick="addClient()">Add Client</button>
+        </div>
+        <div class="search-bar">
           <input
             type="text"
-            name="client_name"
-            placeholder="Client Name"
-            required
+            id="clientSearch"
+            placeholder="Search clients..."
+            oninput="filterClients()"
           />
-          <input type="text" name="client_contact" placeholder="Contact" />
-          <h3>Reservation</h3>
-          <input type="number" name="table_id" placeholder="Table ID" />
-          <input type="number" name="seat_no" placeholder="Seat Number" />
-          <h3>Order</h3>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientTable"></tbody>
+        </table>
+      </div>
+      <!-- fin -->
+
+      <div id="product" class="section"><h1>Products</h1>
+                <div class="add-product-form" style="margin-bottom: 15px">
+          <input type="text" id="newName" placeholder="Name" />
+          <input type="text" id="newCategory" placeholder="Category" />
+          <input type="number" id="newPrice" placeholder="Price" />
+          <input type="text" id="newDescription" placeholder="Description" />
+          <input type="text" id="newImage" placeholder="Image URL" />
+          <button onclick="addProduct()">Add Product</button>
+        </div>
+        <div class="search-bar">
+          <input
+            type="text"
+            id="productSearch"
+            placeholder="Search products..."
+            oninput="filterProducts()"
+          />
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </div>
+      <div id="order" class="section"><h1>Orders</h1>
+        <div class="add-order-form" style="margin-bottom: 15px">
+          <input
+            type="int"
+            id="newOrderReservatione"
+            placeholder="No_Reservation"
+          />
+          <input type="text" id="newOrderType" placeholder="Order Type" />
+          <input type="number" id="newOrderTable" placeholder="No Table" />
+          <input type="text" id="newOrderNote" placeholder="Note" />
+          <button onclick="addOrder()">Add Order</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>No_Reservation</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Table</th>
+              <th>Note</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orderTable"></tbody>
+        </table>
+      
+      </div>
+      <div id="orderItems" class="section"><h1>Order Items</h1>
+      <div class="add-order-item-form" style="margin-bottom: 15px">
+          <input type="number" id="newItemOrderID" placeholder="Order ID" />
+          <input type="number" id="newItemProductID" placeholder="Product ID" />
+          <input type="number" id="newItemQuantity" placeholder="Quantity" />
+          <button onclick="addOrderItem()">Add Item</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>No_Items</th>
+              <th>Order ID</th>
+              <th>Product ID</th>
+              <th>Quantity</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orderItemsTable"></tbody>
+        </table>
+      
+      </div>
+      <div id="reservation" class="section"><h1>Reservations</h1>
+      <div class="add-reservation-form" style="margin-bottom: 15px">
+          <input type="int" id="newResClient" placeholder="No_Client" />
+          <input type="datetime-local" id="newResDate" />
+          <input type="time" id="newResTime" />
+          <input type="number" id="newResPersons" placeholder="No_Person" />
+          <button onclick="addReservation()">Add Reservation</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>No_Client</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>No Persons</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+            </tr>
+          </thead>
+          <tbody id="reservationTable"></tbody>
+        </table>
+      
+      </div>
+      <div id="payment" class="section"><h1>Payments</h1>
+      
+      <div class="add-payment-form" style="margin-bottom: 15px">
+          <input type="number" id="newPaymentOrderID" placeholder="Order ID" />
+          <input type="number" id="newPaymentTotal" placeholder="Total" />
+          <input type="text" id="newPaymentMethod" placeholder="Method" />
+          <input type="text" id="newPaymentStatus" placeholder="Status" />
+          <input type="datetime-local" id="newPaymentDate" />
+          <button onclick="addPayment()">Add Payment</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Order ID</th>
+              <th>Total</th>
+              <th>Method</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="paymentTable"></tbody>
+        </table>
+      </div>
+      <div id="stock" class="section"><h1>Stock</h1>
+                <div class="add-stock-form" style="margin-bottom: 15px">
           <input
             type="number"
-            name="order_id"
-            placeholder="Order ID"
-            required
+            id="newquantity"
+            placeholder="Quantity_Available"
           />
-          <input
-            type="text"
-            name="order_type"
-            placeholder="Order Type"
-            required
-          />
-          <input type="text" name="note" placeholder="Note" />
-          <h3>Payment</h3>
-          <input type="number" name="total" placeholder="Total" required />
-          <input
-            type="text"
-            name="method"
-            placeholder="Payment Method"
-            required
-          />
-          <button type="submit">Submit Full Order</button>
-        </form>
-        <p id="orderMessage"></p>
+          <button onclick="addstokc()">Add Stock</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>No_Product</th>
+              <th>Quantity_Available</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="stockTable"></tbody>
+        </table>
       </div>
-    </div>
-
+      <div id="table" class="section"><h1>Tables</h1>
+              <div class="add-table-form" style="margin-bottom: 15px">
+          <input
+            type="number"
+            id="newtable_number"
+            placeholder="Table_Number"
+          />
+            <input
+            type="number"
+            id="newseat"
+            placeholder="Seat_Number"
+          />
+          <button onclick="addtable()">Add Table</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>No_Table</th>
+              <th>Table_Number</th>
+              <th>Seat_Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableTable"></tbody>
+        </table></div>
+      <div id="system" class="section"><h1>System Settings</h1></div>
     <script>
       const API_BASE = "http://127.0.0.1:8000";
       let revenueChart;
@@ -329,7 +483,7 @@
         const filter = document.getElementById("revenueFilter").value;
         try {
           const response = await fetch(
-            `${API_BASE}/revenue_over_time?filter=${filter}`
+            `${API_BASE}/Revenue_Time?filter=${filter}`
           );
           const data = await response.json();
           const labels = data.map((d) => d.date);

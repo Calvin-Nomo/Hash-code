@@ -59,20 +59,20 @@ def get_payment():
 #         'Message':'You have updated successfully the Payments data from the database'
 #     }
 
-# @router.delete('/delete_payment/{payment_id}')
-# def delete_payment(payment_id: int):
-#     try:
-#         sql_command = """
-#         DELETE FROM Payment
-#         WHERE Payment_ID = %s
-#         """
-#         cursor.execute(sql_command, (payment_id,))
-#         DB.commit()
+@router.delete('/delete_payment/{payment_id}')
+def delete_payment(payment_id: int):
+    try:
+        sql_command = """
+        DELETE FROM Payment
+        WHERE Payment_ID = %s
+        """
+        cursor.execute(sql_command, (payment_id,))
+        DB.commit()
 
 
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-#     return {
-#         'Message': f'Payment with ID {payment_id} has been successfully deleted.'
-#     }
+    return {
+        'Message': f'Payment with ID {payment_id} has been successfully deleted.'
+    }

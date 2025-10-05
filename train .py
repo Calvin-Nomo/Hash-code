@@ -1,132 +1,50 @@
-from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import pymysql
-from routers import client, order, order_items, reservation, payment, product, stock
-from routers.client import Client
-from routers.order import Order
-from routers.payment import Payment
-from routers.reservation import Reservation
-from typing import Optional
-from fastapi.middleware.cors import CORSMiddleware
+import requests
+import uuid
 
-app = FastAPI(title='Qrcode Order System')
+app = FastAPI()
 
-class FullOrderRequest(BaseModel):
-    client: Client
-    reservation: Optional[Reservation] = None   # fixed typo
-    order: Order
-    payment: Payment
+# Replace with your sandbox or production keys
+PRIMARY_KEY = "5f0ae0e8e28e466091a57b73e265591b"
+SUBSCRIPTION_KEY = "d3775ca1ddb04f368c4e2fd1fe3f6d9e"
+BASE_URL = "https://sandbox.momodeveloper.mtn.com/collection/v1_0/requesttopay"  # sandbox URL
 
-# Allow CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+class PaymentRequest(BaseModel):
+    phone_number: str
+    amount: float
 
-DB = pymysql.connect(
-    host="localhost",
-    user="root",
-    database="Order_System",
-    cursorclass=pymysql.cursors.DictCursor,
-    autocommit=True
-)
+@app.post("/pay")
+def create_payment(payment: PaymentRequest):
+    external_id = str(uuid.uuid4())
 
-cursor = DB.cursor()
+    headers = {
+        "Authorization": f"Bearer {PRIMARY_KEY}",   # For sandbox, key may work; in production get OAuth token
+        "X-Reference-Id": external_id,
+        "X-Target-Environment": "sandbox",  # change to "production" for live
+        "Ocp-Apim-Subscription-Key": SUBSCRIPTION_KEY,
+        "Content-Type": "application/json"
+    }
 
-# Routers
-app.include_router(client.router, prefix="/client", tags=["client"])
-app.include_router(order.router, prefix="/order", tags=["order"])
-app.include_router(order_items.router, prefix="/order_items", tags=["order_items"])
-app.include_router(reservation.router, prefix="/reservation", tags=["reservation"])
-app.include_router(product.router, prefix="/product", tags=["product"])
-app.include_router(payment.router, prefix="/payment", tags=["payment"])
-app.include_router(stock.router, prefix="/stock", tags=["stock"])
+    payload = {
+        "amount": str(payment.amount),
+        "currency": "XAF",
+        "externalId": external_id,
+        "payer": {
+            "partyIdType": "MSISDN",
+            "partyId": payment.phone_number
+        },
+        "payerMessage": "Payment for test order",
+        "payeeNote": "Thank you for your order"
+    }
 
-@app.get('/')
-def greetings():
-    return {"Message": "Hello World"}
+    response = requests.post(BASE_URL, headers=headers, json=payload)
 
-@app.get('/database')
-def get_databases():
-    cursor.execute("SHOW DATABASES")
-    return cursor.fetchall()
+    if response.status_code not in [200, 202]:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
 
-@app.post('/FullOrderRequest')
-def create_order(data: FullOrderRequest):
-    try:
-        # 1. Check if client exists
-        sql_command = """SELECT No_Client FROM Clients WHERE No_Telephone=%s"""
-        cursor.execute(sql_command, (data.client.No_Telephone,))
-        client_row = cursor.fetchone()
-
-        if client_row:
-            client_id = client_row['No_Client']
-        else:
-            sql_command = """INSERT INTO Clients(Client_Name, No_Telephone) VALUES(%s,%s)"""
-            cursor.execute(sql_command, (data.client.Client_Name, data.client.No_Telephone))
-            client_id = cursor.lastrowid
-
-        # 2. Handle reservation / table
-        reservation_id = None
-        if data.order.Order_Type == 'Reservation':
-            if not data.reservation:
-                raise HTTPException(status_code=404, detail='Reservation Information is required')
-            r = data.reservation
-            sql_command = """INSERT INTO Reservation(No_Client,No_Table,Reservation_Date,Reservation_Time,No_Person)
-                             VALUES(%s,%s,%s,%s,%s)"""
-            cursor.execute(sql_command, (client_id, r.No_Table, r.Reservation_Date, r.Reservation_Time, r.No_Person))
-            reservation_id = cursor.lastrowid
-            table_id = r.No_Table
-        elif data.order.Order_Type == 'Dine In':
-            if not data.order.No_Table:
-                raise HTTPException(status_code=404, detail='A Table Number is required for Dine In')
-            table_id = data.order.No_Table
-        else:
-            table_id = None  # Takeaway
-
-        # 3. Insert order
-        order = data.order
-        order_date = datetime.utcnow()
-        sql_command = """INSERT INTO Orders(No_Client, No_Reservation, Order_Date, Order_Type, No_Table, Note)
-                         VALUES(%s,%s,%s,%s,%s,%s)"""
-        cursor.execute(sql_command, (client_id, reservation_id, order_date, order.Order_Type, table_id, order.Note))
-        order_id = cursor.lastrowid
-
-        # 4. Insert order items & update stock
-        for item in data.order.items:
-            cursor.execute("SELECT Quantity_Available FROM Stock WHERE No_Product=%s", (item.No_Product,))
-            stock = cursor.fetchone()
-            if not stock:
-                raise HTTPException(status_code=404, detail=f'No stock found for product {item.No_Product}')
-            if stock["Quantity_Available"] < item.Quantity:
-                raise HTTPException(status_code=404, detail=f'Not enough stock for product {item.No_Product}')
-
-            cursor.execute("INSERT INTO Order_Items(Order_ID, No_Product, Quantity) VALUES(%s,%s,%s)",
-                           (order_id, item.No_Product, item.Quantity))
-            cursor.execute("UPDATE Stock SET Quantity_Available = Quantity_Available - %s WHERE No_Product=%s",
-                           (item.Quantity, item.No_Product))
-
-        # 5. Calculate total and insert payment
-        sql_total = """
-            SELECT SUM(oi.Quantity * p.Unit_Price) AS total
-            FROM Order_Items oi
-            JOIN Product p ON oi.No_Product = p.No_Product
-            WHERE oi.Order_ID = %s
-        """
-        cursor.execute(sql_total, (order_id,))
-        total_amount = cursor.fetchone()['total']
-        payment_date = datetime.utcnow()
-
-        sql_payment = """INSERT INTO Payment (Order_ID, Total_Amount, Payment_Date, Payment_Method, Payment_Status)
-                         VALUES (%s, %s, %s, %s, %s)"""
-        cursor.execute(sql_payment, (order_id, total_amount, payment_date, data.payment.Payment_Method, "Paid"))
-
-        DB.commit()
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    return {"Message": "Order placed successfully", "Order_ID": order_id}
+    return {
+        "external_id": external_id,
+        "status_code": response.status_code,
+        "response": response.json() if response.content else response.text
+    }

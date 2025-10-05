@@ -78,10 +78,6 @@ def get_data():
     return data
     
 
-    cursor.execute(sql_command)
-    data=cursor.fetchall()
-    return data
-
 ###### Post Method #####
 @app.post('/FullOrderRequest')
 def create_order(data:FullOrderRequest):
