@@ -24,12 +24,17 @@ def greetings():
 }
 
 @router.get('/Stock')
+def get_stock():
+    sql_command="Select * from Stock" 
+    cursor.execute(sql_command)
+    stock=cursor.fetchall()
+    return stock
+@router.get('/Stock')
 def get_client():
     sql_command="Select * from Stock" 
     cursor.execute(sql_command)
     stock=cursor.fetchall()
     return stock
-
 # @router.post("/create_stock")
 # def create_stock(stock:Stock):
 #     try:

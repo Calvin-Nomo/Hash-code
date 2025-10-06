@@ -54,14 +54,16 @@ def get_order():
 #         'Message':'You have updated successfully the Orders data from the database'
 #     }
 @router.delete('/delete order/{order_id}')
-def delete_order(order_id: int):
+def delete_order(order_id:int):
     try:
         sql_command = """
         DELETE FROM Orders
         WHERE Order_ID = %s
         """
         cursor.execute(sql_command, (order_id,))
+        order_id=cursor.lastrowid()
         DB.commit()
+
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

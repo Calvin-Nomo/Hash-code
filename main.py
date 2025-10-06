@@ -12,7 +12,17 @@ from routers.reservation import Reservation
 
 app = FastAPI(title="Qrcode Order System")
 
+<<<<<<< HEAD
+app=FastAPI(title='Qrcode Order System') 
+class FullOrderRequest(BaseModel):
+    client:Client
+    reservation:Optional[Reservation]=None
+    order:Order
+    payment:Payment
+# Allow CORS for frontend running on different port
+=======
 # --- Allow frontend access ---
+>>>>>>> 96a09aaf701f509a91d2cde65e69e4a6d8e1e836
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -52,6 +62,16 @@ class FullOrderRequest(BaseModel):
 @app.post("/FullOrderRequest")
 def create_order(data: FullOrderRequest):
     try:
+<<<<<<< HEAD
+
+        sql_command="""SELECT No_Client FROM Clients 
+                    WHERE No_Telephone=%s
+                """
+        cursor.execute(sql_command,(data.client.No_Telephone,))
+        client= cursor.fetchone()
+        if  client:
+            client_id=client['No_Client']
+=======
         cursor = DB.cursor()
         DB.begin()  #  start transaction
 
@@ -60,6 +80,7 @@ def create_order(data: FullOrderRequest):
         client = cursor.fetchone()
         if client:
             client_id = client["No_Client"]
+>>>>>>> 96a09aaf701f509a91d2cde65e69e4a6d8e1e836
         else:
             cursor.execute(
                 "INSERT INTO Clients(Client_Name, No_Telephone) VALUES (%s, %s)",
@@ -67,6 +88,62 @@ def create_order(data: FullOrderRequest):
             )
             client_id = cursor.lastrowid
 
+<<<<<<< HEAD
+            #Handling the Reservation if the Order_Type is Reversation
+            reservation_id=None
+            reverse=data.reservation
+            # if data.order.Order_Type=='Reservation':
+            #     if not data.reservation:
+            #         raise HTTPException(status_code=404,detail='The Reservation Information is needed')
+            if data.order.Order_Type == 'Reservation':
+                if not data.reservation or data.reservation.No_Table is None:
+                    raise HTTPException(status_code=400, detail='Reservation information is required for reservation-type orders.')
+
+                    
+                reverse=data.reservation
+                sql_command=""" INSERT INTO 
+                Reservation(No_Client,No_Table,Reservation_Date,Reservation_Time,No_Person)
+                Values(%s,%s,%s,%s,%s)
+                """ 
+                cursor.execute(sql_command,(client_id,reverse.No_Table,reverse.Reservation_Date,reverse.Reservation_Time,reverse.No_Person))
+                reservation_id=cursor.lastrowid
+                table_id= reverse.No_Table
+                # Handling the Dine In Order Type
+            elif data.order.Order_Type == 'Dine In':
+                table_id=data.order.No_Table
+                #Checking if a table Exist
+                sql_command="""SELECT No_Table From Tab WHERE Table_ID=%s """
+                cursor.execute(sql_command,(table_id,))
+                table=cursor.fetchone()
+                if not table:
+                  raise HTTPException(status_code=404,detail='The Table does not exist')
+                if not data.order.No_Table:
+                    raise HTTPException(status_code=404,detail='a Table Number is Required for the Dine In')
+            else:
+                #For the Take Away No Table(table_id) Need
+                table_id=None
+            order=data.order
+            order_date = datetime.utcnow() 
+            sql_order="""INSERT INTO Orders(No_Client,No_Reservation,Order_Date,Order_Type,No_Table,Note)
+            VALUES(%s,%s,%s,%s,%s,%s)"""
+            cursor.execute(sql_order,(client_id,reservation_id,order_date,order.Order_Type,table_id,order.Note))
+            order_id = cursor.lastrowid
+            
+            # filling the  client items in the Order_items Table
+            for item in data.order.items:
+                #checking if the is an Available Quantity  Product in stock
+                cursor.execute(
+                        "SELECT Quantity_Available FROM Stock WHERE No_Product=%s",
+                        (item.No_Product,)
+                    )
+                stock = cursor.fetchone()
+                if not stock:
+                        raise HTTPException(status_code=404,detail=f'No Quantity_Available Found For {item.No_Product}')
+                        
+                elif stock["Quantity_Available"] < item.Quantity:
+                            
+                    raise HTTPException(status_code=404, detail=f"Not enough stock for product {item.No_Product}")
+=======
         # 2️ Handle Reservation / Dine In / Take Away
         reservation_id = None
         table_id = None
@@ -81,6 +158,7 @@ def create_order(data: FullOrderRequest):
             )
             reservation_id = cursor.lastrowid
             table_id = data.reservation.No_Table
+>>>>>>> 96a09aaf701f509a91d2cde65e69e4a6d8e1e836
 
         elif data.order.Order_Type == "Dine In":
             if not data.order.No_Table:
@@ -100,6 +178,20 @@ def create_order(data: FullOrderRequest):
         )
         order_id = cursor.lastrowid
 
+<<<<<<< HEAD
+            # 
+            DB.commit()
+    except Exception:
+        raise HTTPException(status_code=404,detail='Error in the SQL Commands')
+    return{
+        'Message':'You Have successfully Place an Order',
+     
+    }
+            
+        
+        
+######Update Method #####
+=======
         # 4️ Add items and update stock
         for item in data.order.items:
             cursor.execute("SELECT Quantity_Available FROM Stock WHERE No_Product=%s", (item.No_Product,))
@@ -142,6 +234,7 @@ def create_order(data: FullOrderRequest):
     except Exception as e:
         DB.rollback()
         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
+>>>>>>> 96a09aaf701f509a91d2cde65e69e4a6d8e1e836
 
 
 @app.put("/order/{order_id}")
@@ -150,6 +243,8 @@ def update_order(order_id: int, data: FullOrderRequest):
         cursor = DB.cursor()
         DB.begin()
 
+<<<<<<< HEAD
+=======
         cursor.execute("SELECT * FROM Orders WHERE Order_ID=%s", (order_id,))
         if not cursor.fetchone():
             raise HTTPException(status_code=404, detail="Order not found")
@@ -196,3 +291,4 @@ def delete_order(order_id: int):
     except Exception as e:
         DB.rollback()
         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
+>>>>>>> 96a09aaf701f509a91d2cde65e69e4a6d8e1e836

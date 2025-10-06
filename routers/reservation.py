@@ -56,7 +56,6 @@ def update_reservation(reservation_id: int, reserve: Reservation):
         WHERE No_Reservation=%s
         """
         cursor.execute(sql_command, (
-            reserve.No_Client,
             reserve.Reservation_Date,
             reserve.Reservation_Time,
             reserve.No_Person,
