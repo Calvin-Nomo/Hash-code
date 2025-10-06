@@ -4,3 +4,8 @@ Typing
 Pymysql
 uvicorn
 requests
+jose
+python-multipart
+passlib
+passlib[bcrypt]
+python-jose
