@@ -1,7 +1,6 @@
-hashlib
-streamlit
 Fastapi
 Pydantic
 Typing
 Pymysql
 uvicorn
+requests

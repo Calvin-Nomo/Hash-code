@@ -74,6 +74,10 @@ INNER JOIN Product p ON oi.No_Product = p.No_Product
 GROUP BY o.Order_ID,o.Order_Type;
 select*  from Payment;
 select*  from Order_items;
+select* from Orders;
+select * from product;
+select * from tab;
+select* from Stock;
 UPDATE Payment p
 JOIN (
     SELECT 
