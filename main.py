@@ -180,7 +180,8 @@ def delete_order(order_id: int):
         DB.begin()
 
         cursor.execute("SELECT * FROM Orders WHERE Order_ID=%s", (order_id,))
-        if not cursor.fetchone():
+        order=cursor.fetchone()
+        if not order:
             raise HTTPException(status_code=404, detail="Order not found")
 
         cursor.execute("DELETE FROM Order_Items WHERE Order_ID=%s", (order_id,))
