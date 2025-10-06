@@ -1,8 +1,10 @@
+
+
 from datetime import datetime
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
 import pymysql
-from routers import client,order,order_items,reservation,payment,product,stock
+from routers import client,order,order_items,reservation,payment,product,stock,table
 from routers.client import Client
 from routers.order import Order
 from routers.payment import Payment
@@ -44,6 +46,7 @@ app.include_router(reservation.router, prefix="/reservation", tags=["reservation
 app.include_router(product.router, prefix="/product", tags=["product"])
 app.include_router(payment.router, prefix="/payment", tags=["payment"])
 app.include_router(stock.router, prefix="/stock", tags=["stock"])
+app.include_router(table.router, prefix="/table", tags=["table"])
 
 ##### Class############
 def client():

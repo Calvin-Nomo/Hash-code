@@ -30,18 +30,18 @@ def get_client():
     stock=cursor.fetchall()
     return stock
 
-@router.post("/create_stock")
-def create_stock(stock:Stock):
-    try:
-        sql_command="""INSERT INTO Stock(Quantity_Available)
-        VALUES(%s)"""
-        cursor.execute(sql_command,(stock.Quantity_Available))
-        DB.commit()
-    except Exception as e:
-        raise HTTPException(status_code=404,detail=(e))
-    return{
-'Message':'You Have successfully added the  Stock data to your database'
-    }
+# @router.post("/create_stock")
+# def create_stock(stock:Stock):
+#     try:
+#         sql_command="""INSERT INTO Stock(Quantity_Available)
+#         VALUES(%s)"""
+#         cursor.execute(sql_command,(stock.Quantity_Available))
+#         DB.commit()
+#     except Exception as e:
+#         raise HTTPException(status_code=404,detail=(e))
+#     return{
+# 'Message':'You Have successfully added the  Stock data to your database'
+#     }
 
 @router.put("/update_stock/{stock_id}")
 def update_stock(stock_id,stock: Stock):

@@ -13,6 +13,7 @@ BASE_URL = "https://sandbox.momodeveloper.mtn.com/collection/v1_0/requesttopay" 
 class PaymentRequest(BaseModel):
     phone_number: str
     amount: float
+    
 
 @app.post("/pay")
 def create_payment(payment: PaymentRequest):

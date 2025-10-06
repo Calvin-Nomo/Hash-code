@@ -48,11 +48,12 @@ def create_product(product:Product):
         sql_command="Insert Into Stock(No_Product) Values(%s) " 
         cursor.execute(sql_command, (product_id,) )
         
+        
         DB.commit()
     except Exception as e:
         raise HTTPException(status_code=404,detail=(e))
     return{
-'Message':'You Have successfully added the Product data  to your database'
+'Message':f'You Have successfully create a new Product{product_id} data  to your database'
     }
 
 @router.put('/update_product/{product_id}')
@@ -86,6 +87,7 @@ def delete_product(product_id: int):
         WHERE No_Product = %s
         """
         cursor.execute(sql_command, (product_id,))
+        
         
         DB.commit()
 
