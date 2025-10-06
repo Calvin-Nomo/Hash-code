@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app=FastAPI(title='Qrcode Order System') 
 class FullOrderRequest(BaseModel):
     client:Client
-    reversation:Optional[Reservation]=None
+    reservation:Optional[Reservation]=None
     order:Order
     payment:Payment
 # Allow CORS for frontend running on different port
@@ -84,6 +84,7 @@ def get_data():
 def create_order(data:FullOrderRequest):
 #checks if the clients exit if not  create
     try:
+
         sql_command="""SELECT No_Client FROM Clients 
                     WHERE No_Telephone=%s
                 """
@@ -100,13 +101,16 @@ def create_order(data:FullOrderRequest):
 
             #Handling the Reservation if the Order_Type is Reversation
             reservation_id=None
-            if data.order.Order_Type=='Reservation':
-                if not data.reversation:
-                    raise HTTPException(status_code=404,detail='The Reservation Information is needed')
-                if data.reservation and data.order.Order_Type=='Dine In':
-                    raise HTTPException(status_code=404,detail='Error th Order Type most be Reservation')
+            reverse=data.reservation
+            # if data.order.Order_Type=='Reservation':
+            #     if not data.reservation:
+            #         raise HTTPException(status_code=404,detail='The Reservation Information is needed')
+            if data.order.Order_Type == 'Reservation':
+                if not data.reservation or data.reservation.No_Table is None:
+                    raise HTTPException(status_code=400, detail='Reservation information is required for reservation-type orders.')
+
                     
-                reverse=data.reversation
+                reverse=data.reservation
                 sql_command=""" INSERT INTO 
                 Reservation(No_Client,No_Table,Reservation_Date,Reservation_Time,No_Person)
                 Values(%s,%s,%s,%s,%s)
@@ -118,7 +122,7 @@ def create_order(data:FullOrderRequest):
             elif data.order.Order_Type == 'Dine In':
                 table_id=data.order.No_Table
                 #Checking if a table Exist
-                sql_command="""SELECT * From Tab WHERE Table_ID=%s """
+                sql_command="""SELECT No_Table From Tab WHERE Table_ID=%s """
                 cursor.execute(sql_command,(table_id,))
                 table=cursor.fetchone()
                 if not table:
@@ -148,7 +152,7 @@ def create_order(data:FullOrderRequest):
                         
                 elif stock["Quantity_Available"] < item.Quantity:
                             
-                            raise HTTPException(status_code=404, detail=f"Not enough stock for product {item.No_Product}")
+                    raise HTTPException(status_code=404, detail=f"Not enough stock for product {item.No_Product}")
 
                 sql_command="""INSERT INTO Order_Items(Order_ID,No_Product,Quantity) 
                 VALUES(%s,%s,%s)
@@ -181,7 +185,7 @@ def create_order(data:FullOrderRequest):
             # 
             DB.commit()
     except Exception:
-        raise HTTPException(status_code=404,detail='Error in the SQL Command')
+        raise HTTPException(status_code=404,detail='Error in the SQL Commands')
     return{
         'Message':'You Have successfully Place an Order',
      
@@ -193,4 +197,3 @@ def create_order(data:FullOrderRequest):
 
 
 
-#### Delete Method #####
