@@ -142,34 +142,34 @@ def create_order(data: FullOrderRequest):
         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
 
 
-@router.put("/order/{order_id}")
-def update_order(order_id: int, data: FullOrderRequest):
-    try:
-        cursor = DB.cursor()
-        DB.begin()
+# @router.put("/order/{order_id}")
+# def update_order(order_id: int, data: FullOrderRequest):
+#     try:
+#         cursor = DB.cursor()
+#         DB.begin()
 
-        cursor.execute("SELECT * FROM Orders WHERE Order_ID=%s", (order_id,))
-        if not cursor.fetchone():
-            raise HTTPException(status_code=404, detail="Order not found")
+#         cursor.execute("SELECT * FROM Orders WHERE Order_ID=%s", (order_id,))
+#         if not cursor.fetchone():
+#             raise HTTPException(status_code=404, detail="Order not found")
 
-        cursor.execute(
-            "UPDATE Orders SET Order_Type=%s, Note=%s WHERE Order_ID=%s",
-            (data.order.Order_Type, data.order.Note, order_id),
-        )
+#         cursor.execute(
+#             "UPDATE Orders SET Order_Type=%s, Note=%s WHERE Order_ID=%s",
+#             (data.order.Order_Type, data.order.Note, order_id),
+#         )
+#         status='Paid'
+#         cursor.execute(
+#             "UPDATE Payment SET Payment_Method=%s,Payment_Status=%s WHERE Order_ID=%s",
+#             (data.payment.Payment_Method,status, order_id),
+#         )
 
-        cursor.execute(
-            "UPDATE Payment SET Payment_Method=%s, Payment_Status=%s WHERE Order_ID=%s",
-            (data.payment.Payment_Method, data.payment.Payment_Status, order_id),
-        )
-
-        DB.commit()
-        return {"message": "Order updated successfully"}
-    except HTTPException as e:
-        DB.rollback()
-        raise e
-    except Exception as e:
-        DB.rollback()
-        raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
+#         DB.commit()
+#         return {"message": "Order updated successfully"}
+#     except HTTPException as e:
+#         DB.rollback()
+#         raise e
+#     except Exception as e:
+#         DB.rollback()
+#         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
 
 @router.delete("/order/{order_id}")
 def delete_order(order_id: int):

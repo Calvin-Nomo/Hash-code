@@ -24,7 +24,7 @@ app.add_middleware(
 DB = pymysql.connect(
     host="localhost",
     user="root",
-    passwd="------",
+    passwd="Bineli26",
     database="Order_System",
     cursorclass=pymysql.cursors.DictCursor,
     autocommit=False  # turn off auto-commit for transaction safety
@@ -40,10 +40,4 @@ app.include_router(stock.router, prefix="/stock", tags=["stock"])
 app.include_router(table.router, prefix="/table", tags=["table"])
 
 
-# ------------------- MODELS -------------------
-class FullOrderRequest(BaseModel):
-    client: Client
-    reservation: Optional[Reservation] = None
-    order: Order
-    payment: Payment
 
