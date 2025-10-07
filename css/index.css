@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 :root {
-  --color-primary: #4f46e5;
+  --color-primary: #7380ec;
 
   --color-secondary: #6d28d9;
 
@@ -10,15 +10,18 @@
 
   --color-black: #000000;
 
-  --color-light: #f3f4f6;
+  --color-light:rgba(132,139,200,0.18);
 
   --color-grey: #9ca3af;
 
   --color-dark: #374151;
 
   --color-dark-variant: #677483;
+
   --color-info-dark: #7d8da1;
+
   --color-primary-variant: #111e88;
+
   --color-info-light: #dce1eb;
 
   --color-danger: #ef4444;
@@ -26,6 +29,7 @@
   --color-success: #10b981;
 
   --color-warning: #f59e0b;
+
   --color-background: #f6f6f9;
 
   --font-family-primary: "Poppins", sans-serif;
@@ -265,7 +269,7 @@ main .insight .sales svg circle {
   stroke-dashoffset: 20;
   stroke-dasharray: 800;
 }
-main .insight .icome svg circle {
+main .insight .income svg circle {
   stroke-dashoffset: 35;
   stroke-dasharray: 110;
 }
@@ -277,12 +281,17 @@ main .insight .progress .number {
   font-size: 1.4rem;
   font-weight: 600;
   color: var(--color-dark);
+  
+}
+main .insight small{
+margin-top: 1.3rem;
+display: block;
 }
 /* ============Recent Order================= */
 main .recent-orders {
   margin-top: 2rem;
 }
-main .recent-order h2 {
+main .recent-orders h2 {
   margin-bottom: 0.8rem;
 }
 
@@ -303,3 +312,60 @@ main table tbody td {
   border-bottom: 1px solid var(--color-light);
   color: var(--color-dark-variant);
 }
+main table tbody tr:last-child{
+  border: none;
+}
+main .recent-orders a{
+  text-align:center;
+  display: block;
+  margin:1rem auto;
+  color: var(--color-primary);
+
+}
+/* END OF MAIN */
+
+/* Right */
+/* a USER Profile */
+.right{
+  margin-top: 1.4rem;
+}
+.right .top{
+  display: flex;
+  justify-content: end;
+  gap: 2rem;
+}
+.right .top button{
+  display:none;
+}
+.right .theme-toggler{
+    background: var(--color-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 1.6rem;
+    width: 4.2rem;
+    cursor: pointer;
+    border-radius: var(--border-radius-1);
+}
+.right .theme-toggler span{
+  font-size: 1.2rem;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.right .theme-toggler span.active{
+  background: var(--color-primary);
+  color:white;
+  border-radius: var(--border-radius-1);
+}
+.right .top .profile{
+  display: flex;
+  gap: 2rem;
+  text-align: right;
+}
+/*  Fin User Profile */
+
+
+/* Responsive */

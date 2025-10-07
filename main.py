@@ -1,15 +1,9 @@
-from datetime import datetime
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+
+from fastapi import FastAPI
 import pymysql
-from typing import Optional
+
 from fastapi.middleware.cors import CORSMiddleware
 from routers import client, order, order_items, reservation, payment, product, stock, table
-from routers.client import Client
-from routers.order import Order
-from routers.payment import Payment
-from routers.reservation import Reservation
-
 app = FastAPI(title="Qrcode Order System")
 
 # --- Allow frontend access ---

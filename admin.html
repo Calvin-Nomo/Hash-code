@@ -37,15 +37,15 @@
             <h3>Dashboard</h3>
           </a>
           <a href="#" class="active">
-            <span class="material-icons-sharp"> grid_view </span>
+            <span class="material-icons-sharp"> person </span>
             <h3>Clients</h3>
           </a>
           <a href="#">
-            <span class="material-icons-sharp"> insights </span>
+            <span class="material-icons-sharp"> shopping_cart </span>
             <h3>Order</h3>
           </a>
           <a href="#">
-            <span class="material-icons-sharp"> grid_view </span>
+            <span class="material-icons-sharp"> insights </span>
             <h3>Order_Items</h3>
           </a>
           <a href="#">
@@ -53,7 +53,7 @@
             <h3>Product</h3>
           </a>
           <a href="#">
-            <span class="material-icons-sharp"> grid_view </span>
+            <span class="material-icons-sharp"> local_mall </span>
             <h3>Stock</h3>
           </a>
           <a href="#">
@@ -145,16 +145,16 @@
           <!-- END OF INCOME -->
         </div>
         <!-- END OF INSIGHT -->
-        <div class="recent-order">
+        <div class="recent-orders">
           <h2>Recent Orders</h2>
           <table>
             <thead>
               <tr>
-                <th></th>
                 <th>Product Name</th>
                 <th>Product_Number</th>
                 <th>Payment</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -162,7 +162,21 @@
                 <td>Foldable Mini Drone</td>
                 <td>85234</td>
                 <td>Due</td>
-                <td class="waring">Pending</td>
+                <td class="">completed</td>
+                <td class="primary">Details</td>
+              </tr>
+              <tr>
+                <td>Foldable Mini Drone</td>
+                <td>85234</td>
+                <td>Due</td>
+                <td class="warning">Pending</td>
+                <td class="primary">Details</td>
+              </tr>
+              <tr>
+                <td>Foldable Mini Drone</td>
+                <td>85234</td>
+                <td>Due</td>
+                <td class="danger">Cancel</td>
                 <td class="primary">Details</td>
               </tr>
               <tr>
@@ -176,7 +190,7 @@
                 <td>Foldable Mini Drone</td>
                 <td>85234</td>
                 <td>Due</td>
-                <td class="waring">Pending</td>
+                <td class="primary">Pending</td>
                 <td class="primary">Details</td>
               </tr>
               <tr>
@@ -190,28 +204,38 @@
                 <td>Foldable Mini Drone</td>
                 <td>85234</td>
                 <td>Due</td>
-                <td class="waring">Pending</td>
-                <td class="primary">Details</td>
-              </tr>
-              <tr>
-                <td>Foldable Mini Drone</td>
-                <td>85234</td>
-                <td>Due</td>
-                <td class="waring">Pending</td>
-                <td class="primary">Details</td>
-              </tr>
-              <tr>
-                <td>Foldable Mini Drone</td>
-                <td>85234</td>
-                <td>Due</td>
-                <td class="waring">Pending</td>
+                <td class="primary">Pending</td>
                 <td class="primary">Details</td>
               </tr>
             </tbody>
           </table>
           <a href="#">Show all</a>
         </div>
+        <!-- End of the Recent Orders -->
+
       </main>
+      <!-- \\\\\\\\\\\\\\\END OF MAIN\\\\\\\\\\\\\\\\\\\\\\\ -->
+               <div class="right">
+          <div class="top">
+            <button id="menu-btn">
+                          <span class="material-icons-sharp">menu </span>
+
+            </button>
+            <div class="theme-toggler">
+           <span class="material-icons-sharp active" >light_mode</span>
+          <span class="material-icons-sharp">dark_mode</span>
+            </div>
+            <div class="profile">
+              <div class="info">
+                <p>Hey, <b>Calvin Nomo</b></p>
+                <small class="text-muted">Admin</small>
+              </div>
+              <div class="profile-photo">
+                <img src="image/couch.png" alt="">
+              </div>
+            </div>
+          </div>
+         </div>
     </div>
   </body>
 </html>
