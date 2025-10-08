@@ -375,7 +375,7 @@ display: flex;
   text-align: right;
 }
 /* Start  */
-.right .lang-menu {
+.lang-menu {
   position: relative;
   display: inline-block;
   font-family: "Poppins", sans-serif;
@@ -383,7 +383,7 @@ display: flex;
   color: #333;
 }
 
- .right .selected-language {
+.selected-language {
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -395,13 +395,13 @@ display: flex;
   min-width: 130px;
 }
 
-.right .selected-language img {
+.selected-language img {
   width: 22px;
   height: 22px;
   border-radius: 50%;
 }
 
-.right .lang-options {
+.lang-options {
   position: absolute;
   top: 120%;
   right: 0;
@@ -415,15 +415,15 @@ display: flex;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
- .right .lang-menu.active .lang-options {
+.lang-menu.active .lang-options {
   display: block;
 }
 
-.right .lang-options li {
+.lang-options li {
   padding: 0.4rem 1rem;
 }
 
-.right .lang-options li a {
+.lang-options li a {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -433,7 +433,7 @@ display: flex;
 }
 
 /* Flag icons using background images */
- .right .lang-options li a:before {
+.lang-options li a:before {
   content: "";
   display: inline-block;
   width: 22px;
@@ -442,11 +442,11 @@ display: flex;
   border-radius: 50%;
 }
 
-.right .lang-options li a.en:before {
+.lang-options li a.en:before {
   background-image: url("https://flagsapi.com/US/flat/32.png");
 }
 
-.right .lang-options li a.fr:before {
+.lang-options li a.fr:before {
   background-image: url("https://flagsapi.com/FR/flat/32.png");
 }
 

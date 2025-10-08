@@ -47,26 +47,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-// Fetch and display orders from the backend
-
-   fetch("http://localhost:5000/api/orders")  // Replace with your API endpoint
-    .then(res => res.json())
-    .then(data => {
-      const tbody = document.querySelector("#order-table tbody");// Replace with your API endpoint
-      tbody.innerHTML = ""; // clear any existing rows
-
-      data.forEach(order => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>''${order.Order_ID}</td>
-          <td>${order.Client_Name}</td>
-          <td>${order.No_Telephone}</td>
-          <td>${order.Order_Type}</td>
-          <td>${order.Total_Amount}</td>
-          <td>${order.Payment_Status}</td>
-          <td>${new Date(order.Order_Date).toLocaleDateString()}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    })
-    .catch(err => console.error("Error fetching orders:", err));
