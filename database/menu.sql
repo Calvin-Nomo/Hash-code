@@ -158,3 +158,11 @@ INSERT INTO Tab (No_Table, Seat_Number) VALUES
 (1,4),
 (2, 5),
 (3,5);
+CREATE TABLE Users (
+    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    Username VARCHAR(50) NOT NULL UNIQUE,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Role ENUM('admin', 'waiter') NOT NULL,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
