@@ -1,0 +1,109 @@
+//
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ordering Menu</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="top-header">
+            <div class="location">
+                <i class="material-icons">location_on</i>
+                <span>Deliver to: **123 Main St.** <i class="material-icons arrow">keyboard_arrow_down</i></span>
+            </div>
+            <i class="material-icons profile-icon">person</i>
+        </header>
+
+        <main class="menu-content">
+            <div class="search-bar">
+                <i class="material-icons">search</i>
+                <input type="text" placeholder="Search for food, deals, or restaurants...">
+            </div>
+
+            <section class="featured-offers">
+                <h2>Top Offers & Combos</h2>
+                <div class="offers-carousel" id="offers-carousel">
+                    <div class="offer-card best-seller">
+                        <img src="combo-image-1.jpg" alt="Combo Offer">
+                        <div class="offer-info">
+                            <h3>Big Combo Deal!</h3>
+                            <p>Save 30% on our family feast.</p>
+                        </div>
+                    </div>
+                    <div class="offer-card special-deal">
+                        <img src="combo-image-2.jpg" alt="Special Deal">
+                        <div class="offer-info">
+                            <h3>Pizza & Drink</h3>
+                            <p>Get a free soda with any large pizza.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="category-filter">
+                <button class="category-btn active">All</button>
+                <button class="category-btn">Roll</button>
+                <button class="category-btn">Baked Goods</button>
+                <button class="category-btn">Meat</button>
+                <button class="category-btn">Drinks</button>
+            </section>
+
+            <section class="product-list" id="product-list">
+                <h3>Top Selling Products</h3>
+                <div class="product-grid">
+                    <div class="product-card" data-id="1">
+                        <img src="product-image-1.jpg" alt="Classic Burger">
+                        <h4>Classic Burger</h4>
+                        <p class="description">Juicy patty, special sauce, fresh veggies.</p>
+                        <button class="add-to-cart-btn">$9.99 <i class="material-icons">add</i></button>
+                    </div>
+                    <div class="product-card" data-id="2">
+                        <img src="product-image-2.jpg" alt="Veggie Roll">
+                        <h4>Spicy Veggie Roll</h4>
+                        <p class="description">Freshly baked, stuffed with mixed vegetables.</p>
+                        <button class="add-to-cart-btn">$7.50 <i class="material-icons">add</i></button>
+                    </div>
+                </div>
+
+                <h3>Baked Goods</h3>
+                <div class="product-grid">
+                    <div class="product-card" data-id="3">
+                        <img src="product-image-3.jpg" alt="Croissant">
+                        <h4>Buttery Croissant</h4>
+                        <p class="description">Classic French pastry, light and flaky.</p>
+                        <button class="add-to-cart-btn">$3.00 <i class="material-icons">add</i></button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active">
+                <i class="material-icons">home</i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="material-icons">search</i>
+                <span>Search</span>
+            </a>
+            <a href="#" class="nav-item cart-item">
+                <i class="material-icons">shopping_cart</i>
+                <span id="cart-count" class="cart-badge">0</span>
+                <span>Cart</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="material-icons">history</i>
+                <span>Orders</span>
+            </a>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
