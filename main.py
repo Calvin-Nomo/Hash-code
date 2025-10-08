@@ -51,4 +51,3 @@ def order_info():
     order_info=cursor.fetchall()
     return order_info
 
-

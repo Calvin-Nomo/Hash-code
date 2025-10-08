@@ -24,6 +24,12 @@ def greetings():
     return {
      "Message ":"Hello World" 
 }
+@router.get('/total_revenue')
+def total_revenue():
+    sql_command="Select sum(Total_Amount) as total from Payment"
+    cursor.execute(sql_command)
+    revenue=cursor.fetchone()
+    return revenue
 
 @router.get('/Payment')
 def get_payment():

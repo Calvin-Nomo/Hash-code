@@ -9,3 +9,4 @@ python-multipart
 passlib
 passlib[bcrypt]
 python-jose
+cryptography

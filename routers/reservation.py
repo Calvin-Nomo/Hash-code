@@ -32,6 +32,12 @@ def get_reservations():
     cursor.execute(sql_command)
     reservations =cursor.fetchall()
     return reservations
+@router.get('/total_reservations')
+def total_reservations():
+    sql_command="Select count(No_Reservation) as total from Reservation"
+    cursor.execute(sql_command)
+    total=cursor.fetchone()
+    return total
 
 # @router.post('/create_reservation')
 # def create_reservation(reserve:Reservation):

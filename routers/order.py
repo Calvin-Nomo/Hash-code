@@ -39,12 +39,21 @@ def greetings():
     return {
      "Message ":"Hello World" 
 }
+    
 @router.get('/Order')
 def get_order():
     sql_command="Select* from Orders" 
     cursor.execute(sql_command)
     order =cursor.fetchall()
     return order
+
+@router.get('/total_order')
+def total_order():
+    sql_command="Select count(Order_ID) as total from Orders"
+    cursor.execute(sql_command)
+    total=cursor.fetchone()
+    return total
+
 
 # ------------------- POST /FullOrderRequest -------------------
 @router.post("/FullOrderRequest")
