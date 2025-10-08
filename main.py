@@ -46,7 +46,12 @@ def order_info():
                     o.Order_ID =p.Order_ID
                     join Clients c
                     ON 
-                    o.Order_ID=c.No_Client"""
+                    o.Order_ID=c.No_Client
+                ORDER BY o.Order_Date ASC
+                Limit 8
+                    
+                    """
+                    
     cursor.execute(sql_command)
     order_info=cursor.fetchall()
     return order_info

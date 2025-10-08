@@ -35,35 +35,59 @@
             <span class="material-icons-sharp"> close </span>
           </div>
         </div>
+
         <div class="sidebar">
           <a href="#">
             <span class="material-icons-sharp"> grid_view </span>
             <h3>Dashboard</h3>
           </a>
+
           <a href="#" class="active">
             <span class="material-icons-sharp"> person_outline </span>
             <h3>Clients</h3>
           </a>
+
           <a href="#">
             <span class="material-icons-sharp"> shopping_cart </span>
             <h3>Order</h3>
           </a>
+
           <a href="#">
             <span class="material-icons-sharp"> insights </span>
             <h3>Order_Items</h3>
           </a>
-          <a href="#">
-            <span class="material-icons-sharp"> inventory </span>
-            <h3>Product</h3>
-          </a>
-          <a href="#">
-            <span class="material-icons-sharp"> local_mall </span>
-            <h3>Stock</h3>
-          </a>
+
+          <!-- Dropdown for Product -->
+          <div class="dropdown">
+            <a href="#" class="dropdown-toggle">
+              <span class="material-icons-sharp"> inventory </span>
+              <h3>Product</h3>
+              <span class="material-icons-sharp arrow">expand_more</span>
+            </a>
+            <div class="dropdown-menu">
+              <a href="#">Add Product</a>
+              <a href="#">Product List</a>
+            </div>
+          </div>
+
+          <!-- Dropdown for Stock -->
+          <div class="dropdown">
+            <a href="#" class="dropdown-toggle">
+              <span class="material-icons-sharp"> local_mall </span>
+              <h3>Stock</h3>
+              <span class="material-icons-sharp arrow">expand_more</span>
+            </a>
+            <div class="dropdown-menu">
+              <a href="#">Add Stock</a>
+              <a href="#">Stock List</a>
+            </div>
+          </div>
+
           <a href="#">
             <span class="material-icons-sharp"> grid_view </span>
             <h3>Reservation</h3>
           </a>
+
           <a href="#">
             <span class="material-icons-sharp"> settings </span>
             <h3>System Setting</h3>
@@ -75,6 +99,7 @@
           </a>
         </div>
       </aside>
+
       <!-- ################END OF SIDE BAR #################-->
       <main>
         <h1>Dashboard</h1>

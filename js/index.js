@@ -10,18 +10,44 @@ openBtn.addEventListener("click", () => {
 closeBtn.addEventListener("click", () => {
   sideMenu.style.display = "none";
 });
+const themeToggler = document.querySelector(".theme-toggler");
+const body = document.body;
+const lightIcon = themeToggler.querySelector("span:nth-child(1)");
+const darkIcon = themeToggler.querySelector("span:nth-child(2)");
 
-Theme_Change.addEventListener("click", () => {
-  document.body.classList.toggle("dark-theme-variables");
-  Theme_Change.querySelector("span:nth-child(1)").classList.toggle("activate");
-  Theme_Change.querySelector("span:nth-child(2)").classList.toggle("activate");
+// Load saved theme from localStorage
+if (localStorage.getItem("theme") === "dark") {
+  body.classList.add("dark-theme-variables");
+  lightIcon.classList.remove("active");
+  darkIcon.classList.add("active");
+}
+
+themeToggler.addEventListener("click", () => {
+  body.classList.toggle("dark-theme-variables");
+
+  // Toggle icon active class
+  lightIcon.classList.toggle("active");
+  darkIcon.classList.toggle("active");
+
+  // Save preference
+  if (body.classList.contains("dark-theme-variables")) {
+    localStorage.setItem("theme", "dark");
+  } else {
+    localStorage.setItem("theme", "light");
+  }
 });
-
 document.addEventListener("DOMContentLoaded", function () {
   const langMenu = document.querySelector(".lang-menu");
   const selected = langMenu.querySelector(".selected-language");
   const options = langMenu.querySelectorAll(".lang-options a");
-
+  // New side bar
+  document.querySelectorAll(".dropdown-toggle").forEach((toggle) => {
+    toggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      const dropdown = this.parentElement;
+      dropdown.classList.toggle("active");
+    });
+  });
   // Toggle dropdown
   selected.addEventListener("click", () => {
     langMenu.classList.toggle("active");
@@ -62,9 +88,9 @@ fetch("http://127.0.0.1:8000/order_info") // Replace with your API endpoint
           <td>${order.Client_Name}</td>
           <td>${order.No_Telephone}</td>
           <td>${order.Order_Type}</td>
-          <td>${order.Total_Amount} FCFAs</td>
+          <td>${order.Total_Amount} FCFA</td>
           <td>${order.Payment_Status}</td>
-          <td>${new Date(order.Order_Date).toLocaleDateString()}</td>
+          <td>${new Date(order.Order_Date).toLocaleString()}</td>
         `;
       tbody.appendChild(row);
     });
