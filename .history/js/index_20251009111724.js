@@ -234,12 +234,14 @@ function renderProducts(data) {
       <td>${product.category}</td>
       <td>$${product.price.toFixed(2)}</td>
       <td class="actions">
+      
         <button class="edit-btn">
-        Edit
+        img src="image/pencil.png" alt="Edit" />
         </button>
         <button class="delete-btn">
-Delete
-        </button>
+        <img src="image/delete.png" alt="Delete" />
+        
+        /button>
       </td>
     `;
 
