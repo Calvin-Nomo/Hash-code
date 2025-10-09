@@ -96,6 +96,35 @@ fetch("http://127.0.0.1:8000/order_info") // Replace with your API endpoint
     });
   })
   .catch((err) => console.error("Error fetching orders:", err));
+//Fetch Product from the backend(limit 15 from product_list.html)
+fetch("http://127.0.0.1:8000/product/product/product_limit")
+  .then((res) => res.json())
+  .then((data) => {
+    const tbody = document.querySelector("#product-table tbody");
+    tbody.innerHTML = ""; // Clear any existing rows
+    data.forEach((product) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+            <td>#${product.No_Product}</td>
+            <td>${product.Image_Path}</td>
+          <td>${product.Product_Name}</td>
+          <td>${product.Product_Description}</td>
+          <td>${product.Category}</td>  
+          <td>${product.Unit_Price} FCFA</td>
+            <td>
+            <button class="edit-btn" onclick="editProduct(${product.No_Product})">
+            <img src="image/pencil.png" alt="Edit" />
+            </button>
+            <button class="delete-btn" onclick="deleteProduct(${product.No_Product})">
+            <img src="image/delete.png" alt="Delete" />
+            </button>
+          </td>
+        `;
+      tbody.appendChild(row);
+    });
+  })
+  .catch((err) => console.error("Error fetching products:", err));
+// updating the product in the inventory
 
 // Fetch and display total orders from the backend
 fetch("http://127.0.0.1:8000/order/order/total_order")

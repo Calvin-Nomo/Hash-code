@@ -31,7 +31,13 @@ def greetings():
 
 @router.get('/Product')
 def get_product():
-    sql_command="Select* from Product"
+    sql_command="Select* from Product "
+    cursor.execute(sql_command)
+    product=cursor.fetchall()
+    return product
+@router.get('/product_limit')
+def get_product_limit15():
+    sql_command="Select* from Product Limit 15"
     cursor.execute(sql_command)
     product=cursor.fetchall()
     return product

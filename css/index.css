@@ -434,6 +434,9 @@ main small.text-muted {
   text-decoration: none;
   font-weight: bold;
 }
+.product-section {
+  margin-top: 2rem;
+}
 
 /* ===== Responsive Layout ===== */
 @media (max-width: 768px) {
