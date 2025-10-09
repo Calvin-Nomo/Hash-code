@@ -108,7 +108,7 @@ fetch("http://127.0.0.1:8000/product/product/product_limit")
             <td>#${product.No_Product}</td>
             <td>${product.Image_Path}</td>
           <td>${product.Product_Name}</td>
-          <td>${product.Product_Description}</td>
+          <td class='description'>${product.Product_Description}</td>
           <td>${product.Category}</td>  
           <td>${product.Unit_Price} FCFA</td>
             <td>
