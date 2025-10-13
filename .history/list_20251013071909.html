@@ -254,31 +254,6 @@
       .close-cart {
         cursor: pointer;
       }
-      /* 💳 Checkout Button */
-.checkout-btn {
-  background-color: #27ae60;
-  color: #fff;
-  border: none;
-  padding: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-}
-
-.checkout-btn:hover {
-  background-color: #219150;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
-}
-
-.checkout-btn:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
     </style>
   </head>
   <body>
@@ -337,158 +312,134 @@
       </nav>
 
       <!-- CART SIDEBAR INSIDE PHONE FRAME -->
-<div class="cart-sidebar" id="cartSidebar">
-  <div class="cart-header">
-    My Cart <span class="close-cart" id="closeCart">&times;</span>
-  </div>
-
-  <div class="cart-items" id="cartItems"></div>
-
-  <div class="cart-footer">
-    <div class="cart-total">
-      <span>Total:</span>
-      <span id="cartTotal">$0.00</span>
-    </div>
-    <button class="checkout-btn" id="checkoutBtn">Checkout</button>
-  </div>
-</div>
-
-    </div>
-    <script>
-  const API_URL = "http://localhost:8000/product/product/Product";
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-  // ===== LOAD PRODUCTS =====
-  async function loadProducts() {
-    try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-      const grid = document.getElementById("product-grid");
-      const catContainer = document.getElementById("category-buttons");
-      grid.innerHTML = "";
-      const categories = new Set(["all"]);
-
-      data.forEach((prod) => {
-        categories.add(prod.Category.toLowerCase());
-        const card = document.createElement("div");
-        card.classList.add("product-card");
-        card.setAttribute("data-category", prod.Category.toLowerCase());
-        card.innerHTML = `
-          <img src="${prod.Image_link}" alt="${prod.Product_Name}" />
-          <h4>${prod.Product_Name}</h4>
-          <p>${prod.Product_Description}</p>
-          <div class="product-footer">
-            <span class="price">$${prod.Price.toFixed(2)}</span>
-            <button class="add-to-cart-btn"><i class="material-icons-sharp">add</i></button>
-          </div>`;
-
-        grid.appendChild(card);
-
-        // Add to cart
-        card.querySelector(".add-to-cart-btn").addEventListener("click", () => addToCart(prod));
-      });
-
-      // ===== CATEGORY BUTTONS =====
-      catContainer.innerHTML = "";
-      categories.forEach((cat) => {
-        const btn = document.createElement("button");
-        btn.classList.add("category-btn");
-        if (cat === "all") btn.classList.add("active");
-        btn.dataset.category = cat;
-        btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
-        btn.addEventListener("click", filterByCategory);
-        catContainer.appendChild(btn);
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  // ===== FILTER BY CATEGORY =====
-  function filterByCategory(e) {
-    const category = e.target.dataset.category;
-    document.querySelectorAll(".category-btn").forEach((btn) => btn.classList.remove("active"));
-    e.target.classList.add("active");
-    document.querySelectorAll(".product-card").forEach((card) => {
-      card.style.display =
-        category === "all" || card.dataset.category === category ? "block" : "none";
-    });
-  }
-
-  // ===== CART ELEMENTS =====
-  const cartSidebar = document.getElementById("cartSidebar");
-  const cartItemsDiv = document.getElementById("cartItems");
-  const cartTotalEl = document.getElementById("cartTotal");
-  const cartCountEl = document.getElementById("cart-count");
-
-  // ===== ADD TO CART =====
-  function addToCart(product) {
-    const existing = cart.find((item) => item.id === product.id);
-    if (existing) existing.qty += 1;
-    else cart.push({ ...product, qty: 1 });
-    updateCartUI();
-  }
-
-  // ===== UPDATE CART UI =====
-  function updateCartUI() {
-    cartItemsDiv.innerHTML = "";
-    let total = 0;
-
-    cart.forEach((item) => {
-      total += item.Price * item.qty;
-
-      const div = document.createElement("div");
-      div.classList.add("cart-item");
-      div.innerHTML = `
-        <img src="${item.Image_link}" alt="${item.Product_Name}" />
-        <div class="cart-item-info">
-          <span class="cart-item-name">${item.Product_Name}</span>
-          <span class="cart-item-price">Price: $${item.Price.toFixed(2)}</span>
-          <div>
-            Qty: <input type="number" value="${item.qty}" min="1" class="qty-input" style="width:50px"/>
-          </div>
-          <strong class="item-total">Total: $${(item.Price * item.qty).toFixed(2)}</strong>
+      <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+          My Cart <span class="close-cart" id="closeCart">&times;</span>
         </div>
-      `;
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+          <span>Total:</span>
+          <span id="cartTotal">$0.00</span>
+        </div>
+      </div>
+    </div>
 
-      // Quantity change event
-      div.querySelector(".qty-input").addEventListener("change", (e) => {
-        const newQty = parseInt(e.target.value);
-        if (newQty > 0) item.qty = newQty;
+    <script>
+      const API_URL = "http://localhost:8000/product/product/Product";
+      let cart = [];
+
+      // Load products
+      async function loadProducts() {
+        try {
+          const res = await fetch(API_URL);
+          const data = await res.json();
+          const grid = document.getElementById("product-grid");
+          const catContainer = document.getElementById("category-buttons");
+          grid.innerHTML = "";
+          const categories = new Set(["all"]);
+          data.forEach((prod) => {
+            categories.add(prod.Category.toLowerCase());
+            const card = document.createElement("div");
+            card.classList.add("product-card");
+            card.setAttribute("data-category", prod.Category.toLowerCase());
+            card.innerHTML = `
+        <img src="${prod.Image_link}" alt="${prod.Product_Name}" />
+        <h4>${prod.Product_Name}</h4>
+        <p>${prod.Product_Description}</p>
+        <div class="product-footer">
+          <span class="price">$${prod.Price.toFixed(2)}</span>
+          <button class="add-to-cart-btn"><i class="material-icons-sharp">add</i></button>
+        </div>`;
+            grid.appendChild(card);
+
+            // Add to cart
+            card
+              .querySelector(".add-to-cart-btn")
+              .addEventListener("click", () => addToCart(prod));
+          });
+
+          // Category buttons
+          catContainer.innerHTML = "";
+          categories.forEach((cat) => {
+            const btn = document.createElement("button");
+            btn.classList.add("category-btn");
+            if (cat === "all") btn.classList.add("active");
+            btn.dataset.category = cat;
+            btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+            btn.addEventListener("click", filterByCategory);
+            catContainer.appendChild(btn);
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function filterByCategory(e) {
+        const category = e.target.dataset.category;
+        document
+          .querySelectorAll(".category-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        document.querySelectorAll(".product-card").forEach((card) => {
+          card.style.display =
+            category === "all" || card.dataset.category === category
+              ? "block"
+              : "none";
+        });
+      }
+
+      // CART FUNCTIONS
+      const cartSidebar = document.getElementById("cartSidebar");
+      const cartItemsDiv = document.getElementById("cartItems");
+      const cartTotalEl = document.getElementById("cartTotal");
+      const cartCountEl = document.getElementById("cart-count");
+
+      function addToCart(product) {
+        const existing = cart.find((item) => item.id === product.id);
+        if (existing) existing.qty += 1;
+        else cart.push({ ...product, qty: 1 });
         updateCartUI();
-      });
+      }
 
-      cartItemsDiv.appendChild(div);
-    });
+      function updateCartUI() {
+        cartItemsDiv.innerHTML = "";
+        let total = 0;
+        cart.forEach((item) => {
+          total += item.Price * item.qty;
+          const div = document.createElement("div");
+          div.classList.add("cart-item");
+          div.innerHTML = `
+      <img src="${item.Image_link}" />
+      <div class="cart-item-info">
+        <span>${item.Product_Name}</span>
+        <span>Qty: <input type="number" value="${
+          item.qty
+        }" min="1" style="width:40px"/></span>
+      </div>
+      <span>$${(item.Price * item.qty).toFixed(2)}</span>
+    `;
+          div.querySelector("input").addEventListener("change", (e) => {
+            item.qty = parseInt(e.target.value);
+            updateCartUI();
+          });
+          cartItemsDiv.appendChild(div);
+        });
+        cartTotalEl.textContent = `$${total.toFixed(2)}`;
+        cartCountEl.textContent = cart.reduce((sum, i) => sum + i.qty, 0);
+      }
 
-    // ===== UPDATE TOTALS =====
-    cartTotalEl.textContent = `$${total.toFixed(2)}`;
-    cartCountEl.textContent = cart.reduce((sum, i) => sum + i.qty, 0);
+      // OPEN/CLOSE CART
+      document
+        .querySelector(".cart-btn")
+        .addEventListener("click", () => cartSidebar.classList.add("active"));
+      document
+        .getElementById("closeCart")
+        .addEventListener("click", () =>
+          cartSidebar.classList.remove("active")
+        );
 
-    // ===== SAVE TO LOCAL STORAGE =====
-    localStorage.setItem("cart", JSON.stringify(cart));
-
-    // ===== LOG CART =====
-    console.log("🛒 CART ITEMS:");
-    cart.forEach((item) =>
-      console.log(`${item.Product_Name} | Qty: ${item.qty} | Total: $${(item.Price * item.qty).toFixed(2)}`)
-    );
-    console.log("💰 Cart Total:", total.toFixed(2));
-  }
-
-  // ===== OPEN/CLOSE CART =====
-  document.querySelector(".cart-btn").addEventListener("click", () => {
-    cartSidebar.classList.add("active");
-  });
-
-  document.getElementById("closeCart").addEventListener("click", () => {
-    cartSidebar.classList.remove("active");
-  });
-
-  // ===== INITIALIZE =====
-  loadProducts();
-  updateCartUI();
-</script>
-
+      // INITIALIZE
+      loadProducts();
+    </script>
   </body>
 </html>
