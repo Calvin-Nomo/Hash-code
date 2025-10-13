@@ -254,31 +254,6 @@
       .close-cart {
         cursor: pointer;
       }
-      /* 💳 Checkout Button */
-.checkout-btn {
-  background-color: #27ae60;
-  color: #fff;
-  border: none;
-  padding: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-}
-
-.checkout-btn:hover {
-  background-color: #219150;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
-}
-
-.checkout-btn:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
     </style>
   </head>
   <body>
@@ -337,22 +312,16 @@
       </nav>
 
       <!-- CART SIDEBAR INSIDE PHONE FRAME -->
-<div class="cart-sidebar" id="cartSidebar">
-  <div class="cart-header">
-    My Cart <span class="close-cart" id="closeCart">&times;</span>
-  </div>
-
-  <div class="cart-items" id="cartItems"></div>
-
-  <div class="cart-footer">
-    <div class="cart-total">
-      <span>Total:</span>
-      <span id="cartTotal">$0.00</span>
-    </div>
-    <button class="checkout-btn" id="checkoutBtn">Checkout</button>
-  </div>
-</div>
-
+      <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+          My Cart <span class="close-cart" id="closeCart">&times;</span>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+          <span>Total:</span>
+          <span id="cartTotal">$0.00</span>
+        </div>
+      </div>
     </div>
     <script>
   const API_URL = "http://localhost:8000/product/product/Product";
