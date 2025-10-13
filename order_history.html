@@ -37,7 +37,7 @@
       }
 
       .top-header {
-        background: #000;
+        background: #e74c3c;
         color: #fff;
         display: flex;
         justify-content: space-between;
@@ -100,6 +100,18 @@
         background: #e74c3c;
       }
 
+      .order-details {
+        display: none;
+        margin-top: 10px;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+        font-size: 12px;
+      }
+
+      .order-details p {
+        margin: 4px 0;
+      }
+
       .bottom-nav {
         position: absolute;
         bottom: 0;
@@ -153,13 +165,13 @@
             <i class="material-icons-sharp">home</i>
             <span>Home</span>
           </a>
-          <a href="order-history.html" class="nav-item active">
-            <i class="material-icons-sharp">receipt_long</i>
-            <span>Orders</span>
-          </a>
           <a href="#" class="nav-item">
             <i class="material-icons-sharp">person</i>
             <span>Profile</span>
+          </a>
+          <a href="#" class="nav-item active">
+            <i class="material-icons-sharp">receipt_long</i>
+            <span>Orders</span>
           </a>
         </nav>
       </div>
@@ -168,7 +180,7 @@
     <script>
       const orderList = document.getElementById("orderList");
 
-      // Sample orders from localStorage (replace 'orders' with your key)
+      // Sample orders (replace with localStorage fetch)
       const orders = JSON.parse(localStorage.getItem("orders")) || [
         {
           id: 10234,
@@ -176,6 +188,14 @@
           time: "15:45",
           status: "pending",
           total: 30.0,
+          client: "John Doe",
+          phone: "+1234567890",
+          paymentMethod: "Credit Card",
+          orderType: "Delivery",
+          items: [
+            { name: "Burger", quantity: 2, price: 10 },
+            { name: "Fries", quantity: 1, price: 5 },
+          ],
         },
         {
           id: 10233,
@@ -183,13 +203,14 @@
           time: "12:20",
           status: "completed",
           total: 25.5,
-        },
-        {
-          id: 10232,
-          date: "2025-10-10",
-          time: "18:10",
-          status: "canceled",
-          total: 12.0,
+          client: "Alice Smith",
+          phone: "+9876543210",
+          paymentMethod: "Cash",
+          orderType: "Pickup",
+          items: [
+            { name: "Pizza", quantity: 1, price: 15 },
+            { name: "Soda", quantity: 2, price: 5.25 },
+          ],
         },
       ];
 
@@ -198,6 +219,31 @@
         orders.forEach((order) => {
           const orderCard = document.createElement("div");
           orderCard.classList.add("order-card");
+
+          // Create order details HTML
+          let itemsHTML = order.items
+            .map(
+              (item) =>
+                `<p>• ${item.name} x ${item.quantity} — $${item.price.toFixed(
+                  2
+                )}</p>`
+            )
+            .join("");
+
+          const detailsHTML = `
+            <div class="order-details">
+              <p><strong>Client:</strong> ${order.client}</p>
+              <p><strong>Phone:</strong> ${order.phone}</p>
+              <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+              <p><strong>Order Type:</strong> ${order.orderType}</p>
+              <p><strong>Payment Status:</strong> ${
+                order.status.charAt(0).toUpperCase() + order.status.slice(1)
+              }</p>
+              <p><strong>Items:</strong></p>
+              ${itemsHTML}
+            </div>
+          `;
+
           orderCard.innerHTML = `
             <h4>Order #${order.id}</h4>
             <p>Date: ${order.date} | Time: ${order.time}</p>
@@ -205,12 +251,16 @@
             order.status.charAt(0).toUpperCase() + order.status.slice(1)
           }</span>
             <p>Total: $${order.total.toFixed(2)}</p>
+            ${detailsHTML}
           `;
+
+          // Toggle order details on click
           orderCard.addEventListener("click", () => {
-            // Save selected order id to localStorage for detail page
-            localStorage.setItem("selectedOrderId", order.id);
-            window.location.href = "order-detail.html";
+            const detailsDiv = orderCard.querySelector(".order-details");
+            detailsDiv.style.display =
+              detailsDiv.style.display === "block" ? "none" : "block";
           });
+
           orderList.appendChild(orderCard);
         });
       }

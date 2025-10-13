@@ -367,6 +367,7 @@ fetch("http://127.0.0.1:8000/table/table/Table")
         <td>#${tab.Table_ID}</td>
         <td>${tab.No_Table}</td>
         <td>${tab.Seat_Number}</td>
+        <td class="success">${tab.State}</td>
         <td class="action-cell">
           <!-- Edit -->
           <button class="action-btn edit" title="Edit">
@@ -416,16 +417,16 @@ confirmDelete.addEventListener("click", () => {
   targetRow = null;
 });
 
-
 // testing the database changes
 const products = [
   {
     id: 1,
     image: "https://via.placeholder.com/60",
     name: "Nike Air Zoom",
-    description: "Lightweight running shoes with breathable mesh and soft cushioning.",
+    description:
+      "Lightweight running shoes with breathable mesh and soft cushioning.",
     category: "Shoes",
-    price: 120
+    price: 120,
   },
   {
     id: 2,
@@ -433,16 +434,17 @@ const products = [
     name: "Adidas Hoodie",
     description: "Warm cotton hoodie perfect for casual wear and workouts.",
     category: "Clothing",
-    price: 60
+    price: 60,
   },
   {
     id: 3,
     image: "https://via.placeholder.com/60",
     name: "Smart Watch Pro",
-    description: "Tracks your fitness, sleep, and heart rate with full color display.",
+    description:
+      "Tracks your fitness, sleep, and heart rate with full color display.",
     category: "Electronics",
-    price: 150
-  }
+    price: 150,
+  },
 ];
 
 // Get the table body element
@@ -457,7 +459,9 @@ function renderProducts(data) {
 
     row.innerHTML = `
       <td>${index + 1}</td>
-      <td><img src="${product.image}" alt="${product.name}" width="50" height="50"></td>
+      <td><img src="${product.image}" alt="${
+      product.name
+    }" width="50" height="50"></td>
       <td>${product.name}</td>
       <td class="description">${product.description}</td>
       <td>${product.category}</td>

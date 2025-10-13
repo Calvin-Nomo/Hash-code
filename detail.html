@@ -317,10 +317,6 @@
           <i class="material-icons-sharp">shopping_cart</i>
           <span>Order</span>
         </a>
-        <a href="#" class="nav-item">
-          <i class="material-icons-sharp">person</i>
-          <span>Profile</span>
-        </a>
       </nav>
     </div>
 
@@ -375,7 +371,7 @@
       let paybtn = document.querySelector(".pay-btn");
       window.addEventListener("DOMContentLoaded", loadOrderSummary);
       paybtn.onclick = function () {
-        alert("Payment processed successfully!");
+        window.location.href = "pay.html";
       };
     </script>
   </body>

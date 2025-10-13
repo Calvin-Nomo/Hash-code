@@ -164,10 +164,10 @@ INSERT INTO Tab (No_Table, Seat_Number) VALUES
 (3,5);
 CREATE TABLE Users (
     UserID INT AUTO_INCREMENT PRIMARY KEY,
-    Username VARCHAR(50) NOT NULL UNIQUE,
-    PasswordHash VARCHAR(255) NOT NULL,
-    Role ENUM('admin', 'waiter') NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Username VARCHAR(50) ,
+    Email varchar(255),
+    PasswordHash VARCHAR(255),
+    Roles varchar(255)
 );
 alter table stock 
 add column stock_status varchar(255);

@@ -1,5 +1,5 @@
 {
   "python-envs.defaultEnvManager": "ms-python.python:venv",
   "python-envs.pythonProjects": [],
-  "livePreview.defaultPreviewPath": "/admin.html"
+  "livePreview.defaultPreviewPath": "/reservation.html"
 }

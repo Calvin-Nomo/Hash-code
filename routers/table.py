@@ -17,7 +17,7 @@ router = APIRouter(prefix="/table", tags=["table"])
 class Table(BaseModel):
     Table_Number:int
     Seat_Number:int
-    
+    State:str
 ###################################Get Method############################# 
 @router.get('/')
 def greetings():
@@ -35,9 +35,9 @@ def get_tables():
 @router.post("/create_table")
 async def create_table(table:Table):
     try:
-        sql_command="""INSERT INTO Tab(No_Table,Seat_Number)
-        VALUES(%s,%s)"""
-        cursor.execute(sql_command,(table.Table_Number,table.Seat_Number))
+        sql_command="""INSERT INTO Tab(No_Table,Seat_Number,State)
+        VALUES(%s,%s,%s)"""
+        cursor.execute(sql_command,(table.Table_Number,table.Seat_Number,table.State))
         table_id=cursor.lastrowid
         DB.commit()
     except Exception as e:
