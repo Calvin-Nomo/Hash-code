@@ -6,13 +6,129 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Order Detail | SmartMenu</title>
+    <title>Order History | SmartMenu</title>
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="order.css" />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: #f2f2f2;
+      }
+
+      .phone-frame {
+        width: 360px;
+        height: 700px;
+        margin: auto;
+        border-radius: 25px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        position: relative;
+      }
+
+      .app-container {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 60px;
+      }
+
+      .top-header {
+        background: #000;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+      }
+
+      .top-header h2 {
+        font-size: 18px;
+      }
+
+      .order-list {
+        padding: 15px;
+      }
+
+      .order-card {
+        background: #fff;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        padding: 12px;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .order-card:hover {
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .order-card h4 {
+        margin: 0 0 5px 0;
+        font-size: 15px;
+        color: #333;
+      }
+
+      .order-card p {
+        margin: 0;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .order-status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        color: #fff;
+        margin-top: 5px;
+      }
+
+      .status-pending {
+        background: #f39c12;
+      }
+
+      .status-completed {
+        background: #27ae60;
+      }
+
+      .status-canceled {
+        background: #e74c3c;
+      }
+
+      .bottom-nav {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        background: #e74c3c;
+        padding: 8px 0;
+      }
+
+      .nav-item {
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 11px;
+        text-decoration: none;
+      }
+
+      .nav-item i {
+        font-size: 1.3rem;
+        margin-bottom: 2px;
+      }
+
+      .nav-item.active,
+      .nav-item:hover {
+        color: #fff;
+      }
+    </style>
   </head>
 
   <body>
@@ -20,84 +136,16 @@
       <div class="app-container">
         <!-- HEADER -->
         <header class="top-header">
-          <div class="logo-area">
-            <i
-              class="material-icons-sharp back-btn"
-              onclick="window.location.href='order-history.html'"
-              >arrow_back</i
-            >
-            <h2>Order <span class="danger">Detail</span></h2>
-          </div>
+          <h2>Order <span class="danger">History</span></h2>
           <div class="profile">
             <i class="material-icons-sharp">person</i>
           </div>
         </header>
 
-        <!-- ORDER DETAIL SECTION -->
-        <section class="order-detail">
-          <div class="order-summary">
-            <h3>Order #10234</h3>
-            <p>
-              <strong>Date:</strong> Oct 12, 2025 | <strong>Time:</strong> 3:45
-              PM
-            </p>
-            <p>
-              <strong>Status:</strong>
-              <span class="status pending">Pending</span>
-            </p>
-          </div>
-
-          <div class="order-items">
-            <h4>Items Ordered</h4>
-
-            <div class="item">
-              <img src="image/burger.jpg" alt="Classic Burger" />
-              <div class="info">
-                <h5>Classic Burger</h5>
-                <p>Qty: 2</p>
-              </div>
-              <span class="price">$19.98</span>
-            </div>
-
-            <div class="item">
-              <img src="image/drink.jpg" alt="Lemon Juice" />
-              <div class="info">
-                <h5>Lemon Juice</h5>
-                <p>Qty: 1</p>
-              </div>
-              <span class="price">$3.50</span>
-            </div>
-
-            <div class="item">
-              <img src="image/dessert.jpg" alt="Chocolate Cake" />
-              <div class="info">
-                <h5>Chocolate Cake</h5>
-                <p>Qty: 1</p>
-              </div>
-              <span class="price">$5.00</span>
-            </div>
-          </div>
-
-          <div class="order-total">
-            <div class="line">
-              <span>Subtotal</span>
-              <span>$28.48</span>
-            </div>
-            <div class="line">
-              <span>Service Fee</span>
-              <span>$1.52</span>
-            </div>
-            <div class="line total">
-              <strong>Total</strong>
-              <strong>$30.00</strong>
-            </div>
-          </div>
-
-          <div class="order-actions">
-            <button class="btn re-order">Re-Order</button>
-            <button class="btn cancel">Cancel Order</button>
-          </div>
-        </section>
+        <!-- ORDER LIST -->
+        <div class="order-list" id="orderList">
+          <!-- Orders dynamically loaded here -->
+        </div>
 
         <!-- BOTTOM NAV -->
         <nav class="bottom-nav">
@@ -116,5 +164,58 @@
         </nav>
       </div>
     </div>
+
+    <script>
+      const orderList = document.getElementById("orderList");
+
+      // Sample orders from localStorage (replace 'orders' with your key)
+      const orders = JSON.parse(localStorage.getItem("orders")) || [
+        {
+          id: 10234,
+          date: "2025-10-12",
+          time: "15:45",
+          status: "pending",
+          total: 30.0,
+        },
+        {
+          id: 10233,
+          date: "2025-10-11",
+          time: "12:20",
+          status: "completed",
+          total: 25.5,
+        },
+        {
+          id: 10232,
+          date: "2025-10-10",
+          time: "18:10",
+          status: "canceled",
+          total: 12.0,
+        },
+      ];
+
+      function loadOrders() {
+        orderList.innerHTML = "";
+        orders.forEach((order) => {
+          const orderCard = document.createElement("div");
+          orderCard.classList.add("order-card");
+          orderCard.innerHTML = `
+            <h4>Order #${order.id}</h4>
+            <p>Date: ${order.date} | Time: ${order.time}</p>
+            <span class="order-status status-${order.status}">${
+            order.status.charAt(0).toUpperCase() + order.status.slice(1)
+          }</span>
+            <p>Total: $${order.total.toFixed(2)}</p>
+          `;
+          orderCard.addEventListener("click", () => {
+            // Save selected order id to localStorage for detail page
+            localStorage.setItem("selectedOrderId", order.id);
+            window.location.href = "order-detail.html";
+          });
+          orderList.appendChild(orderCard);
+        });
+      }
+
+      window.addEventListener("DOMContentLoaded", loadOrders);
+    </script>
   </body>
 </html>

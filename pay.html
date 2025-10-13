@@ -54,7 +54,6 @@
         border-radius: 50%;
       }
 
-      /* Payment Section */
       .payment-method-section,
       .payment-details {
         margin: 15px;
@@ -98,7 +97,7 @@
       }
 
       .method-btn img {
-        width: 50px; /* bigger image */
+        width: 50px;
         height: 50px;
         object-fit: contain;
       }
@@ -131,7 +130,6 @@
         outline: none;
       }
 
-      /* Pay Button */
       .pay-section {
         display: flex;
         justify-content: center;
@@ -156,7 +154,6 @@
         transform: scale(1.03);
       }
 
-      /* Bottom Nav */
       .bottom-nav {
         position: absolute;
         bottom: 0;
@@ -191,7 +188,6 @@
   <body>
     <div class="phone-frame">
       <div class="app-container">
-        <!-- HEADER -->
         <header class="top-header">
           <div class="logo-area">
             <h2>Smart<span class="danger">Menu</span></h2>
@@ -202,7 +198,6 @@
           <div class="profile"><i class="material-icons-sharp">person</i></div>
         </header>
 
-        <!-- Payment Section -->
         <section class="payment-method-section">
           <h3>Select Payment Method</h3>
           <div class="payment-methods">
@@ -218,7 +213,6 @@
           </div>
         </section>
 
-        <!-- Payment Details -->
         <section class="payment-details hidden" id="paymentDetails">
           <h3>Payment Details</h3>
           <div class="detail-item">
@@ -233,7 +227,7 @@
             />
           </div>
           <div class="detail-item">
-            <span>Total Amount:</span> <b id="totalAmount">$28.00</b>
+            <span>Total Amount:</span> <b id="totalAmount">$0.00</b>
           </div>
           <div class="detail-item">
             <span>Transaction Fee:</span> <b id="fees">$0.50</b>
@@ -246,7 +240,6 @@
           </div>
         </section>
 
-        <!-- BOTTOM NAV -->
         <nav class="bottom-nav">
           <a href="index.html" class="nav-item"
             ><i class="material-icons-sharp">home</i><span>Home</span></a
@@ -266,6 +259,20 @@
     </div>
 
     <script>
+      // Load total amount from localStorage
+      function loadTotalAmount() {
+        const totalAmountEl = document.getElementById("totalAmount");
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let total = 0;
+
+        cart.forEach((item) => {
+          total += item.Price * item.qty;
+        });
+
+        totalAmountEl.textContent = `$${total.toFixed(2)}`;
+      }
+
+      // Payment method selection
       const methodButtons = document.querySelectorAll(".method-btn");
       const paymentDetails = document.getElementById("paymentDetails");
       const selectedMethodEl = document.getElementById("selectedMethod");
@@ -291,6 +298,8 @@
       document.getElementById("payNowBtn").addEventListener("click", () => {
         alert("Payment processed successfully!");
       });
+
+      window.addEventListener("DOMContentLoaded", loadTotalAmount);
     </script>
   </body>
 </html>

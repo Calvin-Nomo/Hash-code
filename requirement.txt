@@ -10,3 +10,6 @@ passlib
 passlib[bcrypt]
 python-jose
 cryptography
+fastapi-users
+fastapi-permissions
+websockets
