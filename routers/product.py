@@ -1,116 +1,106 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, APIRouter
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+import os, shutil
 import pymysql
 
-DB= pymysql.connect(
+DB = pymysql.connect(
     host="localhost",
     user="root",
-    password="Bineli26",
-    database="Order_System", 
-   cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
+    passwd="Bineli26",
+    database="Order_System",
+    cursorclass=pymysql.cursors.DictCursor,
+    autocommit=True
 )
+cursor = DB.cursor()
 
-cursor=DB.cursor()
-
+app = FastAPI()
 router = APIRouter(prefix="/product", tags=["product"])
 
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Serve static files at /uploads
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+# BaseModel
 class Product(BaseModel):
-    Product_Name:str
-    Product_Description:str
-    Category:str
-    Unit_Price:float
-    Image_Path:str
+    Product_Name: str
+    Product_Description: str
+    Category: str
+    Price: float
+    Image_Path: str
 
-
-@router.get('/')
-def greetings():
-    return {
-     "Message ":"Hello World" 
-}
-
-
-@router.get('/Product')
+# Fetch products with full URL
+@router.get("/Product")
 def get_product():
-    sql_command="Select* from Product "
-    cursor.execute(sql_command)
-    product=cursor.fetchall()
-    return product
-@router.get('/product_limit')
-def get_product_limit15():
-    sql_command="Select* from Product Limit 15"
-    cursor.execute(sql_command)
-    product=cursor.fetchall()
-    return product
+    cursor.execute("SELECT * FROM Product LIMIT 7")
+    products = cursor.fetchall()
+    return products
 
-@router.post('/create_product')
-def create_product(product:Product):
+# Create product
+@router.post("/create_product")
+async def create_product(
+    Product_Name: str = Form(...),
+    Product_Description: str = Form(...),
+    Category: str = Form(...),
+    Price: float = Form(...),
+    image: UploadFile = File(...)
+):
     try:
-        sql_command="""INSERT INTO Product(Product_Name,Product_Description,Category,Unit_Price,Image_link)
-        VALUES(%s,%s,%s,%s,%s)"""
+        file_path = os.path.join(UPLOAD_DIR, image.filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+        db_image_path = f"{UPLOAD_DIR}/{image.filename}"
 
-        cursor.execute(sql_command,(product.Product_Name,product.Product_Description,product.Category,product.Unit_Price,product.Image_Path))
+        cursor.execute(
+            "INSERT INTO Product(Product_Name, Product_Description, Category, Price, Image_link) VALUES (%s,%s,%s,%s,%s)",
+            (Product_Name, Product_Description, Category, Price, db_image_path)
+        )
         product_id=cursor.lastrowid
-
-        sql_command="Insert Into Stock(No_Product) Values(%s) " 
-        cursor.execute(sql_command, (product_id,) )
-        
-        
-        DB.commit()
-    except Exception as e:
-        raise HTTPException(status_code=404,detail=(e))
-    return{
-'Message':f'You Have successfully create a new Product{product_id} data  to your database'
-    }
-
-@router.put('/update_product/{product_id}')
-def update_product(product_id:int,product:Product):
-    try:
-        sql_command="""UPDATE Product 
-        SET
-        Product_Name=%s,Product_Description=%s,
-        Category=%s,Unit_Price=%s,Image_link=%s
-        WHERE No_Product=%s
-        """
-        cursor.execute(sql_command,(product.Product_Name,product.Product_Description,product.Category,product.Unit_Price,product.Image_Path,product_id))
-        DB.commit()
-    except Exception as e:
-        raise HTTPException(status_code=404,detail=(e))
-    return{
-        'Message':'You have updated successfully the Products data from the database'
-    }
-
-@router.delete('/delete_product/{product_id}')
-def delete_product(product_id: int):
-    try:
-        sql_command = """
-        DELETE FROM Product
-        WHERE No_Product = %s
-        """
-        cursor.execute(sql_command, (product_id,))
-
-        sql_command = """
-        DELETE FROM Stock
-        WHERE No_Product = %s
-        """
-        cursor.execute(sql_command, (product_id,))
-        
-        
-        DB.commit()
-
-
+        cursor.execute("INSERT INTO STOCK(No_Product)VALUES(%s)",(product_id,))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+    # Return full URL
     return {
-        'Message': f'Product with ID {product_id} has been successfully deleted.'
+        "message": "Product created successfully",
+        "Image_Path": f" {db_image_path} Save in the database"
     }
 
+# Update product
+@router.put("/update_product/{No_Product}")
+async def update_product(
+    No_Product: int,
+    Product_Name: str = Form(...),
+    Product_Description: str = Form(...),
+    Category: str = Form(...),
+    Price: float = Form(...),
+    image: UploadFile = File(None)
+):
+    cursor.execute("SELECT * FROM Product WHERE No_Product=%s", (No_Product,))
+    prod = cursor.fetchone()
+    if not prod:
+        raise HTTPException(status_code=404, detail="Product not found")
 
+    try:
+        if image:
+            file_path = os.path.join(UPLOAD_DIR, image.filename)
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(image.file, buffer)
+            db_image_path = f"{UPLOAD_DIR}/{image.filename}"
+        else:
+            db_image_path = prod['Image_link']
 
+        cursor.execute(
+            "UPDATE Product SET Product_Name=%s, Product_Description=%s, Category=%s, Price=%s, Image_link=%s WHERE No_Product=%s",
+            (Product_Name, Product_Description, Category,Price, db_image_path, No_Product)
+        )
 
+        # Return full URL
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
+    return {"message": "Product updated successfully", "Image_Path": {db_image_path}}
 
-
-
-
-
+app.include_router(router)

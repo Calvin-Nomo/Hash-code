@@ -1,5 +1,5 @@
-
-from fastapi import FastAPI
+from passlib import context
+from fastapi import FastAPI,Depends
 import pymysql
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +24,7 @@ DB = pymysql.connect(
     autocommit=False  # turn off auto-commit for transaction safety
 )
 
+
 cursor=DB.cursor()
 
 app.include_router(client.router, prefix="/client", tags=["client"])
@@ -35,24 +36,39 @@ app.include_router(payment.router, prefix="/payment", tags=["payment"])
 app.include_router(stock.router, prefix="/stock", tags=["stock"])
 app.include_router(table.router, prefix="/table", tags=["table"])
 
+
+
 # Getting the recent order info
 @app.get('/order_info')
 def order_info():
-    sql_command="""select o.Order_ID,c.Client_Name,c.No_Telephone,o.Order_Type
-                    ,p.Total_Amount,p.Payment_Status,o.Order_Date
+    sql_command="""select o.Order_ID,c.Client_Name,o.Order_Type
+                    ,p.Total_Amount,o.Order_Date
                     From Orders o
                     join payment p
                     On
                     o.Order_ID =p.Order_ID
-                    join Clients c
+                    right join Clients c
                     ON 
-                    o.Order_ID=c.No_Client
-                ORDER BY o.Order_Date ASC
-                Limit 8
-                    
+                    o.No_Client=c.No_Client
+                    Order by o.Order_ID  DESC 
                     """
                     
     cursor.execute(sql_command)
     order_info=cursor.fetchall()
     return order_info
 
+# Getting the Reservation info
+@app.get('/reservation_info')
+def reservation_info():
+    sql_command="""
+    select r.No_Reservation,c.Client_Name,
+    r.Reservation_Date
+from reservation r
+join clients c
+ON
+r.No_Client=c.No_Client
+                    
+                    """
+    cursor.execute(sql_command)
+    reservation_info=cursor.fetchall()
+    return reservation_info

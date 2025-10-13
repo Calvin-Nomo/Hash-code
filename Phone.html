@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>SmartMenu | QR Order</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div class="phone-frame">
+      <div class="app-container">
+        <!-- HEADER -->
+        <header class="top-header">
+          <div class="logo-area">
+            <h2>Smart<span class="danger">Menu</span></h2>
+          </div>
+
+          <div class="location">
+            <i class="material-icons-sharp">qr_code_2</i>
+            <span>Table <b id="table-number">A1</b></span>
+          </div>
+
+          <div class="profile">
+            <i class="material-icons-sharp">person</i>
+          </div>
+        </header>
+
+        <!-- SEARCH BAR -->
+        <div class="search-bar">
+          <i class="material-icons-sharp">search</i>
+          <input
+            type="text"
+            placeholder="Search for food or drinks..."
+            id="search-input"
+          />
+        </div>
+
+        <!-- CATEGORY FILTER -->
+        <section class="category-filter">
+          <button class="category-btn active" data-category="all">All</button>
+          <button class="category-btn" data-category="burgers">Burgers</button>
+          <button class="category-btn" data-category="drinks">Drinks</button>
+          <button class="category-btn" data-category="desserts">
+            Desserts
+          </button>
+        </section>
+
+        <!-- PRODUCT LIST -->
+        <section class="product-list" id="product-list">
+          <h3>Popular Items</h3>
+          <div class="product-grid">
+            <div class="product-card" data-category="burgers" data-id="1">
+              <img src="image/burger.jpg" alt="Classic Burger" />
+              <h4>Classic Burger</h4>
+              <p>Juicy beef patty, cheese, lettuce, and sauce.</p>
+              <div class="product-footer">
+                <span class="price">$9.99</span>
+                <button class="add-to-cart-btn">
+                  <i class="material-icons-sharp">add</i>
+                </button>
+              </div>
+            </div>
+
+            <div class="product-card" data-category="drinks" data-id="2">
+              <img src="image/drink.jpg" alt="Lemon Juice" />
+              <h4>Fresh Lemon Juice</h4>
+              <p>Refreshing and natural citrus drink.</p>
+              <div class="product-footer">
+                <span class="price">$3.50</span>
+                <button class="add-to-cart-btn">
+                  <i class="material-icons-sharp">add</i>
+                </button>
+              </div>
+            </div>
+
+            <div class="product-card" data-category="desserts" data-id="3">
+              <img src="image/dessert.jpg" alt="Chocolate Cake" />
+              <h4>Chocolate Cake</h4>
+              <p>Rich and moist with premium cocoa.</p>
+              <div class="product-footer">
+                <span class="price">$5.00</span>
+                <button class="add-to-cart-btn">
+                  <i class="material-icons-sharp">add</i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CART SIDEBAR -->
+        <aside class="cart-sidebar" id="cart-sidebar">
+          <div class="cart-header">
+            <h3>Your Order</h3>
+            <i class="material-icons-sharp close-btn">close</i>
+          </div>
+
+          <div class="cart-items" id="cart-items"></div>
+
+          <div class="cart-footer">
+            <div class="cart-total">
+              <span>Total:</span>
+              <span id="cart-total">$0.00</span>
+            </div>
+            <button class="checkout-btn">Checkout</button>
+          </div>
+        </aside>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav">
+          <a href="#" class="nav-item active">
+            <i class="material-icons-sharp">home</i>
+            <span>Home</span>
+          </a>
+          <a href="#" class="nav-item">
+            <i class="material-icons-sharp">search</i>
+            <span>Search</span>
+          </a>
+          <a href="#" class="nav-item cart-btn">
+            <i class="material-icons-sharp">shopping_cart</i>
+            <span id="cart-count" class="cart-badge">0</span>
+          </a>
+          <a href="#" class="nav-item">
+            <i class="material-icons-sharp">receipt_long</i>
+            <span>Orders</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <script src="js/script.js"></script>
+  </body>
+</html>

@@ -81,10 +81,10 @@ def create_order(data: FullOrderRequest):
             if not data.reservation:
                 raise HTTPException(status_code=400, detail="Reservation details required for Reservation orders")
             cursor.execute(
-                """INSERT INTO Reservation(No_Client, No_Table, Reservation_Date, Reservation_Time, No_Person)
-                   VALUES (%s, %s, %s, %s, %s)""",
+                """INSERT INTO Reservation(No_Client, No_Table, Reservation_Date, No_Person)
+                   VALUES (%s, %s, %s, %s)""",
                 (client_id, data.reservation.No_Table, data.reservation.Reservation_Date,
-                 data.reservation.Reservation_Time, data.reservation.No_Person),
+                 data.reservation.No_Person),
             )
             reservation_id = cursor.lastrowid
             table_id = data.reservation.No_Table
@@ -101,7 +101,7 @@ def create_order(data: FullOrderRequest):
         # 3️ Create Order
         order_date = datetime.utcnow()
         cursor.execute(
-            """INSERT INTO Orders(No_Client, No_Reservation, Order_Date, Order_Type, No_Table, Note)
+            """INSERT INTO Orders(No_Client, No_Reservation, Order_Date, Order_Type, No_Table, Note,)
                VALUES (%s, %s, %s, %s, %s, %s)""",
             (client_id, reservation_id, order_date, data.order.Order_Type, table_id, data.order.Note),
         )

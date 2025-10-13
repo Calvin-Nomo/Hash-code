@@ -33,7 +33,7 @@ def get_tables():
 
 ###################################Post Method############################# 
 @router.post("/create_table")
-def create_table(table:Table):
+async def create_table(table:Table):
     try:
         sql_command="""INSERT INTO Tab(No_Table,Seat_Number)
         VALUES(%s,%s)"""
@@ -47,7 +47,7 @@ def create_table(table:Table):
     }
 ###################################Put Method#############################     
 @router.put('/update_table/{table_id}')
-def update_table(table_id:int,table:Table):
+async def update_table(table_id:int,table:Table):
     try:
         sql_command="""
         UPDATE Tab
@@ -64,18 +64,18 @@ def update_table(table_id:int,table:Table):
     }
 ###################################Delete Method############################# 
 @router.delete('/delete_table/{table_id}')
-def delete_table(table_id: int):
-    try:
-        sql_command = """
-            DELETE FROM Tab
-            WHERE Table_ID = %s
-        """
-        cursor.execute(sql_command, (table_id,))
-        DB.commit()
+async def delete_table(table_id: int):
+        try:
+            sql_command = """
+                DELETE FROM Tab
+                WHERE Table_ID = %s
+            """
+            cursor.execute(sql_command, (table_id,))
+            DB.commit()
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
-    return {
-        'Message': f'Table with ID {table_id} has been successfully deleted.'
-    }
+        return {
+            'Message': f'Table with ID {table_id} has been successfully deleted.'
+        }

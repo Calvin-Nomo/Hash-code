@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartMenu | Payment</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #fff;
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+      }
+
+      .phone-frame {
+        width: 360px;
+        height: 700px;
+        margin: auto;
+        border-radius: 25px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        position: relative;
+      }
+
+      .app-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        padding-bottom: 60px;
+      }
+
+      .top-header {
+        background: #000;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+      }
+
+      .top-header .danger {
+        color: #e74c3c;
+      }
+      .top-header .profile i {
+        color: #fff;
+        background: #e74c3c;
+        padding: 6px;
+        border-radius: 50%;
+      }
+
+      /* Payment Section */
+      .payment-method-section,
+      .payment-details {
+        margin: 15px;
+        background: #fff;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .payment-method-section h3,
+      .payment-details h3 {
+        font-size: 16px;
+        color: #333;
+        border-left: 4px solid #e74c3c;
+        padding-left: 8px;
+        margin-bottom: 12px;
+      }
+
+      .payment-methods {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .method-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 0;
+        border-radius: 20px;
+        border: 2px solid #e74c3c;
+        background: transparent;
+        color: #e74c3c;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 14px;
+      }
+
+      .method-btn img {
+        width: 50px; /* bigger image */
+        height: 50px;
+        object-fit: contain;
+      }
+
+      .method-btn.active {
+        background: #e74c3c;
+        color: #fff;
+      }
+
+      .method-btn:hover:not(.active) {
+        background: #e74c3c;
+        color: #fff;
+      }
+
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .detail-item label {
+        font-size: 13px;
+        color: #333;
+      }
+      .detail-item input {
+        width: 60%;
+        padding: 6px 8px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        outline: none;
+      }
+
+      /* Pay Button */
+      .pay-section {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+      }
+      .pay-btn {
+        background: #e74c3c;
+        color: #fff;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+        font-size: 16px;
+      }
+      .pay-btn:hover {
+        background: #c0392b;
+        transform: scale(1.03);
+      }
+
+      /* Bottom Nav */
+      .bottom-nav {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        background: #e74c3c;
+        padding: 8px 0;
+      }
+      .nav-item {
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 11px;
+        text-decoration: none;
+      }
+      .nav-item i {
+        font-size: 1.3rem;
+        margin-bottom: 2px;
+      }
+      .nav-item.active,
+      .nav-item:hover {
+        color: #fff;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone-frame">
+      <div class="app-container">
+        <!-- HEADER -->
+        <header class="top-header">
+          <div class="logo-area">
+            <h2>Smart<span class="danger">Menu</span></h2>
+          </div>
+          <div class="location">
+            <i class="material-icons-sharp">payment</i> <span>Payment</span>
+          </div>
+          <div class="profile"><i class="material-icons-sharp">person</i></div>
+        </header>
+
+        <!-- Payment Section -->
+        <section class="payment-method-section">
+          <h3>Select Payment Method</h3>
+          <div class="payment-methods">
+            <button class="method-btn" data-method="cash">
+              <img src="image/cash.png" alt="Cash" />Cash
+            </button>
+            <button class="method-btn" data-method="mtn">
+              <img src="image/mtn.png" alt="MTN" />MTN Money
+            </button>
+            <button class="method-btn" data-method="orange">
+              <img src="image/orange.png" alt="Orange" />Orange Money
+            </button>
+          </div>
+        </section>
+
+        <!-- Payment Details -->
+        <section class="payment-details hidden" id="paymentDetails">
+          <h3>Payment Details</h3>
+          <div class="detail-item">
+            <span>Selected Method:</span> <b id="selectedMethod">--</b>
+          </div>
+          <div class="detail-item method-number hidden" id="methodNumberDiv">
+            <label for="phoneNumber">Your Number</label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              placeholder="Enter your number"
+            />
+          </div>
+          <div class="detail-item">
+            <span>Total Amount:</span> <b id="totalAmount">$28.00</b>
+          </div>
+          <div class="detail-item">
+            <span>Transaction Fee:</span> <b id="fees">$0.50</b>
+          </div>
+
+          <div class="pay-section">
+            <button class="pay-btn" id="payNowBtn">
+              <i class="material-icons-sharp">payment</i> Pay Now
+            </button>
+          </div>
+        </section>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav">
+          <a href="index.html" class="nav-item"
+            ><i class="material-icons-sharp">home</i><span>Home</span></a
+          >
+          <a href="#" class="nav-item"
+            ><i class="material-icons-sharp">search</i><span>Search</span></a
+          >
+          <a href="#" class="nav-item active"
+            ><i class="material-icons-sharp">shopping_cart</i
+            ><span>Order</span></a
+          >
+          <a href="#" class="nav-item"
+            ><i class="material-icons-sharp">person</i><span>Profile</span></a
+          >
+        </nav>
+      </div>
+    </div>
+
+    <script>
+      const methodButtons = document.querySelectorAll(".method-btn");
+      const paymentDetails = document.getElementById("paymentDetails");
+      const selectedMethodEl = document.getElementById("selectedMethod");
+      const methodNumberDiv = document.getElementById("methodNumberDiv");
+
+      methodButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const method = btn.dataset.method;
+          paymentDetails.classList.remove("hidden");
+          selectedMethodEl.textContent = btn.textContent;
+
+          methodButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          if (method === "mtn" || method === "orange") {
+            methodNumberDiv.classList.remove("hidden");
+          } else {
+            methodNumberDiv.classList.add("hidden");
+          }
+        });
+      });
+
+      document.getElementById("payNowBtn").addEventListener("click", () => {
+        alert("Payment processed successfully!");
+      });
+    </script>
+  </body>
+</html>

@@ -38,12 +38,12 @@
         </div>
 
         <div class="sidebar">
-          <a href="#">
+          <a href="admin.html">
             <span class="material-icons-sharp"> grid_view </span>
             <h3>Dashboard</h3>
           </a>
 
-          <a href="#" class="active">
+          <a href="clients.html">
             <span class="material-icons-sharp"> person_outline </span>
             <h3>Clients</h3>
           </a>
@@ -66,11 +66,10 @@
               <span class="material-icons-sharp arrow">expand_more</span>
             </a>
             <div class="dropdown-menu">
-              <a href="product_list.html">Product List</a>
-              <a href="#">Stock</a>
+              <a href="#">Product</a>
+              <a href="stock.html">Stock</a>
             </div>
           </div>
-
           <!-- Dropdown for Stock -->
           <div class="dropdown">
             <a href="#" class="dropdown-toggle">
@@ -84,7 +83,7 @@
             </div>
           </div>
 
-          <a href="#">
+          <a href="reservation.html">
             <span class="material-icons-sharp"> grid_view </span>
             <h3>Reservation</h3>
           </a>
@@ -103,19 +102,41 @@
 
       <!-- ################END OF SIDE BAR #################-->
       <main>
-        <h1>Product List</h1>
-        <div class="insight">
-          <!-- END OF INCOME -->
-        </div>      
+        <h1>Product Management</h1>
         <!-- END OF INSIGHT -->
         <div class="recent-orders" id="product-section">
+      <div class="product-toolbar">
+  <div class="search-filter">
+    <input type="text" id="searchInput" placeholder="🔍 Search product..." />
+
+    <select id="categoryFilter">
+      <option value="">All Categories</option>
+      <option value="Fast Food">Fast Food</option>
+      <option value="Drinks">Drinks</option>
+      <option value="Dessert">Dessert</option>
+    </select>
+
+    <select id="priceFilter">
+      <option value="">All Prices</option>
+      <option value="low">Below 2000</option>
+      <option value="mid">2000 - 5000</option>
+      <option value="high">Above 5000</option>
+    </select>
+    <div>
+      <button class="add_product">
+        Add Product
+      </button>
+    </div>
+  </div>
+</div>
+
           <!-- <h2>Recent Orders</h2> -->
           <table id="product-table">
             <thead>
               <tr>
-                <th>No_Product</th>
+                <th>No</th>
                 <th>Image</th>
-                <th>Product_Name</th>
+                <th>Name</th>
                 <th class="description">Description</th>
                 <th>Catergory</th>
                 <th>Price</th>
@@ -127,10 +148,9 @@
             </tbody>
           </table>
           <a href="#">Show all</a>
-        </div>
       </main>
       <!-- End of the Recent Orders -->
-      <div class="right">
+      <div class="right"> 
         <div class="top">
           <button id="menu-btn">
             <span class="material-icons-sharp">menu </span>
@@ -192,11 +212,40 @@
             </div>
           </div>
         </div>
+        <!-- EDIT PRODUCT POPUP -->
+<div class="popup-overlay" id="editPopup" style="display:none;">
+  <div class="popup">
+    <h3>Edit Product</h3>
+    <form id="editForm">
+      <label for="editName">Product Name</label>
+      <input type="text" id="editName" placeholder="Enter product name" required />
+
+      <label for="editDescription">Description</label>
+      <textarea id="editDescription" placeholder="Enter product description"></textarea>
+
+      <label for="editCategory">Category</label>
+      <input type="text" id="editCategory" placeholder="Enter category" required />
+
+      <label for="editPrice">Unit Price (FCFA)</label>
+      <input type="number" id="editPrice" placeholder="Enter price" required />
+
+      <label for="editImage">Upload Image</label>
+      <input type="file" id="editImage" accept="image/*" />
+
+      <div class="popup-buttons">
+        <button type="submit" id="confirmEdit">Save</button>
+        <button type="button" id="cancelEdit">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
       </div>
       <!-- \\\\\\\\\\\\\\\END OF MAIN\\\\\\\\\\\\\\\\\\\\\\\ -->
     </div>
   </body>
-  <script src="js/index.js"></script>
+  <!-- <script src="js/index.js"></script> -->
+     <script src="js/index.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order System</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        background: #333;
+        color: #fff;
+        text-align: center;
+        padding: 1rem 0;
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 1rem;
+        gap: 2rem;
+        justify-content: center;
+      }
+
+      .product {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1rem;
+        width: 200px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        text-align: center;
+      }
+
+      .product img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+
+      .product button {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 0.5rem;
+      }
+
+      .cart {
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 300px;
+        height: 100%;
+        background: #fff;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+        padding: 1rem;
+        overflow-y: auto;
+      }
+
+      .cart h2 {
+        text-align: center;
+      }
+
+      .cart-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 0.5rem;
+      }
+
+      .cart-item button {
+        background: #dc3545;
+        padding: 2px 5px;
+        font-size: 0.8rem;
+      }
+
+      .order-section {
+        margin-top: 1rem;
+        text-align: center;
+      }
+
+      .order-section select {
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        width: 80%;
+      }
+
+      .order-section button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0.7rem 1.5rem;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Restaurant Order System</h1>
+    </header>
+
+    <div class="container" id="products">
+      <!-- Products will be generated here -->
+    </div>
+
+    <div class="cart">
+      <h2>Cart</h2>
+      <div id="cart-items"></div>
+      <div class="order-section">
+        <label for="table">Select Table:</label>
+        <select id="table">
+          <option value="1">Table 1</option>
+          <option value="2">Table 2</option>
+          <option value="3">Table 3</option>
+          <option value="4">Table 4</option>
+        </select>
+        <br />
+        <button id="place-order">Place Order</button>
+      </div>
+    </div>
+
+    <script>
+      // Sample products
+      const products = [
+        {
+          id: 1,
+          name: "Burger",
+          price: 5.99,
+          image: "https://via.placeholder.com/200x150?text=Burger",
+        },
+        {
+          id: 2,
+          name: "Pizza",
+          price: 8.99,
+          image: "https://via.placeholder.com/200x150?text=Pizza",
+        },
+        {
+          id: 3,
+          name: "Fries",
+          price: 3.99,
+          image: "https://via.placeholder.com/200x150?text=Fries",
+        },
+        {
+          id: 4,
+          name: "Coke",
+          price: 1.99,
+          image: "https://via.placeholder.com/200x150?text=Coke",
+        },
+      ];
+
+      const cart = [];
+
+      const productsContainer = document.getElementById("products");
+      const cartItemsContainer = document.getElementById("cart-items");
+
+      // Render products
+      function renderProducts() {
+        productsContainer.innerHTML = "";
+        products.forEach((product) => {
+          const div = document.createElement("div");
+          div.classList.add("product");
+          div.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <h3>${product.name}</h3>
+                <p>$${product.price.toFixed(2)}</p>
+                <button onclick="addToCart(${product.id})">Add to Cart</button>
+            `;
+          productsContainer.appendChild(div);
+        });
+      }
+
+      // Add product to cart
+      function addToCart(id) {
+        const product = products.find((p) => p.id === id);
+        const existing = cart.find((item) => item.id === id);
+        if (existing) {
+          existing.quantity += 1;
+        } else {
+          cart.push({ ...product, quantity: 1 });
+        }
+        renderCart();
+      }
+
+      // Remove from cart
+      function removeFromCart(id) {
+        const index = cart.findIndex((item) => item.id === id);
+        if (index !== -1) {
+          cart.splice(index, 1);
+        }
+        renderCart();
+      }
+
+      // Render cart
+      function renderCart() {
+        cartItemsContainer.innerHTML = "";
+        cart.forEach((item) => {
+          const div = document.createElement("div");
+          div.classList.add("cart-item");
+          div.innerHTML = `
+                <span>${item.name} x ${item.quantity}</span>
+                <span>$${(item.price * item.quantity).toFixed(2)} 
+                <button onclick="removeFromCart(${item.id})">X</button></span>
+            `;
+          cartItemsContainer.appendChild(div);
+        });
+      }
+
+      // Place order
+      document.getElementById("place-order").addEventListener("click", () => {
+        if (cart.length === 0) {
+          alert("Cart is empty!");
+          return;
+        }
+        const table = document.getElementById("table").value;
+        const order = {
+          table: table,
+          items: cart,
+          total: cart.reduce(
+            (acc, item) => acc + item.price * item.quantity,
+            0
+          ),
+        };
+        console.log("Order placed:", order);
+        alert(
+          `Order placed for Table ${table}!\nTotal: $${order.total.toFixed(2)}`
+        );
+        cart.length = 0;
+        renderCart();
+      });
+
+      renderProducts();
+    </script>
+  </body>
+</html>

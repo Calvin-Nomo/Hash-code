@@ -1,7 +1,7 @@
 from fastapi import APIRouter,HTTPException
 from pydantic import BaseModel
 import pymysql
-from datetime import date,time
+from datetime import datetime
 DB= pymysql.connect(
     host="localhost",
     user="root",
@@ -16,8 +16,7 @@ router = APIRouter( prefix="/reservation", tags=["reservation"])
 
 class Reservation(BaseModel):
     No_Table:int
-    Reservation_Date:date
-    Reservation_Time:time
+    Reservation_Date:datetime
     No_Person:int
 
 @router.get('/')
@@ -54,16 +53,15 @@ def total_reservations():
 
 
 @router.put('/update-reservation/{reservation_id}')
-def update_reservation(reservation_id: int, reserve: Reservation):
+async def update_reservation(reservation_id: int, reserve: Reservation):
     try:
         sql_command = """
         UPDATE Reservation
-        SET No_Client=%s, Reservation_Date=%s, Reservation_Time=%s, No_Person=%s
+        SET No_Client=%s, Reservation_Date=%s, No_Person=%s
         WHERE No_Reservation=%s
         """
         cursor.execute(sql_command, (
             reserve.Reservation_Date,
-            reserve.Reservation_Time,
             reserve.No_Person,
             reservation_id
         ))

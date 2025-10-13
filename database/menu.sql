@@ -1,16 +1,19 @@
 Create database Order_System;
 Create table Clients(
 No_Client int AUTO_INCREMENT primary key, 
-Client_Name VARCHAR (255),
-No_Telephone VARCHAR (255) Unique 
+Client_Name VARCHAR (255), 
+Email varchar(255) Unique
 );
+alter table clients
+add No_Telephone varchar(255) unique;
 Create table Orders(
 Order_ID int AUTO_INCREMENT primary key,
 No_Client int,
 No_Reservation int NULL  Unique,
 Order_Date datetime Not Null, 
-Order_Type Enum("Dine In", "Take Away", "Reservation" ) NOT NULL , 
+Order_Type Enum("Dine In", "Take Away", "Reservation",'Delivery' ) NOT NULL , 
 No_Table int  Null, 
+Order_Status varchar(255),
 Note VARCHAR(255) Null,
 Foreign key(No_Client) References Clients(No_Client),
 Foreign key (No_Reservation ) References Reservation (No_Reservation ), 
@@ -21,7 +24,7 @@ No_Product int AUTO_INCREMENT primary key,
 Product_Name VARCHAR(255),
 Product_Description VARCHAR(255) Null, 
 Category VARCHAR(255),
-Unit_Price float, 
+Price float, 
 Image_link VARCHAR(255) 
 );
 Create table Order_Items(
@@ -35,7 +38,8 @@ Foreign key (Order_ID ) References Orders(Order_ID)
 Create Table Tab(
 Table_ID int AUTO_INCREMENT primary key,
 No_Table int Unique,
-Seat_Number int
+Seat_Number int,
+State varchar(255)
 );
 Create table Payment (
 Payment_ID int AUTO_INCREMENT primary key, 
@@ -51,8 +55,7 @@ Create table Reservation (
 No_Reservation int AUTO_INCREMENT primary key, 
 No_Client int Unique,
 No_Table int,
-Reservation_Date Date, 
-Reservation_Time Time, 
+Reservation_Date datetime, 
 No_Person int, 
 Foreign key (No_Client ) References Clients(No_Client),
 Foreign key(No_Table) References Tab(Table_ID)
@@ -62,12 +65,13 @@ create table Stock(
 No_Stock int auto_increment primary key,
 No_Product int,
 Quantity_available int,
+Stock_Status varchar(255),
 Foreign key (No_Product) References Product(No_Product) 
 );
 SELECT 
     o.Order_ID,
     o.Order_Type,
-    SUM(oi.Quantity * p.Unit_Price) AS Total_Amount
+    SUM(oi.Quantity * p.Price) AS Total_Amount
 FROM Orders o
 INNER JOIN Order_Items oi ON o.Order_ID = oi.Order_ID
 INNER JOIN Product p ON oi.No_Product = p.No_Product
@@ -165,6 +169,34 @@ CREATE TABLE Users (
     Role ENUM('admin', 'waiter') NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-ALTER table Orders
-ADD COLUMN Order_Status VARCHAR(255);
+alter table stock 
+add column stock_status varchar(255);
+select o.Order_ID,c.Client_Name,c.No_Telephone,o.Order_Type,p.Total_Amount,p.Payment_Status,o.Order_Date
+From Orders o
+ join payment p
+ On
+ o.Order_ID =p.Order_ID
+ join Clients c
+ ON 
+ o.Order_ID=c.No_Client
+ order by time(Order_Date) desc
+ ;
+ Select Date(o.Order_Date),Sum(P.Total_Amount) AS Total
+    From Orders o
+    JOIN Payment p
+    ON
+    o.Order_ID=p.Order_ID
+    GROUP BY DATE(o.Order_Date);
+select r.No_Reservation,c.Client_Name,r.No_Table,r.Reservation_Date,r.Reservation_Time,r.No_Person
+from reservation r
+join clients c
+ON
+r.No_Client=c.No_Client;
+select o.Order_ID,c.Client_Name,c.No_Telephone,o.Order_Type,p.Total_Amount,p.Payment_Status,o.Order_Date
+From Orders o
+join payment p
+On
+o.Order_ID =p.Order_ID
+left join Clients c
+ON 
+o.No_Client=c.No_Client

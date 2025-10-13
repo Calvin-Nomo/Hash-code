@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Code Order System</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f7f7f7;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background: #007bff;
+        color: white;
+        padding: 15px;
+        text-align: center;
+      }
+      main {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        padding: 20px;
+      }
+      section {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 400px;
+        margin: 10px;
+      }
+      h2,
+      h3 {
+        margin-top: 0;
+      }
+      label {
+        display: block;
+        margin: 10px 0 5px;
+      }
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+      button {
+        cursor: pointer;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .hidden {
+        display: none;
+      }
+      .productRow {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 5px;
+      }
+      .productRow select,
+      .productRow input {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>QR Code Order System</h1>
+    </header>
+    <main>
+      <section class="order-section">
+        <h2>Create New Order</h2>
+        <!-- Client Dropdown -->
+        <label for="clientSelect">Select Client:</label>
+        <select id="clientSelect">
+          <option value="">-- Select Client --</option>
+        </select>
+        <!-- New Client -->
+        <div id="newClientForm">
+          <input type="text" id="clientName" placeholder="Client Name" />
+          <input type="text" id="clientPhone" placeholder="Client Phone" />
+        </div>
+        <!-- Order Type -->
+        <label for="orderType">Order Type:</label>
+        <select id="orderType">
+          <option value="Take Away">Take Away</option>
+          <option value="Dine In">Dine In</option>
+          <option value="Reservation">Reservation</option>
+        </select>
+        <!-- Table Dropdown -->
+        <div id="tableSelection" class="hidden">
+          <label for="tableNumber">Select Table:</label>
+          <select id="tableNumber">
+            <option value="">-- Select Table --</option>
+          </select>
+        </div>
+        <!-- Products -->
+        <h3>Order Items</h3>
+        <div id="productsContainer"></div>
+        <button id="addProductBtn">Add Product</button>
+        <!-- Payment -->
+        <label for="paymentMethod">Payment Method:</label>
+        <select id="paymentMethod">
+          <option value="Cash">Cash</option>
+          <option value="Card">Card</option>
+          <option value="Mobile Money">Mobile Money</option>
+        </select>
+        <button id="placeOrderBtn">Place Order</button>
+      </section>
+
+      <section class="orders-section">
+        <h2>Orders</h2>
+        <div id="ordersList"></div>
+      </section>
+    </main>
+
+    <script>
+      const apiBase = "http://localhost:8000";
+
+      // Load clients
+      async function loadClients() {
+        try {
+          const res = await fetch(`${apiBase}/client/client/Client`);
+          const data = await res.json();
+          const select = document.getElementById("clientSelect");
+          select.innerHTML = '<option value="">-- Select Client --</option>';
+          data.forEach((client) => {
+            const option = document.createElement("option");
+            option.value = client.No_Client;
+            option.textContent = client.Client_Name;
+            select.appendChild(option);
+          });
+        } catch (e) {
+          console.error("Error loading clients:", e);
+        }
+      }
+
+      // Load tables
+      function loadTables() {
+        const select = document.getElementById("tableNumber");
+        select.innerHTML = `<option value="">-- Select Table --</option>`;
+        for (let i = 1; i <= 10; i++) {
+          const option = document.createElement("option");
+          option.value = i;
+          option.textContent = "Table " + i;
+          select.appendChild(option);
+        }
+      }
+
+      // Load products
+      async function loadProducts() {
+        try {
+          const res = await fetch(`${apiBase}/product/product/Product`);
+          return await res.json();
+        } catch (e) {
+          console.error("Error loading products:", e);
+          return [];
+        }
+      }
+
+      // Add product row
+      let productsData = [];
+      async function addProductRow() {
+        if (productsData.length === 0) productsData = await loadProducts();
+        const container = document.getElementById("productsContainer");
+        const div = document.createElement("div");
+        div.className = "productRow";
+        div.innerHTML = `
+        <select class="productSelect">
+            ${productsData
+              .map(
+                (p) =>
+                  `<option value="${p.No_Product}">${p.Product_Name} ($${p.Unit_Price})</option>`
+              )
+              .join("")}
+        </select>
+        <input type="number" class="productQty" min="1" value="1">
+        <button class="removeProductBtn">Remove</button>
+    `;
+        container.appendChild(div);
+        div
+          .querySelector(".removeProductBtn")
+          .addEventListener("click", () => div.remove());
+      }
+
+      // Show/hide table selection
+      document.getElementById("orderType").addEventListener("change", (e) => {
+        const val = e.target.value;
+        const tableDiv = document.getElementById("tableSelection");
+        tableDiv.classList.toggle(
+          "hidden",
+          !(val == "Dine In" || val == "Reservation")
+        );
+      });
+
+      // Place Order
+      document
+        .getElementById("placeOrderBtn")
+        .addEventListener("click", async () => {
+          const clientId = document.getElementById("clientSelect").value;
+          const clientName = document.getElementById("clientName").value;
+          const clientPhone = document.getElementById("clientPhone").value;
+
+          const orderType = document.getElementById("orderType").value;
+          const tableNumber =
+            document.getElementById("tableNumber").value || null;
+          const paymentMethod = document.getElementById("paymentMethod").value;
+
+          const items = [];
+          document.querySelectorAll(".productRow").forEach((row) => {
+            items.push({
+              No_Product: parseInt(row.querySelector(".productSelect").value),
+              Quantity: parseInt(row.querySelector(".productQty").value),
+            });
+          });
+
+          if (items.length === 0) {
+            alert("Add at least one product!");
+            return;
+          }
+
+          const payload = {
+            client: clientId
+              ? { No_Client: parseInt(clientId) }
+              : { Client_Name: clientName, No_Telephone: clientPhone },
+            order: {
+              Order_Type: orderType,
+              No_Table: tableNumber ? parseInt(tableNumber) : null,
+              items: items,
+              Note: "",
+            },
+            payment: { Payment_Method: paymentMethod },
+          };
+
+          try {
+            const res = await fetch(`${apiBase}/FullOrderRequest`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            alert(data.Message);
+            loadClients(); // refresh clients
+            document.getElementById("productsContainer").innerHTML = "";
+            addProductRow();
+          } catch (e) {
+            console.error("Error placing order:", e);
+            alert("Error placing order.");
+          }
+        });
+
+      // Add product button
+      document
+        .getElementById("addProductBtn")
+        .addEventListener("click", addProductRow);
+
+      // Initialize
+      loadClients();
+      loadTables();
+      addProductRow();
+    </script>
+  </body>
+</html>

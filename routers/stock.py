@@ -23,15 +23,22 @@ def greetings():
      "Message ":"Hello World" 
 }
 
+# @router.get('/Stock')
+# def get_stock():
+#     sql_command="Select * from Stock" 
+#     cursor.execute(sql_command)
+#     stock=cursor.fetchall()
+#     return stock
 @router.get('/Stock')
 def get_stock():
-    sql_command="Select * from Stock" 
-    cursor.execute(sql_command)
-    stock=cursor.fetchall()
-    return stock
-@router.get('/Stock')
-def get_client():
-    sql_command="Select * from Stock" 
+    sql_command="""
+    Select s.No_Stock,p.Product_Name,s.Quantity_Available
+    From Stock s
+    Join Product p
+    ON
+    s.No_Product=p.No_Product
+    Limit 7
+    """
     cursor.execute(sql_command)
     stock=cursor.fetchall()
     return stock
@@ -49,7 +56,7 @@ def get_client():
 #     }
 
 @router.put("/update_stock/{stock_id}")
-def update_stock(stock_id,stock: Stock):
+async def update_stock(stock_id,stock: Stock):
     try:
         sql_command = """
             UPDATE Stock

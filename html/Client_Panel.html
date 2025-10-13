@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Menu</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <style></style>
+  </head>
+  <body>
+    <div class="main">
+      <header>
+        <h1>Smart Menu</h1>
+        <div class="cart" onclick="toggleCart()">
+          <i class="fa-solid fa-cart-shopping cart-icon"></i>
+          <span id="cart-count">0</span>
+        </div>
+      </header>
+
+      <div class="search-bar">
+        <input type="text" placeholder="Search for food..." id="search" />
+      </div>
+
+      <div class="categories">
+        <button class="active" data-category="All">All</button>
+      </div>
+
+      <ul class="menu" id="menu"></ul>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <aside id="cart-sidebar">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <h2>My Cart</h2>
+        <br />
+        <span onclick="toggleCart()">×</span>
+      </div>
+      <div id="cart-items"></div>
+      <div class="total">Total: <span id="cart-total">0.00</span>FCFA</div>
+      <!-- Client Info Form
+      <div class="checkout-section">
+        <h3>Client Info</h3>
+        <label for="client-name">Full Name</label>
+        <input type="text" id="client-name" placeholder="John Doe" required />
+        <p id="error_client"></p>
+        <label for="client-phone">Phone</label>
+        <input
+          type="tel"
+          id="client-phone"
+          placeholder="+237 6XXXXXXXX"
+          required
+        />
+        <p id="error_phone"></p>
+        <label for="client-No-table">No_Table</label>
+        <input type="text" id="client-table" placeholder="Table No" required />
+        <p id="error_table"></p>
+      </div> -->
+      <div style="margin-top: 10px; display: flex; gap: 10px">
+        <button class="checkout-btn" onclick="checkout()">Place Order</button>
+        <button
+          class="checkout-btn"
+          style="background: red"
+          onclick="clearCart()"
+        >
+          Clear Cart
+        </button>
+      </div>
+    </aside>
+  </body>
+  <script src="js/style.js"></script>
+</html>

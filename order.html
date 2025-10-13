@@ -1,0 +1,443 @@
+<div class="dashboard">
+  <!-- ================== 1️⃣ Sales & Revenue Charts ================== -->
+  <div class="dashboard-section">
+    <h2>Sales & Revenue</h2>
+    <div class="dashboard-charts">
+      <!-- Revenue Chart -->
+      <div class="chart-card">
+        <h3>Revenue</h3>
+        <div class="chart-selector">
+          <button
+            class="chart-btn active"
+            data-chart="revenue"
+            data-period="day"
+          >
+            Day
+          </button>
+          <button class="chart-btn" data-chart="revenue" data-period="week">
+            Week
+          </button>
+          <button class="chart-btn" data-chart="revenue" data-period="month">
+            Month
+          </button>
+        </div>
+        <canvas id="revenueChart"></canvas>
+      </div>
+      <!-- Orders Chart -->
+      <div class="chart-card">
+        <h3>Orders</h3>
+        <div class="chart-selector">
+          <button
+            class="chart-btn active"
+            data-chart="orders"
+            data-period="day"
+          >
+            Day
+          </button>
+          <button class="chart-btn" data-chart="orders" data-period="week">
+            Week
+          </button>
+          <button class="chart-btn" data-chart="orders" data-period="month">
+            Month
+          </button>
+        </div>
+        <canvas id="ordersChart"></canvas>
+      </div>
+      <!-- Average Order Value -->
+      <div class="chart-card">
+        <h3>Average Order Value (AOV)</h3>
+        <canvas id="aovChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================== 2️⃣ Orders & Status ================== -->
+  <div class="dashboard-section">
+    <h2>Orders & Status</h2>
+    <div class="dashboard-charts">
+      <!-- Orders by Status -->
+      <div class="chart-card">
+        <h3>Orders by Status</h3>
+        <canvas id="ordersStatusChart"></canvas>
+      </div>
+      <!-- Orders per Table / QR -->
+      <div class="chart-card">
+        <h3>Orders per Table / QR</h3>
+        <canvas id="ordersTableChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================== 3️⃣ Product / Inventory Analytics ================== -->
+  <div class="dashboard-section">
+    <h2>Product & Inventory</h2>
+    <div class="dashboard-charts">
+      <!-- Top Selling Products -->
+
+      <div class="chart-card">
+        <h3>Top Selling Products</h3>
+        <canvas id="topProductsChart"></canvas>
+      </div>
+      <!-- Stock Levels / Low Stock Alerts -->
+      <div class="chart-card">
+        <h3>Stock Levels / Low Stock Alerts</h3>
+        <canvas id="stockChart"></canvas>
+      </div>
+      <!-- Most Ordered Categories -->
+      <div class="chart-card">
+        <h3>Most Ordered Categories</h3>
+        <canvas id="categoriesChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================== 4️⃣ Time-Based Trends ================== -->
+  <div class="dashboard-section">
+    <h2>Time-Based Trends</h2>
+    <div class="dashboard-charts">
+      <!-- Peak Hours -->
+      <div class="chart-card">
+        <h3>Peak Hours</h3>
+        <canvas id="peakHoursChart"></canvas>
+      </div>
+      <!-- Daily / Weekly Orders Trend -->
+      <div class="chart-card">
+        <h3>Orders Trend</h3>
+        <canvas id="ordersTrendChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================== 5️⃣ Customer Insights ================== -->
+  <div class="dashboard-section">
+    <h2>Customer Insights</h2>
+    <div class="dashboard-charts">
+      <!-- New vs Returning Customers -->
+      <div class="chart-card">
+        <h3>New vs Returning Customers</h3>
+        <canvas id="customerTypeChart"></canvas>
+      </div>
+      <!-- Orders per Client -->
+      <div class="chart-card">
+        <h3>Orders per Client</h3>
+        <canvas id="ordersPerClientChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== CSS ================== -->
+<style>
+  .dashboard-section {
+    margin-bottom: 40px;
+  }
+  .dashboard-section h2 {
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    color: #2c3e50;
+  }
+  .dashboard-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+  }
+  .chart-card {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+  .chart-card h3 {
+    margin-bottom: 10px;
+    font-size: 1rem;
+  }
+  .chart-selector {
+    margin-bottom: 10px;
+  }
+  .chart-btn {
+    padding: 5px 10px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+  }
+  .chart-btn.active {
+    background-color: #2ecc71;
+  }
+</style>
+
+<!-- ================== Chart.js Script ================== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  /* ================== Sample Data ================== */
+  const chartData = {
+    revenue: {
+      day: [120, 200, 150, 220, 180, 240, 200],
+      week: [800, 900, 700, 1000, 850, 950, 900],
+      month: [4000, 4500, 5000, 4800, 5200, 4700, 5300],
+      labels: {
+        day: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        week: [
+          "Week 1",
+          "Week 2",
+          "Week 3",
+          "Week 4",
+          "Week 5",
+          "Week 6",
+          "Week 7",
+        ],
+        month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+      },
+    },
+    orders: {
+      day: [12, 19, 15, 22, 18, 24, 20],
+      week: [80, 90, 70, 100, 85, 95, 90],
+      month: [400, 450, 500, 480, 520, 470, 530],
+      labels: {
+        day: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        week: [
+          "Week 1",
+          "Week 2",
+          "Week 3",
+          "Week 4",
+          "Week 5",
+          "Week 6",
+          "Week 7",
+        ],
+        month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+      },
+    },
+    aov: [15, 18, 16, 20, 19, 21, 18],
+    ordersStatus: [5, 10, 8, 15, 2],
+    ordersTable: [8, 12, 15, 6, 10, 9],
+    topProducts: [50, 40, 30, 20, 15],
+    stock: [100, 80, 50, 30, 10],
+    categories: [25, 40, 35, 20],
+    peakHours: [2, 5, 8, 10, 7, 6, 4, 3, 2],
+    ordersTrend: [12, 15, 14, 18, 20, 17, 22],
+    customerType: [60, 40],
+    ordersPerClient: [5, 4, 3, 2, 1],
+  };
+
+  /* ================== Charts Initialization ================== */
+  const revenueCtx = document.getElementById("revenueChart").getContext("2d");
+  const ordersCtx = document.getElementById("ordersChart").getContext("2d");
+
+  let revenueChart = new Chart(revenueCtx, {
+    type: "line",
+    data: {
+      labels: chartData.revenue.labels.day,
+      datasets: [
+        {
+          label: "Revenue ($)",
+          data: chartData.revenue.day,
+          borderColor: "#2ecc71",
+          backgroundColor: "rgba(46,204,113,0.2)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+
+  let ordersChart = new Chart(ordersCtx, {
+    type: "line",
+    data: {
+      labels: chartData.orders.labels.day,
+      datasets: [
+        {
+          label: "Orders",
+          data: chartData.orders.day,
+          borderColor: "#3498db",
+          backgroundColor: "rgba(52,152,219,0.2)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+
+  // Other static charts
+  new Chart(document.getElementById("aovChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      datasets: [
+        { label: "AOV ($)", data: chartData.aov, backgroundColor: "#9b59b6" },
+      ],
+    },
+    options: { responsive: true },
+  });
+  new Chart(document.getElementById("ordersStatusChart").getContext("2d"), {
+    type: "pie",
+    data: {
+      labels: ["Pending", "Preparing", "Ready", "Completed", "Cancelled"],
+      datasets: [
+        {
+          data: chartData.ordersStatus,
+          backgroundColor: [
+            "#f1c40f",
+            "#3498db",
+            "#2ecc71",
+            "#9b59b6",
+            "#e74c3c",
+          ],
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+  new Chart(document.getElementById("ordersTableChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: ["Table1", "Table2", "Table3", "Table4", "Table5", "Table6"],
+      datasets: [
+        {
+          label: "Orders",
+          data: chartData.ordersTable,
+          backgroundColor: "#e67e22",
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+  new Chart(document.getElementById("topProductsChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: ["Pizza", "Burger", "Coke", "Fries", "Salad"],
+      datasets: [
+        {
+          label: "Units Sold",
+          data: chartData.topProducts,
+          backgroundColor: "#e67e22",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      indexAxis: "y",
+      plugins: { legend: { display: false } },
+    },
+  });
+  new Chart(document.getElementById("stockChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: ["Pizza", "Burger", "Coke", "Fries", "Salad"],
+      datasets: [
+        { label: "Stock", data: chartData.stock, backgroundColor: "#f39c12" },
+      ],
+    },
+    options: { responsive: true },
+  });
+  new Chart(document.getElementById("categoriesChart").getContext("2d"), {
+    type: "pie",
+    data: {
+      labels: ["Drinks", "Mains", "Desserts", "Sides"],
+      datasets: [
+        {
+          data: chartData.categories,
+          backgroundColor: ["#1abc9c", "#2ecc71", "#3498db", "#9b59b6"],
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+  new Chart(document.getElementById("peakHoursChart").getContext("2d"), {
+    type: "line",
+    data: {
+      labels: [
+        "8am",
+        "9am",
+        "10am",
+        "11am",
+        "12pm",
+        "1pm",
+        "2pm",
+        "3pm",
+        "4pm",
+      ],
+      datasets: [
+        {
+          label: "Orders",
+          data: chartData.peakHours,
+          borderColor: "#e67e22",
+          backgroundColor: "rgba(230,126,34,0.2)",
+          fill: true,
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+  new Chart(document.getElementById("ordersTrendChart").getContext("2d"), {
+    type: "line",
+    data: {
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      datasets: [
+        {
+          label: "Orders",
+          data: chartData.ordersTrend,
+          borderColor: "#3498db",
+          backgroundColor: "rgba(52,152,219,0.2)",
+          fill: true,
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+  new Chart(document.getElementById("customerTypeChart").getContext("2d"), {
+    type: "doughnut",
+    data: {
+      labels: ["New", "Returning"],
+      datasets: [
+        {
+          data: chartData.customerType,
+          backgroundColor: ["#2ecc71", "#3498db"],
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+  new Chart(document.getElementById("ordersPerClientChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: ["Client A", "Client B", "Client C", "Client D", "Client E"],
+      datasets: [
+        {
+          label: "Orders",
+          data: chartData.ordersPerClient,
+          backgroundColor: "#9b59b6",
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+
+  /* ================== Toggle Buttons for Revenue & Orders ================== */
+  document.querySelectorAll(".chart-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const chartType = btn.getAttribute("data-chart");
+      const period = btn.getAttribute("data-period");
+      document
+        .querySelectorAll(`.chart-btn[data-chart="${chartType}"]`)
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      let chart, dataObj;
+      if (chartType === "revenue") {
+        chart = revenueChart;
+        dataObj = chartData.revenue;
+      } else if (chartType === "orders") {
+        chart = ordersChart;
+        dataObj = chartData.orders;
+      }
+
+      chart.data.labels = dataObj.labels[period];
+      chart.data.datasets[0].data = dataObj[period];
+      chart.update();
+    });
+  });
+</script>

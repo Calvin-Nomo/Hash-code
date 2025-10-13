@@ -38,19 +38,18 @@
         </div>
 
         <div class="sidebar">
-          <a href="#">
+          <a href="#" class="active">
             <span class="material-icons-sharp"> grid_view </span>
             <h3>Dashboard</h3>
           </a>
 
-          <a href="#" class="active">
+          <a href="clients.html">
             <span class="material-icons-sharp"> person_outline </span>
             <h3>Clients</h3>
           </a>
-
-          <a href="#">
-            <span class="material-icons-sharp"> shopping_cart </span>
-            <h3>Order</h3>
+          <a href="reservation.html">
+            <span class="material-icons-sharp"> grid_view </span>
+            <h3>Reservation</h3>
           </a>
 
           <a href="#">
@@ -66,8 +65,8 @@
               <span class="material-icons-sharp arrow">expand_more</span>
             </a>
             <div class="dropdown-menu">
-              <a href="html/product_list.html">Product List</a>
-              <a href="#">Stock</a>
+              <a href="product_list.html">Product</a>
+              <a href="stock.html">Stock</a>
             </div>
           </div>
 
@@ -85,8 +84,8 @@
           </div>
 
           <a href="#">
-            <span class="material-icons-sharp"> grid_view </span>
-            <h3>Reservation</h3>
+            <span class="material-icons-sharp"> shopping_cart </span>
+            <h3>Order</h3>
           </a>
 
           <a href="#">
@@ -163,6 +162,7 @@
           </div>
           <!-- END OF INCOME -->
         </div>
+        <div class="dashboard"></div>
         <!-- END OF INSIGHT -->
         <div class="recent-orders">
           <h2>Recent Orders</h2>
@@ -171,11 +171,10 @@
               <tr>
                 <th>Order ID</th>
                 <th>Client Name</th>
-                <th>Telephone</th>
                 <th>Order Type</th>
-                <th>Total Amount</th>
-                <th>Payment Status</th>
+                <th>Total</th>
                 <th>Order Date</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
