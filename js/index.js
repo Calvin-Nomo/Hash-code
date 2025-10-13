@@ -415,3 +415,66 @@ confirmDelete.addEventListener("click", () => {
   deletePopup.style.display = "none"; // hide popup
   targetRow = null;
 });
+
+
+// testing the database changes
+const products = [
+  {
+    id: 1,
+    image: "https://via.placeholder.com/60",
+    name: "Nike Air Zoom",
+    description: "Lightweight running shoes with breathable mesh and soft cushioning.",
+    category: "Shoes",
+    price: 120
+  },
+  {
+    id: 2,
+    image: "https://via.placeholder.com/60",
+    name: "Adidas Hoodie",
+    description: "Warm cotton hoodie perfect for casual wear and workouts.",
+    category: "Clothing",
+    price: 60
+  },
+  {
+    id: 3,
+    image: "https://via.placeholder.com/60",
+    name: "Smart Watch Pro",
+    description: "Tracks your fitness, sleep, and heart rate with full color display.",
+    category: "Electronics",
+    price: 150
+  }
+];
+
+// Get the table body element
+const tableBody = document.querySelector("#product-table tbody");
+
+// Function to render the products
+function renderProducts(data) {
+  tableBody.innerHTML = ""; // clear existing rows first
+
+  data.forEach((product, index) => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td><img src="${product.image}" alt="${product.name}" width="50" height="50"></td>
+      <td>${product.name}</td>
+      <td class="description">${product.description}</td>
+      <td>${product.category}</td>
+      <td>$${product.price.toFixed(2)}</td>
+      <td class="actions">
+        <button class="edit-btn">
+        Edit
+        </button>
+        <button class="delete-btn">
+Delete
+        </button>
+      </td>
+    `;
+
+    tableBody.appendChild(row);
+  });
+}
+
+// Call function to show data
+renderProducts(products);

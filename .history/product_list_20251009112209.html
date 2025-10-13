@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp"
       rel="stylesheet"
@@ -21,9 +20,10 @@
       type="text/css"
     />
     <link rel="stylesheet" href="css/index.css" />
+        <link rel="stylesheet" href="css/product.css" />
     <link href="image/image1.jpg" rel="icon" />
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
       <!-- ################SIDE BAR #################-->
       <aside>
@@ -38,18 +38,19 @@
         </div>
 
         <div class="sidebar">
-          <a href="#" class="active">
+          <a href="#">
             <span class="material-icons-sharp"> grid_view </span>
             <h3>Dashboard</h3>
           </a>
 
-          <a href="clients.html">
+          <a href="#" class="active">
             <span class="material-icons-sharp"> person_outline </span>
             <h3>Clients</h3>
           </a>
-          <a href="reservation.html">
-            <span class="material-icons-sharp"> grid_view </span>
-            <h3>Reservation</h3>
+
+          <a href="#">
+            <span class="material-icons-sharp"> shopping_cart </span>
+            <h3>Order</h3>
           </a>
 
           <a href="#">
@@ -65,13 +66,8 @@
               <span class="material-icons-sharp arrow">expand_more</span>
             </a>
             <div class="dropdown-menu">
-<<<<<<< HEAD
-              <a href="product_list.html">Product</a>
-              <a href="stock.html">Stock</a>
-=======
               <a href="product_list.html">Product List</a>
               <a href="#">Stock</a>
->>>>>>> 38386384cf3bdc2160398818127370828981f022
             </div>
           </div>
 
@@ -89,8 +85,8 @@
           </div>
 
           <a href="#">
-            <span class="material-icons-sharp"> shopping_cart </span>
-            <h3>Order</h3>
+            <span class="material-icons-sharp"> grid_view </span>
+            <h3>Reservation</h3>
           </a>
 
           <a href="#">
@@ -107,78 +103,22 @@
 
       <!-- ################END OF SIDE BAR #################-->
       <main>
-        <h1>Dashboard</h1>
+        <h1>Product List</h1>
         <div class="insight">
-          <div class="sales">
-            <span class="material-icons-sharp"> analytics </span>
-            <div class="middle">
-              <div class="left">
-                <h3>Total Order</h3>
-                <h1 id="total_order"></h1>
-              </div>
-              <div class="progress">
-                <svg>
-                  <circle cx="38" cy="38" r="36"></circle>
-                </svg>
-                <div class="number">
-                  <p>81%</p>
-                </div>
-              </div>
-            </div>
-            <small class="text-muted">Last 24 hours</small>
-          </div>
-          <!-- END OF SALES -->
-          <div class="expenses">
-            <span class="material-icons-sharp"> bar_chart </span>
-            <div class="middle">
-              <div class="left">
-                <h3>Total Sales</h3>
-                <h1 id="total-sales"></h1>
-              </div>
-              <div class="progress">
-                <svg>
-                  <circle cx="38" cy="38" r="36"></circle>
-                </svg>
-                <div class="number">
-                  <p>62%</p>
-                </div>
-              </div>
-            </div>
-            <small class="text-muted">Last 24 hours</small>
-          </div>
-          <!-- END OF EXPENSES -->
-          <div class="income">
-            <span class="material-icons-sharp"> stacked_line_chart </span>
-            <div class="middle">
-              <div class="left">
-                <h3>Total Reservation</h3>
-                <h1 id="total-reservation"></h1>
-              </div>
-              <div class="progress">
-                <svg>
-                  <circle cx="38" cy="38" r="36"></circle>
-                </svg>
-                <div class="number">
-                  <p>44%</p>
-                </div>
-              </div>
-            </div>
-            <small class="text-muted">Last 24 hours</small>
-          </div>
           <!-- END OF INCOME -->
-        </div>
-        <div class="dashboard"></div>
+        </div>      
         <!-- END OF INSIGHT -->
-        <div class="recent-orders">
-          <h2>Recent Orders</h2>
-          <table id="order-table">
+        <div class="recent-orders" id="product-section">
+          <!-- <h2>Recent Orders</h2> -->
+          <table id="product-table">
             <thead>
               <tr>
-                <th>Order ID</th>
-                <th>Client Name</th>
-                <th>Order Type</th>
-                <th>Total</th>
-                <th>Order Date</th>
+                <th>No_Product</th>
+                <th>Image</th>
+                <th>Product_Name</th>
+                <th class="description">Description</th>
+                <th>Catergory</th>
+                <th>Price</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -259,4 +199,6 @@
   <script src="js/index.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+</body>
 </html>
