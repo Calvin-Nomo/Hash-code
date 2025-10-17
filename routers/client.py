@@ -1,5 +1,6 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
+from dependencies import require_role,get_current_active_user
 import pymysql
 
 DB= pymysql.connect(
@@ -35,7 +36,7 @@ def get_client():
     return clients
 
 @router.post("/create_client")
-def create_stock(client:Client):
+def create_stock(client:Client,current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command="""INSERT INTO Clients(Client_Name,No_Telephone)
         VALUES(%s,%s)"""
@@ -48,7 +49,7 @@ def create_stock(client:Client):
     }
 
 @router.put('/update_client/{client_id}')
-async def update_client(client_id:int,client:Client):
+async def update_client(client_id:int,client:Client,current_user: dict = Depends(require_role(["Admin"]))):
     try:
         sql_command="""
         UPDATE Clients
@@ -65,7 +66,7 @@ async def update_client(client_id:int,client:Client):
     }
 
 @router.delete('/delete_client/{client_id}')
-def delete_client(client_id: int):
+def delete_client(client_id: int,current_user: dict = Depends(require_role(["Admin"]))):
     try:
         sql_command = """
             DELETE FROM Clients

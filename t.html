@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Effectuer un Dépôt</title>
+    <style>
+      body {
+        background-color: #1f2937;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+      }
+      h1,
+      h2 {
+        margin: 0 0 10px 0;
+      }
+      p {
+        margin: 0 0 10px 0;
+      }
+      .card {
+        background-color: #374151;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #4f46e5;
+      }
+      input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #9ca3af;
+      }
+      .btn {
+        padding: 10px 15px;
+        border-radius: 5px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background-color: #4f46e5;
+        color: #fff;
+      }
+      .btn-disabled {
+        background-color: #6b7280;
+        color: #d1d5db;
+        cursor: not-allowed;
+      }
+      .method {
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        border: 1px solid #9ca3af;
+      }
+      .method.selected {
+        border-color: #4f46e5;
+        background-color: rgba(79, 70, 229, 0.1);
+      }
+      .quick-amount {
+        padding: 5px 10px;
+        margin: 2px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .quick-amount.selected {
+        background-color: #4f46e5;
+        color: #fff;
+      }
+      .summary div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Effectuer un Dépôt</h1>
+      <p>Ajoutez des fonds à votre portefeuille</p>
+
+      <!-- User Balance -->
+      <div class="card">
+        <h2>Votre solde actuel</h2>
+        <p id="balance">0 XAF</p>
+      </div>
+
+      <!-- Deposit Amount -->
+      <div class="card">
+        <input
+          type="number"
+          id="amount"
+          placeholder="Entrez le montant (XAF)"
+        />
+        <div id="quick-amounts"></div>
+      </div>
+
+      <!-- Payment Methods -->
+      <div class="card">
+        <h2>Méthode de Paiement</h2>
+        <div id="methods"></div>
+      </div>
+
+      <!-- Phone number input (for MTN/Orange) -->
+      <div class="card" id="phone-card" style="display: none">
+        <input type="tel" id="phone" placeholder="6XX XXX XXX" />
+      </div>
+
+      <!-- Summary -->
+      <div class="card summary" id="summary-card" style="display: none"></div>
+
+      <!-- Deposit Button -->
+      <button id="deposit-btn" class="btn btn-primary btn-disabled" disabled>
+        Confirmer le Dépôt
+      </button>
+    </div>
+
+    <script>
+      // Example user data
+      const user = { balance: 20000 };
+      const minDeposit = 7000;
+      const paymentMethods = [
+        { id: "mtn", name: "MTN Mobile Money" },
+        { id: "orange", name: "Orange Money" },
+      ];
+      const quickAmounts = [7000, 10000, 15000, 25000, 50000, 100000];
+
+      const balanceEl = document.getElementById("balance");
+      const quickEl = document.getElementById("quick-amounts");
+      const methodsEl = document.getElementById("methods");
+      const phoneCard = document.getElementById("phone-card");
+      const phoneInput = document.getElementById("phone");
+      const amountInput = document.getElementById("amount");
+      const summaryCard = document.getElementById("summary-card");
+      const depositBtn = document.getElementById("deposit-btn");
+
+      let amount = "";
+      let selectedMethod = "";
+      let phoneNumber = "";
+
+      balanceEl.textContent = `${user.balance.toLocaleString()} XAF`;
+
+      // Quick amounts
+      quickAmounts.forEach((val) => {
+        const btn = document.createElement("button");
+        btn.className = "quick-amount";
+        btn.textContent = val.toLocaleString();
+        btn.onclick = () => {
+          amountInput.value = val;
+          amount = val;
+          highlightQuick(val);
+          updateSummary();
+        };
+        quickEl.appendChild(btn);
+      });
+
+      function highlightQuick(val) {
+        document.querySelectorAll(".quick-amount").forEach((b) => {
+          b.classList.toggle(
+            "selected",
+            Number(b.textContent.replace(/,/g, "")) === val
+          );
+        });
+      }
+
+      // Payment methods
+      paymentMethods.forEach((method) => {
+        const div = document.createElement("div");
+        div.className = "method";
+        div.textContent = method.name;
+        div.onclick = () => {
+          selectedMethod = method.id;
+          phoneCard.style.display =
+            selectedMethod === "mtn" || selectedMethod === "orange"
+              ? "block"
+              : "none";
+          updateSummary();
+          highlightMethod();
+        };
+        methodsEl.appendChild(div);
+      });
+
+      function highlightMethod() {
+        document.querySelectorAll(".method").forEach((div) => {
+          div.classList.toggle(
+            "selected",
+            div.textContent ===
+              paymentMethods.find((m) => m.id === selectedMethod).name
+          );
+        });
+      }
+
+      // Inputs
+      amountInput.addEventListener("input", (e) => {
+        amount = Number(e.target.value);
+        updateSummary();
+      });
+      phoneInput.addEventListener("input", (e) => {
+        phoneNumber = e.target.value;
+        updateSummary();
+      });
+
+      function updateSummary() {
+        if (
+          !amount ||
+          !selectedMethod ||
+          ((selectedMethod === "mtn" || selectedMethod === "orange") &&
+            !phoneNumber)
+        ) {
+          summaryCard.style.display = "none";
+          depositBtn.disabled = true;
+          depositBtn.classList.add("btn-disabled");
+          return;
+        }
+        summaryCard.style.display = "block";
+        summaryCard.innerHTML = `
+      <div><span>Montant:</span><span>${amount.toLocaleString()} XAF</span></div>
+      <div><span>Méthode:</span><span>${
+        paymentMethods.find((m) => m.id === selectedMethod).name
+      }</span></div>
+      ${
+        phoneNumber
+          ? `<div><span>Téléphone:</span><span>${phoneNumber}</span></div>`
+          : ""
+      }
+      <div style="border-top:1px solid #9ca3af;"></div>
+      <div style="display:flex; justify-content:space-between;"><strong>Total:</strong><strong>${amount.toLocaleString()} XAF</strong></div>
+    `;
+        depositBtn.disabled = false;
+        depositBtn.classList.remove("btn-disabled");
+      }
+
+      // Deposit action
+      depositBtn.onclick = () => {
+        if (
+          !amount ||
+          !selectedMethod ||
+          ((selectedMethod === "mtn" || selectedMethod === "orange") &&
+            !phoneNumber)
+        )
+          return;
+        alert(
+          `✅ Dépôt de ${amount.toLocaleString()} XAF via ${
+            paymentMethods.find((m) => m.id === selectedMethod).name
+          } effectué avec succès !`
+        );
+        // Update user balance
+        user.balance += amount;
+        balanceEl.textContent = `${user.balance.toLocaleString()} XAF`;
+        amountInput.value = "";
+        phoneInput.value = "";
+        amount = "";
+        phoneNumber = "";
+        selectedMethod = "";
+        summaryCard.style.display = "none";
+        highlightQuick(0);
+        highlightMethod();
+        depositBtn.disabled = true;
+        depositBtn.classList.add("btn-disabled");
+      };
+    </script>
+  </body>
+</html>

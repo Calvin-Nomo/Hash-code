@@ -1,6 +1,8 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
+from dependencies import require_role,get_current_active_user
 import pymysql
+
 from datetime import datetime
 DB= pymysql.connect(
     host="localhost",
@@ -53,7 +55,7 @@ def total_reservations():
 
 
 @router.put('/update-reservation/{reservation_id}')
-async def update_reservation(reservation_id: int, reserve: Reservation):
+async def update_reservation(reservation_id: int, reserve: Reservation,current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command = """
         UPDATE Reservation
@@ -74,7 +76,7 @@ async def update_reservation(reservation_id: int, reserve: Reservation):
     }
 
 @router.delete('/delete-reservation/{reservation_id}')
-def delete_reservation(reservation_id: int):
+def delete_reservation(reservation_id: int,current_user: dict = Depends(require_role(["Admin"]))):
     try:
         sql_command = """
         DELETE FROM Reservation

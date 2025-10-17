@@ -1,6 +1,6 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
-from datetime import datetime
+from dependencies import get_current_active_user,require_role
 import pymysql
 
 DB= pymysql.connect(
@@ -39,7 +39,7 @@ def get_payment():
     return payments
 
 # @router.post("/create_payment")
-# def create_payment(pay:Payment):
+# def create_payment(pay:Payment,current_user: dict = Depends(require_role(["Admin"]))):
 #     try:
 #         payment_date=datetime.utcnow()
 #         sql_command="""INSERT INTO Payment(Order_ID,Total_Amount,Payment_Date,Payment_Method,Payment_Status)
@@ -53,7 +53,7 @@ def get_payment():
 #     }
 
 # @router.put('/updated_payment/{payment_id}')
-# def update_order(payment_id:int,pay:Payment):
+# def update_order(payment_id:int,pay:Payment,current_user: dict = Depends(require_role(["Admin"]))):
 #     try:
 #         sql_command=""" UPDATE Payment SET
 #         Order_ID=%s,Total_Amount=%s,Payment_Date=%s,Payment_Method=%s,Payment_Status=%s WHERE Payment_ID=%s)"""
@@ -66,7 +66,7 @@ def get_payment():
 #     }
 
 @router.delete('/delete_payment/{payment_id}')
-def delete_payment(payment_id: int):
+def delete_payment(payment_id: int,current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command = """
         DELETE FROM Payment

@@ -1,5 +1,6 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
+from dependencies import require_role,get_current_active_user
 import pymysql
 
 DB= pymysql.connect(
@@ -33,7 +34,7 @@ def get_orderitems():
     return Items
 # Here i have tto manage thye Order _ID
 @router.put('/update_order_items/{items_id}')
-def update_orderitems(items_id:int,item:Items):
+def update_orderitems(items_id:int,item:Items,current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command="""Update Order_Items
         SET
@@ -49,7 +50,7 @@ def update_orderitems(items_id:int,item:Items):
     }
 
 @router.delete('/delete-order-item/{item_id}')
-def delete_order_item(item_id: int):
+def delete_order_item(item_id: int,current_user: dict = Depends(require_role(["Admin"]))):
     try:
         sql_command = """
             DELETE FROM Order_Items

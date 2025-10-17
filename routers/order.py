@@ -1,5 +1,6 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
+from dependencies import require_role,get_current_active_user
 from routers.order_items import Items
 from routers.client import Client
 from routers.payment import Payment
@@ -41,14 +42,14 @@ def greetings():
 }
     
 @router.get('/Order')
-def get_order():
+def get_order(current_user: dict = Depends(require_role(["waiter"]))):
     sql_command="Select* from Orders" 
     cursor.execute(sql_command)
     order =cursor.fetchall()
     return order
 
 @router.get('/total_order')
-def total_order():
+def total_order(current_user: dict = Depends(require_role(["waiter"]))):
     sql_command="Select count(Order_ID) as total from Orders"
     cursor.execute(sql_command)
     total=cursor.fetchone()
@@ -57,7 +58,7 @@ def total_order():
 
 # ------------------- POST /FullOrderRequest -------------------
 @router.post("/FullOrderRequest")
-def create_order(data: FullOrderRequest):
+def create_order(data: FullOrderRequest,current_user: dict = Depends(require_role(["admin"]))):
     try:
         cursor = DB.cursor()
         DB.begin()  #  start transaction
@@ -152,7 +153,7 @@ def create_order(data: FullOrderRequest):
 
 
 # @router.put("/order/{order_id}")
-# def update_order(order_id: int, data: FullOrderRequest):
+# def update_order(order_id: int, data: FullOrderRequest,current_user: dict = Depends(require_role(["Admin"]))):
 #     try:
 #         cursor = DB.cursor()
 #         DB.begin()
@@ -181,7 +182,7 @@ def create_order(data: FullOrderRequest):
 #         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
 
 @router.delete("/order/{order_id}")
-def delete_order(order_id: int):
+def delete_order(order_id: int,current_user: dict = Depends(require_role(["Admin"]))):
     try:
         cursor = DB.cursor()
         DB.begin()

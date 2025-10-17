@@ -49,7 +49,6 @@ app.include_router(table.router, prefix="/table", tags=["table"])
 SECRET_KEY = "datascience"
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_MINUTES = 30
-
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

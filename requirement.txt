@@ -7,9 +7,10 @@ requests
 jose
 python-multipart
 passlib
-passlib[bcrypt]
+passlib[bcrypt]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 python-jose
 cryptography
 fastapi-users
 fastapi-permissions
 websockets
+logging

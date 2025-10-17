@@ -1,5 +1,6 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
+from dependencies import require_role,get_current_active_user
 import pymysql
 
 DB= pymysql.connect(
@@ -23,12 +24,13 @@ def greetings():
      "Message ":"Hello World" 
 }
 
-# @router.get('/Stock')
-# def get_stock():
-#     sql_command="Select * from Stock" 
-#     cursor.execute(sql_command)
-#     stock=cursor.fetchall()
-#     return stock
+@router.get('/Stock')
+def get_stock(current_user: dict = Depends(get_current_active_user)):
+    sql_command="Select * from Stock" 
+    cursor.execute(sql_command)
+    stock=cursor.fetchall()
+    return stock
+
 @router.get('/Stock')
 def get_stock():
     sql_command="""
@@ -42,21 +44,21 @@ def get_stock():
     cursor.execute(sql_command)
     stock=cursor.fetchall()
     return stock
-# @router.post("/create_stock")
-# def create_stock(stock:Stock):
-#     try:
-#         sql_command="""INSERT INTO Stock(Quantity_Available)
-#         VALUES(%s)"""
-#         cursor.execute(sql_command,(stock.Quantity_Available))
-#         DB.commit()
-#     except Exception as e:
-#         raise HTTPException(status_code=404,detail=(e))
-#     return{
-# 'Message':'You Have successfully added the  Stock data to your database'
-#     }
+@router.post("/create_stock")
+def create_stock(stock:Stock,current_user: dict = Depends(require_role(["Admin"]))):
+    try:
+        sql_command="""INSERT INTO Stock(Quantity_Available)
+        VALUES(%s)"""
+        cursor.execute(sql_command,(stock.Quantity_Available))
+        DB.commit()
+    except Exception as e:
+        raise HTTPException(status_code=404,detail=(e))
+    return{
+'Message':'You Have successfully added the  Stock data to your database'
+    }
 
 @router.put("/update_stock/{stock_id}")
-async def update_stock(stock_id,stock: Stock):
+async def update_stock(stock_id,stock: Stock,current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command = """
             UPDATE Stock
@@ -74,7 +76,7 @@ async def update_stock(stock_id,stock: Stock):
     }
 
 @router.delete("/delete_stock/{stock_id}")
-def delete_stock(stock_id: int):
+def delete_stock(stock_id: int,current_user: dict = Depends(require_role(["Admin"]))):
     try:
         sql_command = """
             DELETE FROM Stock

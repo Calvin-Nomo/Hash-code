@@ -1,5 +1,6 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
+from dependencies import require_role,get_current_active_user
 import pymysql
 
 DB= pymysql.connect(
@@ -33,7 +34,7 @@ def get_tables():
 
 ###################################Post Method############################# 
 @router.post("/create_table")
-async def create_table(table:Table):
+async def create_table(table:Table, current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command="""INSERT INTO Tab(No_Table,Seat_Number,State)
         VALUES(%s,%s,%s)"""
@@ -47,7 +48,7 @@ async def create_table(table:Table):
     }
 ###################################Put Method#############################     
 @router.put('/update_table/{table_id}')
-async def update_table(table_id:int,table:Table):
+async def update_table(table_id:int,table:Table,current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command="""
         UPDATE Tab
@@ -64,7 +65,7 @@ async def update_table(table_id:int,table:Table):
     }
 ###################################Delete Method############################# 
 @router.delete('/delete_table/{table_id}')
-async def delete_table(table_id: int):
+async def delete_table(table_id: int,current_user: dict = Depends(require_role(["admin"]))):
         try:
             sql_command = """
                 DELETE FROM Tab
