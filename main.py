@@ -8,7 +8,7 @@ import jwt
 import pymysql
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import client, order, order_items, reservation, payment, product, stock, table
+from backend.routers import client, order, order_items, reservation, payment, product, stock, table
 
 # ==========================================================
 #                 APP CONFIGURATION
