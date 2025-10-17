@@ -49,7 +49,7 @@ def create_stock(client:Client,current_user: dict = Depends(require_role(["admin
     }
 
 @router.put('/update_client/{client_id}')
-async def update_client(client_id:int,client:Client,current_user: dict = Depends(require_role(["Admin"]))):
+async def update_client(client_id:int,client:Client,current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command="""
         UPDATE Clients
@@ -66,7 +66,7 @@ async def update_client(client_id:int,client:Client,current_user: dict = Depends
     }
 
 @router.delete('/delete_client/{client_id}')
-def delete_client(client_id: int,current_user: dict = Depends(require_role(["Admin"]))):
+def delete_client(client_id: int,current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command = """
             DELETE FROM Clients

@@ -50,7 +50,7 @@ def update_orderitems(items_id:int,item:Items,current_user: dict = Depends(requi
     }
 
 @router.delete('/delete-order-item/{item_id}')
-def delete_order_item(item_id: int,current_user: dict = Depends(require_role(["Admin"]))):
+def delete_order_item(item_id: int,current_user: dict = Depends(require_role(["admin"]))):
     try:
         sql_command = """
             DELETE FROM Order_Items

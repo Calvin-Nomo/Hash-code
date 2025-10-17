@@ -21,17 +21,21 @@ cursor=DB.cursor()
 #  AUTHENTICATION SECTION
 # ---------------------------
 
-SECRET_KEY = "datascience"
+ACCESS_SECRET_KEY = "secret_access_key"      # separate key for access
+REFRESH_SECRET_KEY = "secret_refresh_key"    # separate key for refresh
 ALGORITHM = "HS256"
-TOKEN_EXPIRE_MINUTES = 1440 # 24 hours
-
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="Login")
 
-# Models
 class TokenData(BaseModel):
     email: Optional[str] = None
-# ---------- UTILS ----------
+
+
+# ==========================================================
+#                 UTILITY FUNCTIONS
+# ==========================================================
 def verify_pwd(plain_pwd: str, hashed_pwd: str) -> bool:
     return pwd_context.verify(plain_pwd, hashed_pwd)
 
@@ -40,27 +44,39 @@ def get_pwd_hash(password: str) -> str:
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, ACCESS_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_token(token: str) -> TokenData:
+def create_refresh_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, REFRESH_SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def verify_token(token: str, secret: str):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, secret, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise HTTPException(status_code=401, detail="Invalid token")
         return TokenData(email=email)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
     except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token or expired")
+        raise HTTPException(status_code=401, detail="Invalid token")
 
-# ---------- DEPENDENCIES ----------
+
+# ==========================================================
+#                 USER DEPENDENCIES
+# ==========================================================
 def get_current_user(token: str = Depends(oauth2_scheme)):
-    token_data = verify_token(token)
+    token_data = verify_token(token, ACCESS_SECRET_KEY)
     cursor.execute("SELECT * FROM USERS WHERE Email = %s", (token_data.email,))
     user = cursor.fetchone()
-    if user is None:
+    if not user:
         raise HTTPException(status_code=401, detail="User not found")
     return user
 
@@ -75,3 +91,5 @@ def require_role(allowed_roles: list):
             raise HTTPException(status_code=403, detail="Access forbidden")
         return current_user
     return role_checker
+# "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHJpbmdAZ21haWwuY29tIiwiZXhwIjoxNzYwNTM1NjIwfQ.HscVrTxF07U6RfG3P3sasra99nO35V30rK3bDd23ybY"
+#   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHJpbmdAZ21haWwuY29tIiwiZXhwIjoxNzYxMTM4NjIwfQ.f_AaLkU4NihiWn2qVhqq6PhoOhvqNxkFEO19lH8cBWQ"

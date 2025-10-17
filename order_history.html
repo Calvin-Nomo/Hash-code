@@ -57,45 +57,50 @@
         background: #fff;
         border-radius: 12px;
         margin-bottom: 12px;
-        padding: 12px;
+        padding: 12px 15px;
         box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
         transition: 0.3s;
+        cursor: pointer;
       }
 
       .order-card:hover {
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
       }
 
-      .order-card h4 {
-        margin: 0 0 5px 0;
-        font-size: 15px;
+      .order-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .order-card-header h4 {
+        margin: 0;
+        font-size: 16px;
         color: #333;
       }
 
-      .order-card p {
-        margin: 0;
-        font-size: 12px;
-        color: #666;
+      .order-info {
+        font-size: 13px;
+        color: #555;
+        margin: 5px 0;
       }
 
       .order-status {
         display: inline-block;
-        padding: 2px 8px;
+        padding: 4px 10px;
         border-radius: 12px;
         font-size: 11px;
         color: #fff;
         margin-top: 5px;
+        text-transform: capitalize;
       }
 
       .status-pending {
         background: #f39c12;
       }
-
       .status-completed {
         background: #27ae60;
       }
-
       .status-canceled {
         background: #e74c3c;
       }
@@ -105,11 +110,29 @@
         margin-top: 10px;
         border-top: 1px solid #ddd;
         padding-top: 10px;
-        font-size: 12px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #444;
       }
 
       .order-details p {
-        margin: 4px 0;
+        margin: 5px 0;
+      }
+
+      .items-list p {
+        margin: 3px 0;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .toggle-btn {
+        font-size: 20px;
+        cursor: pointer;
+        transition: transform 0.3s;
+      }
+
+      .toggle-btn.open {
+        transform: rotate(180deg);
       }
 
       .bottom-nav {
@@ -142,11 +165,9 @@
       }
     </style>
   </head>
-
   <body>
     <div class="phone-frame">
       <div class="app-container">
-        <!-- HEADER -->
         <header class="top-header">
           <h2>Order <span class="danger">History</span></h2>
           <div class="profile">
@@ -154,12 +175,8 @@
           </div>
         </header>
 
-        <!-- ORDER LIST -->
-        <div class="order-list" id="orderList">
-          <!-- Orders dynamically loaded here -->
-        </div>
+        <div class="order-list" id="orderList"></div>
 
-        <!-- BOTTOM NAV -->
         <nav class="bottom-nav">
           <a href="list.html" class="nav-item">
             <i class="material-icons-sharp">home</i>
@@ -180,7 +197,6 @@
     <script>
       const orderList = document.getElementById("orderList");
 
-      // Sample orders (replace with localStorage fetch)
       const orders = JSON.parse(localStorage.getItem("orders")) || [
         {
           id: 10234,
@@ -220,45 +236,50 @@
           const orderCard = document.createElement("div");
           orderCard.classList.add("order-card");
 
-          // Create order details HTML
-          let itemsHTML = order.items
+          const itemsHTML = order.items
             .map(
               (item) =>
-                `<p>• ${item.name} x ${item.quantity} — $${item.price.toFixed(
-                  2
-                )}</p>`
+                `<p><span>${item.name} x ${item.quantity}</span><span>$${(
+                  item.price * item.quantity
+                ).toFixed(2)}</span></p>`
             )
             .join("");
 
           const detailsHTML = `
-            <div class="order-details">
-              <p><strong>Client:</strong> ${order.client}</p>
-              <p><strong>Phone:</strong> ${order.phone}</p>
-              <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-              <p><strong>Order Type:</strong> ${order.orderType}</p>
-              <p><strong>Payment Status:</strong> ${
-                order.status.charAt(0).toUpperCase() + order.status.slice(1)
-              }</p>
-              <p><strong>Items:</strong></p>
+          <div class="order-details">
+            <p><strong>Client:</strong> ${order.client}</p>
+            <p><strong>Phone:</strong> ${order.phone}</p>
+            <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+            <p><strong>Order Type:</strong> ${order.orderType}</p>
+            <p><strong>Items:</strong></p>
+            <div class="items-list">
               ${itemsHTML}
             </div>
-          `;
+          </div>
+        `;
 
           orderCard.innerHTML = `
+          <div class="order-card-header">
             <h4>Order #${order.id}</h4>
-            <p>Date: ${order.date} | Time: ${order.time}</p>
-            <span class="order-status status-${order.status}">${
-            order.status.charAt(0).toUpperCase() + order.status.slice(1)
+            <span class="toggle-btn">&#9660;</span>
+          </div>
+          <p class="order-info">${order.date} | ${
+            order.time
+          } | Total: $${order.total.toFixed(2)}</p>
+          <span class="order-status status-${order.status}">${
+            order.status
           }</span>
-            <p>Total: $${order.total.toFixed(2)}</p>
-            ${detailsHTML}
-          `;
+          ${detailsHTML}
+        `;
 
-          // Toggle order details on click
-          orderCard.addEventListener("click", () => {
-            const detailsDiv = orderCard.querySelector(".order-details");
-            detailsDiv.style.display =
-              detailsDiv.style.display === "block" ? "none" : "block";
+          const toggleBtn = orderCard.querySelector(".toggle-btn");
+          const detailsDiv = orderCard.querySelector(".order-details");
+
+          toggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = detailsDiv.style.display === "block";
+            detailsDiv.style.display = isOpen ? "none" : "block";
+            toggleBtn.classList.toggle("open", !isOpen);
           });
 
           orderList.appendChild(orderCard);

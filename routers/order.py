@@ -42,14 +42,14 @@ def greetings():
 }
     
 @router.get('/Order')
-def get_order(current_user: dict = Depends(require_role(["waiter"]))):
+def get_order(current_user: dict = Depends(require_role(["waiter","admin"]))):
     sql_command="Select* from Orders" 
     cursor.execute(sql_command)
     order =cursor.fetchall()
     return order
 
 @router.get('/total_order')
-def total_order(current_user: dict = Depends(require_role(["waiter"]))):
+def total_order(current_user: dict = Depends(require_role(["waiter","admin"]))):
     sql_command="Select count(Order_ID) as total from Orders"
     cursor.execute(sql_command)
     total=cursor.fetchone()

@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SmartMenu | Order Details</title>
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp"
@@ -18,7 +15,6 @@
         box-sizing: border-box;
         font-family: "Poppins", sans-serif;
       }
-
       body {
         background: #222;
         display: flex;
@@ -54,21 +50,25 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
+      .top-header .back-arrow {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        margin-right: 10px;
+      }
+
       .danger {
         color: #e74c3c;
       }
 
-      .order-summary {
+      .order-summary,
+      .order-type,
+      .form-section {
         background: #fff;
         margin: 15px;
         border-radius: 10px;
         padding: 15px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      }
-
-      .order-summary h3 {
-        margin-bottom: 10px;
-        color: #333;
       }
 
       .order-items .item {
@@ -119,29 +119,6 @@
         padding-top: 10px;
       }
 
-      .order-type,
-      .form-section {
-        background: #fff;
-        margin: 15px;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      }
-
-      .order-type label {
-        display: block;
-        margin-bottom: 5px;
-        color: #444;
-      }
-
-      .order-type select {
-        width: 100%;
-        padding: 8px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        outline: none;
-      }
-
       label {
         font-size: 13px;
         color: #333;
@@ -150,7 +127,8 @@
       }
 
       input,
-      textarea {
+      textarea,
+      select {
         width: 100%;
         padding: 8px;
         border: 1px solid #ddd;
@@ -186,6 +164,7 @@
         align-items: center;
         justify-content: center;
         gap: 5px;
+        transition: 0.3s ease;
       }
 
       .pay-btn:hover {
@@ -228,28 +207,77 @@
       .nav-item:hover {
         color: #e74c3c;
       }
+
+      .error-msg {
+        color: red;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      /* 🔄 Spinner Overlay Inside Phone Frame */
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(248, 249, 250, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 500;
+      }
+
+      .spinner {
+        border: 4px solid rgba(231, 76, 60, 0.3);
+        border-top: 4px solid #e74c3c;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        margin-top: 10px;
+        font-size: 15px;
+        color: #e74c3c;
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
     <div class="phone-frame">
+      <!-- Inside-phone Loading Overlay -->
+      <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Processing Payment...</div>
+      </div>
+
       <div class="app-container">
         <header class="top-header">
+          <div class="back-arrow" onclick="window.location.href='Phone.html'">
+            <i class="material-icons-sharp">arrow_back</i>
+          </div>
           <div class="logo-area">
-            <h2>Smart<span class="danger">Menu</span></h2>
+            <h2>Order-<span class="danger">Details</span></h2>
           </div>
-          <div class="location">
-            <i class="material-icons-sharp">receipt_long</i>
-            <span>Order <b>#1001</b></span>
-          </div>
-          <div class="profile"><i class="material-icons-sharp">person</i></div>
         </header>
 
         <section class="order-summary">
           <h3>Your Items</h3>
           <div class="order-items" id="order-items"></div>
           <div class="order-total">
-            <span>Total</span>
-            <span id="total-amount">0.00 FCFA</span>
+            <span>Total</span><span id="total-amount">0.00 FCFA</span>
           </div>
         </section>
 
@@ -298,25 +326,23 @@
         </section>
 
         <div class="pay-section">
-          <button class="pay-btn">
+          <button class="pay-btn" id="payBtn">
             <i class="material-icons-sharp">payment</i> Pay Now
           </button>
         </div>
       </div>
 
       <nav class="bottom-nav">
-        <a href="list.html" class="nav-item">
-          <i class="material-icons-sharp">home</i>
-          <span>Home</span>
-        </a>
-        <a href="#" class="nav-item">
-          <i class="material-icons-sharp">search</i>
-          <span>Search</span>
-        </a>
-        <a href="#" class="nav-item active">
-          <i class="material-icons-sharp">shopping_cart</i>
-          <span>Order</span>
-        </a>
+        <a href="list.html" class="nav-item"
+          ><i class="material-icons-sharp">home</i><span>Home</span></a
+        >
+        <a href="#" class="nav-item"
+          ><i class="material-icons-sharp">search</i><span>Search</span></a
+        >
+        <a href="#" class="nav-item active"
+          ><i class="material-icons-sharp">shopping_cart</i
+          ><span>Order</span></a
+        >
       </nav>
     </div>
 
@@ -324,34 +350,29 @@
       const orderType = document.getElementById("orderType");
       const clientForm = document.getElementById("clientForm");
       const reservationForm = document.getElementById("reservationForm");
+      const paybtn = document.getElementById("payBtn");
+      const loading = document.getElementById("loading");
 
       orderType.addEventListener("change", () => {
         clientForm.classList.add("hidden");
         reservationForm.classList.add("hidden");
-
-        if (orderType.value === "delivery" || orderType.value === "takeaway") {
+        if (orderType.value === "delivery" || orderType.value === "takeaway")
           clientForm.classList.remove("hidden");
-        } else if (orderType.value === "reservation") {
+        else if (orderType.value === "reservation")
           reservationForm.classList.remove("hidden");
-        }
       });
 
       function loadOrderSummary() {
         const orderContainer = document.getElementById("order-items");
         const totalAmount = document.getElementById("total-amount");
-
         const storedOrders = JSON.parse(localStorage.getItem("cart")) || [];
-        console.log(storedOrders);
         orderContainer.innerHTML = "";
         let total = 0;
-
         storedOrders.forEach((item) => {
-          const itemDiv = document.createElement("div");
-          itemDiv.classList.add("item");
-
           const subtotal = item.Price * item.qty;
           total += subtotal;
-
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "item";
           itemDiv.innerHTML = `
             <div class="item-left">
               <img src="${item.Image_link}" alt="${item.Product_Name}" />
@@ -362,17 +383,76 @@
             </div>
             <span class="price">${subtotal.toFixed(0)} FCFA</span>
           `;
-
           orderContainer.appendChild(itemDiv);
         });
-
         totalAmount.textContent = `${total.toFixed(0)} FCFA`;
       }
-      let paybtn = document.querySelector(".pay-btn");
+
+      function showError(input, msg) {
+        const error = document.createElement("div");
+        error.className = "error-msg";
+        error.textContent = msg;
+        input.parentNode.appendChild(error);
+      }
+
+      function validateForm() {
+        let valid = true;
+        document.querySelectorAll(".error-msg").forEach((e) => e.remove());
+
+        if (!orderType.value) {
+          valid = false;
+          const error = document.createElement("div");
+          error.className = "error-msg";
+          error.textContent = "Please select order type";
+          orderType.parentNode.appendChild(error);
+        }
+
+        if (orderType.value === "delivery" || orderType.value === "takeaway") {
+          const name = document.getElementById("clientName");
+          const phone = document.getElementById("clientPhone");
+          if (!name.value.trim()) {
+            valid = false;
+            showError(name, "Name is required");
+          }
+          if (!phone.value.trim()) {
+            valid = false;
+            showError(phone, "Phone is required");
+          }
+        } else if (orderType.value === "reservation") {
+          const resName = document.getElementById("resName");
+          const resPhone = document.getElementById("resPhone");
+          const resDate = document.getElementById("resDate");
+          const resGuests = document.getElementById("resperson");
+          if (!resName.value.trim()) {
+            valid = false;
+            showError(resName, "Name is required");
+          }
+          if (!resPhone.value.trim()) {
+            valid = false;
+            showError(resPhone, "Phone is required");
+          }
+          if (!resDate.value) {
+            valid = false;
+            showError(resDate, "Reservation date required");
+          }
+          if (!resGuests.value || resGuests.value <= 0) {
+            valid = false;
+            showError(resGuests, "Number of guests required");
+          }
+        }
+
+        return valid;
+      }
+
+      paybtn.addEventListener("click", () => {
+        if (!validateForm()) return;
+        loading.style.display = "flex";
+        setTimeout(() => {
+          window.location.href = "pay.html";
+        }, 4000);
+      });
+
       window.addEventListener("DOMContentLoaded", loadOrderSummary);
-      paybtn.onclick = function () {
-        window.location.href = "pay.html";
-      };
     </script>
   </body>
 </html>

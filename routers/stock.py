@@ -31,8 +31,8 @@ def get_stock(current_user: dict = Depends(get_current_active_user)):
     stock=cursor.fetchall()
     return stock
 
-@router.get('/Stock')
-def get_stock():
+@router.get('/Stock_limit 7')
+def get_stock_limit():
     sql_command="""
     Select s.No_Stock,p.Product_Name,s.Quantity_Available
     From Stock s

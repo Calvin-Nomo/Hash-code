@@ -32,9 +32,10 @@ class Product(BaseModel):
     Price: float
     Image_Path: str
 
+# current_user: dict = Depends(require_role(["waiter",'admin']))
 # Fetch products with full URL
 @router.get("/Product")
-def get_product(current_user: dict = Depends(require_role(["waiter","admin"]))):
+def get_product():
     cursor.execute("SELECT * FROM Product")
     products = cursor.fetchall()
     return products
@@ -55,7 +56,7 @@ async def create_product(
         db_image_path = f"{UPLOAD_DIR}/{image.filename}"
 
         cursor.execute(
-            "INSERT INTO Product(Product_Namse, Product_Description, Category, Price, Image_link) VALUES (%s,%s,%s,%s,%s)",
+            "INSERT INTO Product(Product_Name, Product_Description, Category, Price, Image_link) VALUES (%s,%s,%s,%s,%s)",
             (Product_Name, Product_Description, Category, Price, db_image_path)
         )
         product_id=cursor.lastrowid
