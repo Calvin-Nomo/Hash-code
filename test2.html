@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Menu</title>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ====== BASE ====== */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: #f4f6f8;
+        color: #333;
+      }
+
+      .wrapper {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* ===== SIDEBAR ===== */
+      #sidebar {
+        width: 250px;
+        background: #1e293b;
+        color: #fff;
+        transition: transform 0.4s ease;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 1000;
+      }
+
+      #sidebar.hidden {
+        transform: translateX(-100%);
+      }
+
+      .sidebar-logo {
+        padding: 1.2rem;
+        background: #0f172a;
+        text-align: center;
+      }
+
+      .sidebar-logo a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.4rem;
+      }
+
+      .sidebar-nav {
+        list-style: none;
+        padding: 1rem 0;
+      }
+
+      .sidebar-item {
+        position: relative;
+      }
+
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.9rem 1.5rem;
+        color: #e2e8f0;
+        text-decoration: none;
+        transition: background 0.3s;
+      }
+
+      .sidebar-link:hover {
+        background: #334155;
+      }
+
+      .has-dropdown::after {
+        content: "\f107";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        margin-left: auto;
+        transition: transform 0.3s;
+      }
+
+      .dropdown-open > .has-dropdown::after {
+        transform: rotate(180deg);
+      }
+
+      .sidebar-dropdown {
+        list-style: none;
+        display: none;
+        background: #334155;
+      }
+
+      .sidebar-dropdown .sidebar-link {
+        padding-left: 2.8rem;
+        font-size: 0.9rem;
+      }
+
+      .dropdown-open > .sidebar-dropdown {
+        display: block;
+      }
+
+      /* ===== MAIN ===== */
+      .main {
+        flex: 1;
+        margin-left: 250px;
+        transition: margin-left 0.4s ease;
+        width: 100%;
+      }
+
+      .main.expanded {
+        margin-left: 0;
+      }
+
+      /* ===== NAVBAR ===== */
+      .dashboard-navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.5rem;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .toggle-btn {
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        padding: 0.6rem 0.9rem;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      /* ===== CONTENT ===== */
+      .content {
+        padding: 90px 1.5rem 1.5rem;
+      }
+
+      .content h4 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #1e293b;
+      }
+
+      .search-bar {
+        position: relative;
+      }
+
+      .search-bar input {
+        padding: 0.5rem 2.5rem 0.5rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        outline: none;
+      }
+
+      .search-bar i {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #555;
+      }
+
+      .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .order-table th,
+      .order-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .order-table th {
+        background: #f9fafb;
+      }
+
+      .view,
+      .edit,
+      .delete {
+        cursor: pointer;
+        margin: 0 5px;
+        font-size: 1rem;
+      }
+
+      .edit:hover {
+        color: #facc15;
+      }
+
+      .delete:hover {
+        color: #dc2626;
+      }
+
+      /* ===== POPUPS ===== */
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      }
+
+      .popup-overlay.active {
+        display: flex;
+      }
+
+      .edit-form,
+      .delete-box {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        width: 400px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .delete-box {
+        width: 320px;
+        text-align: center;
+      }
+
+      .edit-form input {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      .save-btn {
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .cancel-btn {
+        background: #ccc;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      /* ===== SUCCESS ===== */
+      .success-message {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: #16a34a;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.4s ease;
+        z-index: 3000;
+      }
+
+      .success-message.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <aside id="sidebar">
+        <div class="sidebar-logo"><a href="#">Smart Menu</a></div>
+      </aside>
+
+      <div class="main" id="main">
+        <nav class="dashboard-navbar">
+          <button class="toggle-btn" id="toggleSidebar">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="search-bar">
+            <input
+              type="search"
+              id="productSearch"
+              placeholder="Search Product..."
+            />
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </nav>
+
+        <main class="content">
+          <h4>Product List</h4>
+          <table class="order-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="productTableBody"></tbody>
+          </table>
+        </main>
+      </div>
+    </div>
+
+    <!-- Edit Popup -->
+    <div class="popup-overlay" id="editPopup">
+      <div class="edit-form">
+        <h3>Edit Product</h3>
+        <label>Name <input type="text" id="editName" /></label>
+        <label>Category <input type="text" id="editCategory" /></label>
+        <label>Price <input type="number" id="editPrice" /></label>
+        <label>Description <input type="text" id="editDescription" /></label>
+        <label for="">Image <input type="file" id="edit" /></label>
+        <div style="text-align: center">
+          <button class="save-btn" id="saveEdit">Save</button>
+          <button class="cancel-btn" id="closeEdit">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Popup -->
+    <div class="popup-overlay" id="deletePopup">
+      <div class="delete-box">
+        <p>Do you want to delete this product?</p>
+        <button class="save-btn" id="confirmDelete">Yes</button>
+        <button class="cancel-btn" id="closeDelete">No</button>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMsg">
+      <i class="fa-solid fa-circle-check"></i>
+      <span id="successText"></span>
+    </div>
+
+    <script>
+      const API_URL = "http://127.0.0.1:8000/product/product";
+      const productTableBody = document.getElementById("productTableBody");
+      const searchInput = document.getElementById("productSearch");
+
+      const editPopup = document.getElementById("editPopup");
+      const deletePopup = document.getElementById("deletePopup");
+      const successMsg = document.getElementById("successMsg");
+
+      let productsData = [];
+      let currentProduct = null;
+
+      async function loadProducts() {
+        const response = await fetch(`${API_URL}/Product`);
+        productsData = await response.json();
+        renderTable(productsData);
+      }
+
+      function renderTable(products) {
+        productTableBody.innerHTML = "";
+        products.forEach((product) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><img src="${product.Image_link || ""}" width="150"/></td>
+            <td>${product.Product_Name}</td>
+            <td>${product.Category}</td>
+            <td>${product.Product_Description}</td>
+            <td>${product.Price} FCFA</td>
+            <td>${product.Status || "Available"}</td>
+            <td>
+              <i class="fa-solid fa-pen edit"></i>
+              <i class="fa-solid fa-trash delete"></i>
+            </td>
+          `;
+          row
+            .querySelector(".edit")
+            .addEventListener("click", () => openEditPopup(product));
+          row
+            .querySelector(".delete")
+            .addEventListener("click", () => openDeletePopup(product));
+          productTableBody.appendChild(row);
+        });
+      }
+
+      function openEditPopup(product) {
+        currentProduct = product;
+        document.getElementById("editName").value = product.Product_Name;
+        document.getElementById("editCategory").value = product.Category;
+        document.getElementById("editPrice").value = product.Price;
+        document.getElementById("editDescription").value =
+          product.Product_Description;
+
+        editPopup.classList.add("active");
+      }
+
+      function openDeletePopup(product) {
+        currentProduct = product;
+        deletePopup.classList.add("active");
+      }
+
+      document.getElementById("closeEdit").onclick = () =>
+        editPopup.classList.remove("active");
+      document.getElementById("closeDelete").onclick = () =>
+        deletePopup.classList.remove("active");
+
+      async function saveEdit() {
+        const updated = {
+          Product_Name: document.getElementById("editName").value,
+          Category: document.getElementById("editCategory").value,
+          Price: parseFloat(document.getElementById("editPrice").value),
+          Product_Description: document.getElementById("editDescription").value,
+        };
+
+        await fetch(`${API_URL}/update_product/${currentProduct.No_Product}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updated),
+        });
+
+        editPopup.classList.remove("active");
+        showSuccess("Product updated successfully!");
+        loadProducts();
+      }
+
+      async function confirmDelete() {
+        await fetch(`${API_URL}/delete_product/${currentProduct.No_Product}`, {
+          method: "DELETE",
+        });
+        deletePopup.classList.remove("active");
+        showSuccess("Product deleted successfully!");
+        loadProducts();
+      }
+
+      document.getElementById("saveEdit").onclick = saveEdit;
+      document.getElementById("confirmDelete").onclick = confirmDelete;
+
+      function showSuccess(msg) {
+        document.getElementById("successText").textContent = msg;
+        successMsg.classList.add("show");
+        setTimeout(() => successMsg.classList.remove("show"), 3000);
+      }
+
+      searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+        const filtered = productsData.filter(
+          (p) =>
+            p.Product_Name.toLowerCase().includes(query) ||
+            p.Category.toLowerCase().includes(query)
+        );
+        renderTable(filtered);
+      });
+
+      loadProducts();
+    </script>
+  </body>
+</html>

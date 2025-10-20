@@ -337,6 +337,137 @@
         }
       }
     </style>
+    <style>
+      /* Charts Section */
+      .charts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .charts-card {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .chart-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #1e293b;
+      }
+
+      #bar-chart,
+      #area-chart {
+        height: 250px;
+        background: #f9fafb;
+        border-radius: 8px;
+      }
+
+      /* Recent Orders Section */
+      .recent-order {
+        background: #fff;
+        margin-top: 2rem;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.2rem;
+      }
+
+      .order-header .title {
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .order-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .order-actions select {
+        padding: 0.4rem 0.8rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        outline: none;
+      }
+
+      .add-order-btn {
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 0.9rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+      }
+
+      .add-order-btn:hover {
+        background: #334155;
+      }
+
+      .order-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .order-table th,
+      .order-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .order-table th {
+        background: #f9fafb;
+        color: #475569;
+        font-weight: 600;
+      }
+
+      .status {
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .status.delivered {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .view {
+        color: #1e293b;
+        cursor: pointer;
+      }
+
+      .view:hover {
+        color: #2563eb;
+      }
+
+      @media (max-width: 768px) {
+        .order-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.8rem;
+        }
+
+        .charts {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
 
   <body>
@@ -356,11 +487,18 @@
 
           <li class="sidebar-item dropdown">
             <a href="#" class="sidebar-link has-dropdown"
-              ><i class="fa-solid fa-box"></i> Product</a
+              ><i class="fa-solid fa-box"></i> Inventory</a
             >
             <ul class="sidebar-dropdown">
-              <li><a href="#" class="sidebar-link">Products</a></li>
-              <li><a href="#" class="sidebar-link">Add New Product</a></li>
+              <li><a href="product.html" class="sidebar-link">Products</a></li>
+              <li>
+                <a href="new product.html" class="sidebar-link"
+                  >Add New Product</a
+                >
+              </li>
+              <li>
+                <a href="stock.html" class="sidebar-link">Stock</a>
+              </li>
             </ul>
           </li>
 
@@ -477,13 +615,34 @@
               <p id="totalRevenue">0</p>
               <span>Total Revenue</span>
             </div>
+            <div class="insight-card">
+              <p id="totalcustomer">0</p>
+              <span>Total Customer</span>
+            </div>
           </div>
 
           <!-- CHARTS SECTION -->
           <div class="charts">
             <div class="charts-card">
               <p class="chart-title">Top 5 Products</p>
-              <div id="bar-chart"></div>
+              <table class="order-table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Product_Name</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><img src="" alt="logo" /></td>
+                    <td>Pizza</td>
+                    <td>20</td>
+                    <td>1500</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             <div class="charts-card">
@@ -527,144 +686,28 @@
                   <td>2025-10-18</td>
                   <td><span class="status delivered">Delivered</span></td>
                   <td>$120</td>
-                  <td><i class="fa-solid fa-eye view"></i></td>
+                  <td>
+                    <i class="fa-solid fa-eye view"></i>
+                    <i class="fa-solid fa-pen edit"></i>
+                    <i class="fa-solid fa-trash delete"></i>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>John Who</td>
+                  <td>2025-10-18</td>
+                  <td><span class="status delivered">Delivered</span></td>
+                  <td>$130</td>
+                  <td>
+                    <i class="fa-solid fa-eye view"></i>
+                    <i class="fa-solid fa-pen edit"></i>
+                    <i class="fa-solid fa-trash delete"></i>
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </main>
-
-        <style>
-          /* Charts Section */
-          .charts {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-          }
-
-          .charts-card {
-            background: #fff;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-          }
-
-          .chart-title {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #1e293b;
-          }
-
-          #bar-chart,
-          #area-chart {
-            height: 250px;
-            background: #f9fafb;
-            border-radius: 8px;
-          }
-
-          /* Recent Orders Section */
-          .recent-order {
-            background: #fff;
-            margin-top: 2rem;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-          }
-
-          .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.2rem;
-          }
-
-          .order-header .title {
-            font-weight: 600;
-            color: #1e293b;
-          }
-
-          .order-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-          }
-
-          .order-actions select {
-            padding: 0.4rem 0.8rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            outline: none;
-          }
-
-          .add-order-btn {
-            background: #1e293b;
-            color: #fff;
-            border: none;
-            padding: 0.5rem 0.9rem;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.9rem;
-          }
-
-          .add-order-btn:hover {
-            background: #334155;
-          }
-
-          .order-table {
-            width: 100%;
-            border-collapse: collapse;
-          }
-
-          .order-table th,
-          .order-table td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-          }
-
-          .order-table th {
-            background: #f9fafb;
-            color: #475569;
-            font-weight: 600;
-          }
-
-          .status {
-            padding: 0.3rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-          }
-
-          .status.delivered {
-            background: #dcfce7;
-            color: #166534;
-          }
-
-          .view {
-            color: #1e293b;
-            cursor: pointer;
-          }
-
-          .view:hover {
-            color: #2563eb;
-          }
-
-          @media (max-width: 768px) {
-            .order-header {
-              flex-direction: column;
-              align-items: flex-start;
-              gap: 0.8rem;
-            }
-
-            .charts {
-              grid-template-columns: 1fr;
-            }
-          }
-        </style>
       </div>
     </div>
 
