@@ -303,7 +303,7 @@
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
         total = cart.reduce((sum, item) => sum + item.Price * item.qty, 0);
         const blocks = Math.ceil(total / 5000);
-        fee = blocks * 100;
+        fee = blocks * 150;
         finalAmount = total + fee;
         totalEl.textContent = `${total.toFixed(0)} FCFA`;
         feeEl.textContent = `${fee.toFixed(0)} FCFA`;

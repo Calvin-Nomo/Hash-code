@@ -228,7 +228,7 @@ textarea {
 
 .nav-item.active,
 .nav-item:hover {
-  color: #e74c3c;
+  color: Database_Name;
 }
 
 /* ===== Hidden Class ===== */

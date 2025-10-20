@@ -1,10 +1,13 @@
 from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
 from dependencies import require_role,get_current_active_user
-from routers.order_items import Items
-from routers.client import Client
-from routers.payment import Payment
-from routers.reservation import Reservation
+from backend.data.credentials import Mysql_password,Database_Name
+# from backrouters.order_items import Items
+from backend.routers.order_items import Items 
+
+from backend.routers.client import Client
+from backend.routers.payment import Payment
+from backend.routers.reservation import Reservation
 import pymysql
 from typing import List,Optional
 from datetime import datetime
@@ -12,10 +15,11 @@ from datetime import datetime
 DB= pymysql.connect(
     host="localhost",
     user="root",
-    password="Bineli26",
-    database="Order_System", 
+    password=Mysql_password,
+    database=Database_Name, 
    cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
 )
+
 class Order(BaseModel):
     Order_Type: str
     No_Table: Optional[int]=None
@@ -151,35 +155,129 @@ def create_order(data: FullOrderRequest,current_user: dict = Depends(require_rol
         DB.rollback()
         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
 
+# ------------------- PUT /FullOrderRequest/{order_id} -------------------
+@router.put("/FullOrderRequest_Update/{order_id}")
+def update_order(order_id: int, data: FullOrderRequest, current_user: dict = Depends(require_role(["admin"]))):
+    try:
+        cursor = DB.cursor()
+        DB.begin()  # start transaction
 
-# @router.put("/order/{order_id}")
-# def update_order(order_id: int, data: FullOrderRequest,current_user: dict = Depends(require_role(["Admin"]))):
-#     try:
-#         cursor = DB.cursor()
-#         DB.begin()
+        # 1️ Check if the order exists
+        cursor.execute("SELECT * FROM Orders WHERE Order_ID=%s", (order_id,))
+        existing_order = cursor.fetchone()
+        if not existing_order:
+            raise HTTPException(status_code=404, detail="Order not found")
 
-#         cursor.execute("SELECT * FROM Orders WHERE Order_ID=%s", (order_id,))
-#         if not cursor.fetchone():
-#             raise HTTPException(status_code=404, detail="Order not found")
+        # 2️ Check or create client
+        cursor.execute("SELECT No_Client FROM Clients WHERE No_Telephone=%s", (data.client.No_Telephone,))
+        client = cursor.fetchone()
+        if client:
+            client_id = client["No_Client"]
+        else:
+            cursor.execute(
+                "INSERT INTO Clients(Client_Name, No_Telephone) VALUES (%s, %s)",
+                (data.client.Client_Name, data.client.No_Telephone),
+            )
+            client_id = cursor.lastrowid
 
-#         cursor.execute(
-#             "UPDATE Orders SET Order_Type=%s, Note=%s WHERE Order_ID=%s",
-#             (data.order.Order_Type, data.order.Note, order_id),
-#         )
-#         status='Paid'
-#         cursor.execute(
-#             "UPDATE Payment SET Payment_Method=%s,Payment_Status=%s WHERE Order_ID=%s",
-#             (data.payment.Payment_Method,status, order_id),
-#         )
+        # 3️ Handle Reservation / Dine In / Take Away
+        reservation_id = None
+        table_id = None
+        if data.order.Order_Type == "Reservation":
+            if not data.reservation:
+                raise HTTPException(status_code=400, detail="Reservation details required for Reservation orders")
+            
+            # Update existing reservation if exists
+            if existing_order["No_Reservation"]:
+                cursor.execute(
+                    """UPDATE Reservation
+                       SET No_Table=%s, Reservation_Date=%s, No_Person=%s
+                       WHERE Reservation_ID=%s""",
+                    (data.reservation.No_Table, data.reservation.Reservation_Date,
+                     data.reservation.No_Person, existing_order["No_Reservation"]),
+                )
+                reservation_id = existing_order["No_Reservation"]
+            else:
+                cursor.execute(
+                    """INSERT INTO Reservation(No_Client, No_Table, Reservation_Date, No_Person)
+                       VALUES (%s, %s, %s, %s)""",
+                    (client_id, data.reservation.No_Table, data.reservation.Reservation_Date,
+                     data.reservation.No_Person),
+                )
+                reservation_id = cursor.lastrowid
+            table_id = data.reservation.No_Table
 
-#         DB.commit()
-#         return {"message": "Order updated successfully"}
-#     except HTTPException as e:
-#         DB.rollback()
-#         raise e
-#     except Exception as e:
-#         DB.rollback()
-#         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
+        elif data.order.Order_Type == "Dine In":
+            if not data.order.No_Table:
+                raise HTTPException(status_code=400, detail="Table number required for Dine In order")
+            cursor.execute("SELECT * FROM Tab WHERE Table_ID=%s", (data.order.No_Table,))
+            table = cursor.fetchone()
+            if not table:
+                raise HTTPException(status_code=404, detail="Table not found")
+            table_id = data.order.No_Table
+
+        # 4️ Update Order
+        cursor.execute(
+            """UPDATE Orders
+               SET No_Client=%s, No_Reservation=%s, Order_Type=%s, No_Table=%s, Note=%s
+               WHERE Order_ID=%s""",
+            (client_id, reservation_id, data.order.Order_Type, table_id, data.order.Note, order_id),
+        )
+
+        # 5️ Remove existing order items and restore stock
+        cursor.execute("SELECT No_Product, Quantity FROM Order_Items WHERE Order_ID=%s", (order_id,))
+        existing_items = cursor.fetchall()
+        for item in existing_items:
+            cursor.execute(
+                "UPDATE Stock SET Quantity_Available = Quantity_Available + %s WHERE No_Product=%s",
+                (item["Quantity"], item["No_Product"]),
+            )
+        cursor.execute("DELETE FROM Order_Items WHERE Order_ID=%s", (order_id,))
+
+        # 6️ Add new items and update stock
+        for item in data.order.items:
+            cursor.execute("SELECT Quantity_Available FROM Stock WHERE No_Product=%s", (item.No_Product,))
+            stock = cursor.fetchone()
+            if not stock:
+                raise HTTPException(status_code=404, detail=f"Product {item.No_Product} not found in stock")
+            if stock["Quantity_Available"] < item.Quantity:
+                raise HTTPException(status_code=400, detail=f"Not enough stock for product {item.No_Product}")
+
+            cursor.execute(
+                "INSERT INTO Order_Items(Order_ID, No_Product, Quantity) VALUES (%s, %s, %s)",
+                (order_id, item.No_Product, item.Quantity),
+            )
+            cursor.execute(
+                "UPDATE Stock SET Quantity_Available = Quantity_Available - %s WHERE No_Product=%s",
+                (item.Quantity, item.No_Product),
+            )
+
+        # 7️ Update payment
+        cursor.execute(
+            """SELECT SUM(oi.Quantity * p.Unit_Price) AS total
+               FROM Order_Items oi
+               JOIN Product p ON oi.No_Product = p.No_Product
+               WHERE oi.Order_ID = %s""",
+            (order_id,),
+        )
+        total = cursor.fetchone()["total"]
+        cursor.execute(
+            """UPDATE Payment
+               SET Total_Amount=%s, Payment_Date=%s, Payment_Method=%s, Payment_Status=%s
+               WHERE Order_ID=%s""",
+            (total, datetime.utcnow(), data.payment.Payment_Method, "Paid", order_id),
+        )
+
+        DB.commit()
+        return {"message": "Order updated successfully", "order_id": order_id}
+
+    except HTTPException as e:
+        DB.rollback()
+        raise e
+    except Exception as e:
+        DB.rollback()
+        raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
+
 
 @router.delete("/order/{order_id}")
 def delete_order(order_id: int,current_user: dict = Depends(require_role(["Admin"]))):

@@ -1,13 +1,14 @@
 from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
+from backend.data.credentials import Mysql_password,Database_Name
 from dependencies import require_role,get_current_active_user
 import pymysql
 
 DB= pymysql.connect(
     host="localhost",
     user="root",
-    password="Bineli26",
-    database="Order_System", 
+    password=Mysql_password,
+    database=Database_Name, 
    cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
 )
 
@@ -20,6 +21,7 @@ router = APIRouter(
 class Client(BaseModel):
     Client_Name:str
     No_Telephone:str
+    Email :str = None
 
 
 @router.get('/')
@@ -29,7 +31,7 @@ def greetings():
 }
 
 @router.get('/Client')
-def get_client():
+def get_client(current_user: dict = Depends(require_role(["admin"]))):
     sql_command="Select * from Clients" 
     cursor.execute(sql_command)
     clients=cursor.fetchall()
@@ -38,9 +40,9 @@ def get_client():
 @router.post("/create_client")
 def create_stock(client:Client,current_user: dict = Depends(require_role(["admin"]))):
     try:
-        sql_command="""INSERT INTO Clients(Client_Name,No_Telephone)
+        sql_command="""INSERT INTO Clients(Client_Name,No_Telephone,Email)
         VALUES(%s,%s)"""
-        cursor.execute(sql_command,(client.Client_Name,client.No_Telephone))
+        cursor.execute(sql_command,(client.Client_Name,client.No_Telephone,))
         DB.commit()
     except Exception as e:
         raise HTTPException(status_code=404,detail=(e))

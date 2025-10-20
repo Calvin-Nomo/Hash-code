@@ -1,15 +1,18 @@
 from fastapi import APIRouter,HTTPException,Depends
 from pydantic import BaseModel
 from dependencies import require_role,get_current_active_user
+from backend.data.credentials import Mysql_password,Database_Name
 import pymysql
+
 
 DB= pymysql.connect(
     host="localhost",
     user="root",
-    password="Bineli26",
-    database="Order_System", 
+    password=Mysql_password,
+    database=Database_Name, 
    cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
 )
+
 
 cursor=DB.cursor()
 

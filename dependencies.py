@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer
+from backend.data.credentials import ACCESS_SECRET_KEY,REFRESH_SECRET_KEY,Mysql_password,Database_Name
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from typing import Optional
@@ -9,8 +10,8 @@ import pymysql
 DB = pymysql.connect(
     host="localhost",
     user="root",
-    passwd="Bineli26",
-    database="Order_System",
+    passwd=Mysql_password,
+    database=Database_Name,
     cursorclass=pymysql.cursors.DictCursor,
     autocommit=False
 )
@@ -21,8 +22,8 @@ cursor=DB.cursor()
 #  AUTHENTICATION SECTION
 # ---------------------------
 
-ACCESS_SECRET_KEY = "secret_access_key"      # separate key for access
-REFRESH_SECRET_KEY = "secret_refresh_key"    # separate key for refresh
+ACCESS_SECRET_KEY =ACCESS_SECRET_KEY      # separate key for access
+REFRESH_SECRET_KEY = REFRESH_SECRET_KEY    # separate key for refresh
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7

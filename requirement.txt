@@ -15,3 +15,9 @@ fastapi-permissions
 websockets
 logging
 python-dotenv
+cookiecutter
+cookies
+browser-cookies3
+slowapi
+PyJWT
+Authlib

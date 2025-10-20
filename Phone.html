@@ -367,7 +367,7 @@
     <script>
       const API_URL = "http://localhost:8000/product/product/Product";
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const addSound = new Audio("notification.mp3");
+      const addSound = new Audio("frontend/html/source/notification.mp3");
 
       const cartSidebar = document.getElementById("cartSidebar");
       const cartItemsDiv = document.getElementById("cartItems");
@@ -521,7 +521,7 @@
         btn.classList.add("loading");
         btn.innerHTML = `<span class="spinner"></span>Loading...`;
         setTimeout(() => {
-          window.location.href = "order_history.html";
+          window.location.href = "detail.html";
         }, 3000);
       });
 

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Menu</title>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: #f4f6f8;
+        color: #333;
+      }
+
+      .wrapper {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* SIDEBAR */
+      #sidebar {
+        width: 250px;
+        background: #1e293b;
+        color: #fff;
+        transition: transform 0.4s ease;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 1000;
+      }
+
+      #sidebar.hidden {
+        transform: translateX(-100%);
+      }
+
+      .sidebar-logo {
+        padding: 1.2rem;
+        background: #0f172a;
+        text-align: center;
+      }
+
+      .sidebar-logo a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.4rem;
+      }
+
+      .sidebar-nav {
+        list-style: none;
+        padding: 1rem 0;
+      }
+
+      .sidebar-item {
+        position: relative;
+      }
+
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.9rem 1.5rem;
+        color: #e2e8f0;
+        text-decoration: none;
+        transition: background 0.3s;
+      }
+
+      .sidebar-link:hover {
+        background: #334155;
+      }
+
+      .has-dropdown::after {
+        content: "\f107";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        margin-left: auto;
+        transition: transform 0.3s;
+      }
+
+      .dropdown-open > .has-dropdown::after {
+        transform: rotate(180deg);
+      }
+
+      .sidebar-dropdown {
+        list-style: none;
+        display: none;
+        background: #334155;
+      }
+
+      .sidebar-dropdown .sidebar-link {
+        padding-left: 2.8rem;
+        font-size: 0.9rem;
+      }
+
+      .dropdown-open > .sidebar-dropdown {
+        display: block;
+      }
+
+      /* MAIN */
+      .main {
+        flex: 1;
+        margin-left: 250px;
+        transition: margin-left 0.4s ease;
+        width: 100%;
+      }
+
+      .main.expanded {
+        margin-left: 0;
+      }
+
+      /* NAVBAR */
+      .dashboard-navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.5rem;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .left-nav,
+      .right-nav {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .toggle-btn {
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        padding: 0.6rem 0.9rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+      }
+
+      .toggle-btn:hover {
+        background: #334155;
+      }
+
+      /* SEARCH BAR */
+      .search-bar {
+        position: relative;
+      }
+
+      .search-bar input {
+        padding: 0.5rem 2.5rem 0.5rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        outline: none;
+        width: 220px;
+        transition: all 0.3s;
+      }
+
+      .search-bar input:focus {
+        border-color: #1e293b;
+      }
+
+      .search-bar i {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #555;
+      }
+
+      /* THEME TOGGLE */
+      .toggle-theme {
+        display: flex;
+        gap: 0.6rem;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #333;
+      }
+
+      .toggle-theme i:hover {
+        color: #1e293b;
+      }
+
+      /* PROFILE */
+      .profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+      }
+
+      .profile img {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .profile-info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+      }
+
+      .profile-info h2 {
+        font-size: 0.95rem;
+        color: #1e293b;
+      }
+
+      .profile-info p {
+        font-size: 0.75rem;
+        color: #64748b;
+      }
+
+      .profile i.fa-chevron-down {
+        color: #64748b;
+        transition: transform 0.3s;
+      }
+
+      .profile.active i.fa-chevron-down {
+        transform: rotate(180deg);
+      }
+
+      /* PROFILE DROPDOWN */
+      .profile-dropdown {
+        position: absolute;
+        top: 120%;
+        right: 0;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        list-style: none;
+        padding: 0.4rem 0;
+        display: none;
+        z-index: 100;
+        min-width: 160px;
+      }
+
+      .profile-dropdown li a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.6rem 1rem;
+        text-decoration: none;
+        color: #333;
+        font-size: 0.9rem;
+        transition: background 0.3s;
+      }
+
+      .profile-dropdown li a:hover {
+        background: #f1f5f9;
+      }
+
+      .profile-dropdown li i {
+        color: #1e293b;
+      }
+
+      .profile.active .profile-dropdown {
+        display: block;
+      }
+
+      /* CONTENT */
+      .content h4 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: #1e293b;
+      }
+
+      .insight {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .insight-card {
+        background: #fff;
+        padding: 1.5rem 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        flex: 1;
+        min-width: 200px;
+        text-align: center;
+        transition: transform 0.3s;
+      }
+
+      .insight-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .insight-card p {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+        color: #1e293b;
+      }
+
+      .insight-card span {
+        font-size: 0.9rem;
+        color: #64748b;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 768px) {
+        #sidebar {
+          transform: translateX(-100%);
+        }
+
+        #sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <!-- SIDEBAR -->
+      <aside id="sidebar">
+        <div class="sidebar-logo">
+          <a href="#">Smart Menu</a>
+        </div>
+
+        <ul class="sidebar-nav">
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-chart-line"></i> Dashboard</a
+            >
+          </li>
+
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-box"></i> Product</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="#" class="sidebar-link">Products</a></li>
+              <li><a href="#" class="sidebar-link">Add New Product</a></li>
+            </ul>
+          </li>
+
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-tags"></i> Category</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="#" class="sidebar-link">Category List</a></li>
+              <li><a href="#" class="sidebar-link">Add New Category</a></li>
+            </ul>
+          </li>
+
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-users"></i> Users</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="#" class="sidebar-link">All Users</a></li>
+              <li><a href="#" class="sidebar-link">Add New User</a></li>
+            </ul>
+          </li>
+
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-cart-shopping"></i> Orders</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="#" class="sidebar-link">Order List</a></li>
+              <li><a href="#" class="sidebar-link">Order Details</a></li>
+            </ul>
+          </li>
+
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-user-shield"></i> Role</a
+            >
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-chart-line"></i>Reports</a
+            >
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-gear"></i> System Settings</a
+            >
+          </li>
+        </ul>
+      </aside>
+
+      <!-- MAIN -->
+      <div class="main" id="main">
+        <nav class="dashboard-navbar">
+          <div class="left-nav">
+            <!-- MENU BUTTON -->
+            <button class="toggle-btn" id="toggleSidebar">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- SEARCH BAR -->
+            <div class="search-bar">
+              <input type="search" placeholder="Search here..." />
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+          </div>
+
+          <div class="right-nav">
+            <!-- THEME TOGGLE -->
+            <div class="toggle-theme">
+              <i class="fa-solid fa-moon"></i>
+              <i class="fa-solid fa-sun"></i>
+            </div>
+
+            <!-- PROFILE -->
+            <div class="profile">
+              <img src="image/person_1.jpg" alt="User" />
+              <div class="profile-info">
+                <h2>Calvin Nomo</h2>
+                <p>Admin</p>
+              </div>
+              <i class="fa-solid fa-chevron-down"></i>
+
+              <ul class="profile-dropdown">
+                <li>
+                  <a href="#"
+                    ><i class="fa-solid fa-user-gear"></i> Profile Settings</a
+                  >
+                </li>
+                <li>
+                  <a href="#"
+                    ><i class="fa-solid fa-right-to-bracket"></i> Login</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+        <main class="content">
+          <h4>Dashboard</h4>
+
+          <!-- INSIGHT CARDS -->
+          <div class="insight">
+            <div class="insight-card">
+              <p id="totalOrders">0</p>
+              <span>Total Orders</span>
+            </div>
+            <div class="insight-card">
+              <p id="totalReservations">0</p>
+              <span>Total Reservations</span>
+            </div>
+            <div class="insight-card">
+              <p id="totalRevenue">0</p>
+              <span>Total Revenue</span>
+            </div>
+          </div>
+
+          <!-- CHARTS SECTION -->
+          <div class="charts">
+            <div class="charts-card">
+              <p class="chart-title">Top 5 Products</p>
+              <div id="bar-chart"></div>
+            </div>
+
+            <div class="charts-card">
+              <p class="chart-title">Purchase and Sales Orders</p>
+              <div id="area-chart"></div>
+            </div>
+          </div>
+
+          <!-- RECENT ORDERS -->
+          <div class="recent-order">
+            <div class="order-header">
+              <p class="title">Recent Orders</p>
+              <div class="order-actions">
+                <label>Sort By:</label>
+                <select>
+                  <option>All</option>
+                  <option>Today</option>
+                  <option>This Week</option>
+                </select>
+                <button class="add-order-btn">
+                  <i class="fa-solid fa-plus"></i> Add Order
+                </button>
+              </div>
+            </div>
+
+            <table class="order-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>John Doe</td>
+                  <td>2025-10-18</td>
+                  <td><span class="status delivered">Delivered</span></td>
+                  <td>$120</td>
+                  <td><i class="fa-solid fa-eye view"></i></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </main>
+
+        <style>
+          /* Charts Section */
+          .charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+          }
+
+          .charts-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+          }
+
+          .chart-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1e293b;
+          }
+
+          #bar-chart,
+          #area-chart {
+            height: 250px;
+            background: #f9fafb;
+            border-radius: 8px;
+          }
+
+          /* Recent Orders Section */
+          .recent-order {
+            background: #fff;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+          }
+
+          .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+          }
+
+          .order-header .title {
+            font-weight: 600;
+            color: #1e293b;
+          }
+
+          .order-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+          }
+
+          .order-actions select {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+          }
+
+          .add-order-btn {
+            background: #1e293b;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+          }
+
+          .add-order-btn:hover {
+            background: #334155;
+          }
+
+          .order-table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+
+          .order-table th,
+          .order-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+          }
+
+          .order-table th {
+            background: #f9fafb;
+            color: #475569;
+            font-weight: 600;
+          }
+
+          .status {
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+          }
+
+          .status.delivered {
+            background: #dcfce7;
+            color: #166534;
+          }
+
+          .view {
+            color: #1e293b;
+            cursor: pointer;
+          }
+
+          .view:hover {
+            color: #2563eb;
+          }
+
+          @media (max-width: 768px) {
+            .order-header {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 0.8rem;
+            }
+
+            .charts {
+              grid-template-columns: 1fr;
+            }
+          }
+        </style>
+      </div>
+    </div>
+
+    <!-- JS -->
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      const main = document.getElementById("main");
+      const toggleBtn = document.getElementById("toggleSidebar");
+      const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
+
+      // Toggle Sidebar (fully hide)
+      toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+        main.classList.toggle("expanded");
+      });
+
+      // Sidebar Dropdown
+      dropdowns.forEach((item) => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.classList.toggle("dropdown-open");
+
+          // Close other dropdowns
+          dropdowns.forEach((other) => {
+            if (other !== item) other.classList.remove("dropdown-open");
+          });
+        });
+      });
+
+      // Profile Dropdown
+      const profile = document.querySelector(".profile");
+      profile.addEventListener("click", (e) => {
+        e.stopPropagation();
+        profile.classList.toggle("active");
+      });
+
+      // Close profile on outside click
+      document.addEventListener("click", () => {
+        profile.classList.remove("active");
+      });
+    </script>
+  </body>
+</html>
