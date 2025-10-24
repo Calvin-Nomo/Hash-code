@@ -12,12 +12,12 @@
       rel="stylesheet"
     />
     <style>
+      /* === Styles for phone-like frame and layout === */
       body {
         margin: 0;
         font-family: "Poppins", sans-serif;
         background: #f2f2f2;
       }
-
       .phone-frame {
         width: 360px;
         height: 700px;
@@ -29,13 +29,11 @@
         background: #fff;
         position: relative;
       }
-
       .app-container {
         flex: 1;
         overflow-y: auto;
         padding-bottom: 60px;
       }
-
       .top-header {
         background: #e74c3c;
         color: #fff;
@@ -44,15 +42,12 @@
         align-items: center;
         padding: 12px 15px;
       }
-
       .top-header h2 {
         font-size: 18px;
       }
-
       .order-list {
         padding: 15px;
       }
-
       .order-card {
         background: #fff;
         border-radius: 12px;
@@ -62,29 +57,24 @@
         transition: 0.3s;
         cursor: pointer;
       }
-
       .order-card:hover {
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
       }
-
       .order-card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
-
       .order-card-header h4 {
         margin: 0;
         font-size: 16px;
         color: #333;
       }
-
       .order-info {
         font-size: 13px;
         color: #555;
         margin: 5px 0;
       }
-
       .order-status {
         display: inline-block;
         padding: 4px 10px;
@@ -94,7 +84,6 @@
         margin-top: 5px;
         text-transform: capitalize;
       }
-
       .status-pending {
         background: #f39c12;
       }
@@ -104,7 +93,6 @@
       .status-canceled {
         background: #e74c3c;
       }
-
       .order-details {
         display: none;
         margin-top: 10px;
@@ -114,27 +102,22 @@
         line-height: 1.5;
         color: #444;
       }
-
       .order-details p {
         margin: 5px 0;
       }
-
       .items-list p {
         margin: 3px 0;
         display: flex;
         justify-content: space-between;
       }
-
       .toggle-btn {
         font-size: 20px;
         cursor: pointer;
         transition: transform 0.3s;
       }
-
       .toggle-btn.open {
         transform: rotate(180deg);
       }
-
       .bottom-nav {
         position: absolute;
         bottom: 0;
@@ -144,7 +127,6 @@
         background: #e74c3c;
         padding: 8px 0;
       }
-
       .nav-item {
         color: #fff;
         display: flex;
@@ -153,12 +135,10 @@
         font-size: 11px;
         text-decoration: none;
       }
-
       .nav-item i {
         font-size: 1.3rem;
         margin-bottom: 2px;
       }
-
       .nav-item.active,
       .nav-item:hover {
         color: #fff;
@@ -170,25 +150,21 @@
       <div class="app-container">
         <header class="top-header">
           <h2>Order <span class="danger">History</span></h2>
-          <div class="profile">
-            <i class="material-icons-sharp">person</i>
-          </div>
+          <div class="profile"><i class="material-icons-sharp">person</i></div>
         </header>
 
         <div class="order-list" id="orderList"></div>
 
         <nav class="bottom-nav">
           <a href="list.html" class="nav-item">
-            <i class="material-icons-sharp">home</i>
-            <span>Home</span>
+            <i class="material-icons-sharp">home</i><span>Home</span>
           </a>
-          <a href="#" class="nav-item">
-            <i class="material-icons-sharp">person</i>
-            <span>Profile</span>
+          <a href="#" class="nav-item cart-btn">
+            <i class="material-icons-sharp">shopping_cart</i>
+            <span id="cart-count" class="cart-badge">0</span>
           </a>
           <a href="#" class="nav-item active">
-            <i class="material-icons-sharp">receipt_long</i>
-            <span>Orders</span>
+            <i class="material-icons-sharp">receipt_long</i><span>Orders</span>
           </a>
         </nav>
       </div>
@@ -197,84 +173,85 @@
     <script>
       const orderList = document.getElementById("orderList");
 
-      const orders = JSON.parse(localStorage.getItem("orders")) || [
-        {
-          id: 10234,
-          date: "2025-10-12",
-          time: "15:45",
-          status: "pending",
-          total: 30.0,
-          client: "John Doe",
-          phone: "+1234567890",
-          paymentMethod: "Credit Card",
-          orderType: "Delivery",
-          items: [
-            { name: "Burger", quantity: 2, price: 10 },
-            { name: "Fries", quantity: 1, price: 5 },
-          ],
-        },
-        {
-          id: 10233,
-          date: "2025-10-11",
-          time: "12:20",
-          status: "completed",
-          total: 25.5,
-          client: "Alice Smith",
-          phone: "+9876543210",
-          paymentMethod: "Cash",
-          orderType: "Pickup",
-          items: [
-            { name: "Pizza", quantity: 1, price: 15 },
-            { name: "Soda", quantity: 2, price: 5.25 },
-          ],
-        },
-      ];
+      // === Fetch orders from backend API ===
+      async function fetchOrders() {
+        try {
+          // Replace with your FastAPI endpoint
+          const response = await fetch("http://127.0.0.1:8000/order/Order");
+          if (!response.ok) throw new Error("Failed to fetch orders");
+          const orders = await response.json();
 
-      function loadOrders() {
+          // Map backend data to front-end structure
+          const mappedOrders = orders.map((order) => ({
+            id: order.Order_ID,
+            date: new Date(order.Order_Date).toLocaleDateString(),
+            time: new Date(order.Order_Date).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            status: order.Order_Status || "pending", // adapt depending on backend
+            total: order.Total_Amount || 0,
+            client: order.Client_Name || "N/A",
+            phone: order.Client_Phone || "N/A",
+            paymentMethod: order.Payment_Method || "N/A",
+            orderType: order.Order_Type,
+            items: order.items || [], // ensure backend sends items array
+          }));
+
+          renderOrders(mappedOrders);
+        } catch (err) {
+          console.error(err);
+          orderList.innerHTML =
+            "<p style='text-align:center;color:red;'>Failed to load orders.</p>";
+        }
+      }
+
+      // === Render orders on page ===
+      function renderOrders(orders) {
         orderList.innerHTML = "";
         orders.forEach((order) => {
           const orderCard = document.createElement("div");
           orderCard.classList.add("order-card");
 
-          const itemsHTML = order.items
+          const itemsHTML = (order.items || [])
             .map(
               (item) =>
-                `<p><span>${item.name} x ${item.quantity}</span><span>$${(
-                  item.price * item.quantity
-                ).toFixed(2)}</span></p>`
+                `<p><span>${item.Name || item.name} x ${
+                  item.Quantity || item.quantity
+                }</span><span>${
+                  (item.Unit_Price || item.price) *
+                  (item.Quantity || item.quantity)
+                } FCFA</span></p>`
             )
             .join("");
 
           const detailsHTML = `
-          <div class="order-details">
-            <p><strong>Client:</strong> ${order.client}</p>
-            <p><strong>Phone:</strong> ${order.phone}</p>
-            <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-            <p><strong>Order Type:</strong> ${order.orderType}</p>
-            <p><strong>Items:</strong></p>
-            <div class="items-list">
-              ${itemsHTML}
+            <div class="order-details">
+              <p><strong>Client:</strong> ${order.client}</p>
+              <p><strong>Phone:</strong> ${order.phone}</p>
+              <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+              <p><strong>Order Type:</strong> ${order.orderType}</p>
+              <p><strong>Items:</strong></p>
+              <div class="items-list">${itemsHTML}</div>
             </div>
-          </div>
-        `;
+          `;
 
           orderCard.innerHTML = `
-          <div class="order-card-header">
-            <h4>Order #${order.id}</h4>
-            <span class="toggle-btn">&#9660;</span>
-          </div>
-          <p class="order-info">${order.date} | ${
+            <div class="order-card-header">
+              <h4>Order #${order.id}</h4>
+              <span class="toggle-btn">&#9660;</span>
+            </div>
+            <p class="order-info">${order.date} | ${
             order.time
-          } | Total: $${order.total.toFixed(2)}</p>
-          <span class="order-status status-${order.status}">${
+          } | Total: ${order.total.toFixed(0)} FCFA</p>
+            <span class="order-status status-${order.status}">${
             order.status
           }</span>
-          ${detailsHTML}
-        `;
+            ${detailsHTML}
+          `;
 
           const toggleBtn = orderCard.querySelector(".toggle-btn");
           const detailsDiv = orderCard.querySelector(".order-details");
-
           toggleBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             const isOpen = detailsDiv.style.display === "block";
@@ -286,7 +263,7 @@
         });
       }
 
-      window.addEventListener("DOMContentLoaded", loadOrders);
+      window.addEventListener("DOMContentLoaded", fetchOrders);
     </script>
   </body>
 </html>

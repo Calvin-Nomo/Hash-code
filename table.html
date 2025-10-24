@@ -70,10 +70,6 @@
         padding: 1rem 0;
       }
 
-      .sidebar-item {
-        position: relative;
-      }
-
       .sidebar-link {
         display: flex;
         align-items: center;
@@ -126,7 +122,6 @@
       .main.expanded {
         margin-left: 0;
       }
-
       /* NAVBAR */
       .dashboard-navbar {
         display: flex;
@@ -282,144 +277,41 @@
       }
 
       /* CONTENT */
+      .content {
+        padding: 90px 1.5rem 1.5rem;
+      }
+
       .content h4 {
         font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        color: #1e293b;
-      }
-
-      .insight {
-        display: flex;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-      }
-
-      .insight-card {
-        background: #fff;
-        padding: 1.5rem 2rem;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        flex: 1;
-        min-width: 200px;
-        text-align: center;
-        transition: transform 0.3s;
-      }
-
-      .insight-card:hover {
-        transform: translateY(-5px);
-      }
-
-      .insight-card p {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.3rem;
-        color: #1e293b;
-      }
-
-      .insight-card span {
-        font-size: 0.9rem;
-        color: #64748b;
-      }
-
-      /* RESPONSIVE */
-      @media (max-width: 768px) {
-        #sidebar {
-          transform: translateX(-100%);
-        }
-
-        #sidebar.active {
-          transform: translateX(0);
-        }
-
-        .main {
-          margin-left: 0;
-        }
-      }
-    </style>
-    <style>
-      /* Charts Section */
-      .charts {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 1.5rem;
-        margin-top: 2rem;
-      }
-
-      .charts-card {
-        background: #fff;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-      }
-
-      .chart-title {
         font-weight: 600;
         margin-bottom: 1rem;
         color: #1e293b;
       }
 
-      #bar-chart,
-      #area-chart {
-        height: 250px;
-        background: #f9fafb;
-        border-radius: 8px;
-      }
-
-      /* Recent Orders Section */
-      .recent-order {
-        background: #fff;
-        margin-top: 2rem;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-      }
-
-      .order-header {
+      .action-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
       }
 
-      .order-header .title {
-        font-weight: 600;
-        color: #1e293b;
-      }
-
-      .order-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-      }
-
-      .order-actions select {
-        padding: 0.4rem 0.8rem;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        outline: none;
-      }
-
-      .add-order-btn {
+      .action-row button {
         background: #1e293b;
         color: #fff;
         border: none;
-        padding: 0.5rem 0.9rem;
+        padding: 0.5rem 1rem;
         border-radius: 6px;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.9rem;
       }
 
-      .add-order-btn:hover {
-        background: #334155;
-      }
-
+      /* Table */
       .order-table {
         width: 100%;
         border-collapse: collapse;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
       }
 
       .order-table th,
@@ -432,39 +324,127 @@
       .order-table th {
         background: #f9fafb;
         color: #475569;
-        font-weight: 600;
       }
 
-      .status {
-        padding: 0.3rem 0.7rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-      }
-
-      .status.delivered {
-        background: #dcfce7;
-        color: #166534;
-      }
-
-      .view {
-        color: #1e293b;
+      .view,
+      .edit,
+      .delete {
         cursor: pointer;
+        margin: 0 5px;
+        font-size: 1rem;
       }
 
       .view:hover {
         color: #2563eb;
       }
 
+      .edit:hover {
+        color: #facc15;
+      }
+
+      .delete:hover {
+        color: #dc2626;
+      }
+
+      /* Popups */
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      }
+
+      .popup-overlay.active {
+        display: flex;
+      }
+
+      .edit-form,
+      .delete-box,
+      .add-form {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        animation: popupFade 0.3s ease;
+      }
+
+      @keyframes popupFade {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .edit-form h3 {
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #1e293b;
+      }
+
+      .edit-form input {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      .save-btn {
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .cancel-btn {
+        background: #ccc;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .delete-box button {
+        margin: 10px;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .delete-box .yes {
+        background: #dc2626;
+        color: #fff;
+      }
+
+      .delete-box .no {
+        background: #ccc;
+      }
+
       @media (max-width: 768px) {
-        .order-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.8rem;
+        #sidebar {
+          transform: translateX(-100%);
         }
 
-        .charts {
-          grid-template-columns: 1fr;
+        #sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main {
+          margin-left: 0;
         }
       }
     </style>
@@ -480,7 +460,7 @@
 
         <ul class="sidebar-nav">
           <li class="sidebar-item">
-            <a href="#" class="sidebar-link"
+            <a href="admin.html" class="sidebar-link"
               ><i class="fa-solid fa-chart-line"></i> Dashboard</a
             >
           </li>
@@ -510,7 +490,7 @@
               <li>
                 <a href="reservation.html" class="sidebar-link">Reservation</a>
               </li>
-              <li><a href="table.html" class="sidebar-link">Table</a></li>
+              <li><a href="#" class="sidebar-link">Table</a></li>
             </ul>
           </li>
 
@@ -602,110 +582,79 @@
         </nav>
 
         <main class="content">
-          <h4>Dashboard</h4>
+          <div class="action-row">
+            <h2>Table Management</h2>
 
-          <!-- INSIGHT CARDS -->
-          <div class="insight">
-            <div class="insight-card">
-              <p id="totalOrders">0</p>
-              <span>Total Orders</span>
+            <!-- SEARCH BAR -->
+            <div class="search-bar">
+              <input
+                type="search"
+                placeholder="Search here..."
+                id="tableSearch"
+              />
+              <i class="fa-solid fa-magnifying-glass"></i>
             </div>
-            <div class="insight-card">
-              <p id="totalReservations">0</p>
-              <span>Total Reservations</span>
-            </div>
-            <div class="insight-card">
-              <p id="totalRevenue">0</p>
-              <span>Total Revenue</span>
-            </div>
-            <div class="insight-card">
-              <p id="totalcustomer">0</p>
-              <span>Total Customer</span>
-            </div>
+            <button id="addBtn">New</button>
           </div>
 
-          <!-- CHARTS SECTION -->
-          <div class="charts">
-            <div class="charts-card">
-              <p class="chart-title">Top 5 Products</p>
-              <table class="order-table">
-                <thead>
-                  <tr>
-                    <th>Image</th>
-                    <th>Product_Name</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><img src="" alt="logo" /></td>
-                    <td>Pizza</td>
-                    <td>20</td>
-                    <td>1500</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="charts-card">
-              <p class="chart-title">Purchase and Sales Orders</p>
-              <div id="area-chart"></div>
-            </div>
-          </div>
-
-          <!-- RECENT ORDERS -->
-          <div class="recent-order">
-            <div class="order-header">
-              <p class="title">Recent Orders</p>
-            </div>
-
-            <table class="order-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Customer</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Amount</th>
-                  <th>Order_Type</th>
-                  <th>Payment_Method</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>John Doe</td>
-                  <td>2025-10-18</td>
-                  <td><span class="status delivered">Delivered</span></td>
-                  <td>1500 FCFA</td>
-                  <td>Reservation</td>
-                  <td>MTN Money</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>John Who</td>
-                  <td>2025-10-18</td>
-                  <td><span class="status delivered">Delivered</span></td>
-                  <td>1000 FCFA</td>
-                  <td>Reservation</td>
-                  <td>Orange Money</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table class="order-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Table Number</th>
+                <th>Number of Seat</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="TablesTableBody"></tbody>
+          </table>
         </main>
       </div>
-    </div>
 
-    <!-- JS -->
+      <!-- Add Popup -->
+      <div class="popup-overlay" id="addPopup">
+        <div class="add-form">
+          <h3>Add Table</h3>
+          <label>Table Number <input type="text" id="addNumber" /></label>
+          <label>Seats <input type="number" id="addSeats" /></label>
+          <label>Status <input type="text" id="addState" /></label>
+          <div style="text-align: center">
+            <button class="save-btn" id="saveEdit">Save</button>
+            <button class="cancel-btn" id="closeEdit">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <!-- Edit Popup -->
+      <div class="popup-overlay" id="editPopup">
+        <div class="edit-form">
+          <h3>Edit Table</h3>
+          <label>Table Number <input type="text" id="editNumber" /></label>
+          <label>Seats <input type="number" id="editSeats" /></label>
+          <label>Status <input type="text" id="editState" /></label>
+          <div style="text-align: center">
+            <button class="save-btn" id="saveEdit">Save</button>
+            <button class="cancel-btn" id="closeEdit">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Popup -->
+      <div class="popup-overlay" id="deletePopup">
+        <div class="delete-box">
+          <p>Do you want to delete this table?</p>
+          <button class="yes" id="confirmDelete">Yes</button>
+          <button class="no" id="closeDelete">No</button>
+        </div>
+      </div>
+    </div>
     <script>
       const sidebar = document.getElementById("sidebar");
       const main = document.getElementById("main");
       const toggleBtn = document.getElementById("toggleSidebar");
       const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
+      const TableBody = document.getElementById("TablesTableBody");
 
-      // Toggle Sidebar (fully hide)
       toggleBtn.addEventListener("click", () => {
         sidebar.classList.toggle("hidden");
         main.classList.toggle("expanded");
@@ -735,6 +684,135 @@
       document.addEventListener("click", () => {
         profile.classList.remove("active");
       });
+
+      // API URL
+      const API_URL = "http://127.0.0.1:8000/table/table/Table";
+      let tablesData = [];
+
+      async function loadTables() {
+        try {
+          const res = await fetch(API_URL);
+          if (!res.ok) throw new Error("Failed to load data");
+          tablesData = await res.json();
+          renderTable(tablesData);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function renderTable(data) {
+        TableBody.innerHTML = "";
+        data.forEach((table) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${table.Table_ID}</td>
+            <td>${table.No_Table}</td>
+            <td>${table.Seat_Number}</td>
+            <td>${table.State}</td>
+            <td>
+              <i class="fa-solid fa-pen edit"></i>
+              <i class="fa-solid fa-trash delete"></i>
+            </td>
+          `;
+          TableBody.appendChild(tr);
+        });
+
+        attachRowEvents();
+      }
+
+      function attachRowEvents() {
+        document.querySelectorAll(".edit").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
+            const row = e.target.closest("tr");
+            document.getElementById("editNumber").value =
+              row.cells[1].textContent;
+            document.getElementById("editSeats").value =
+              row.cells[2].textContent;
+            document.getElementById("editState").value =
+              row.cells[3].textContent;
+            document.getElementById("editPopup").classList.add("active");
+          })
+        );
+
+        document.querySelectorAll(".delete").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            document.getElementById("deletePopup").classList.add("active");
+          })
+        );
+      }
+
+      // Popup close buttons
+      document.getElementById("closeEdit").onclick = () =>
+        document.getElementById("editPopup").classList.remove("active");
+
+      document.getElementById("closeDelete").onclick = () =>
+        document.getElementById("deletePopup").classList.remove("active");
+      const searchInput = document.getElementById("tableSearch");
+      // Search filter
+      searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+        const filtered = tablesData.filter(
+          (table) =>
+            table.No_Table.toLowerCase().includes(query) ||
+            table.State.toLowerCase().includes(query)
+        );
+        renderTable(filtered);
+      });
+      //  Show popup when "New" is pressed
+      document.getElementById("addBtn").addEventListener("click", () => {
+        document.getElementById("addPopup").style.display = "flex";
+      });
+
+      //  Close popup when "Cancel" is pressed
+      document.getElementById("closeEdit").addEventListener("click", () => {
+        document.getElementById("addPopup").style.display = "none";
+      });
+
+      //  Save new table
+      document
+        .getElementById("saveEdit")
+        .addEventListener("click", async () => {
+          const tableNumber = document.getElementById("addNumber").value.trim();
+          const seats = document.getElementById("addSeats").value.trim();
+          const status = document.getElementById("addState").value.trim();
+
+          if (!tableNumber || !seats || !status) {
+            alert(" Please fill in all fields!");
+            return;
+          }
+
+          const data = {
+            Table_Number: tableNumber,
+            Seats: parseInt(seats),
+            Status: status,
+          };
+
+          try {
+            const response = await fetch(
+              "http://127.0.0.1:8000/table/table/Table",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              }
+            );
+
+            if (response.ok) {
+              alert("Table added successfully!");
+              document.getElementById("addPopup").style.display = "none";
+              // Optional: refresh table list if you display it elsewhere
+              // fetchTables();
+            } else {
+              const err = await response.json();
+              alert(" Error: " + err.detail);
+            }
+          } catch (error) {
+            alert(" Connection error: " + error.message);
+          }
+        });
+      loadTables();
     </script>
   </body>
 </html>

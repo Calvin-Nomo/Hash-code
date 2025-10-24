@@ -32,15 +32,14 @@ def get_stock(current_user: dict = Depends(get_current_active_user)):
     stock=cursor.fetchall()
     return stock
 
-@router.get('/Stock_limit 7')
+@router.get('/Stock_limit')
 def get_stock_limit():
     sql_command="""
-    Select s.No_Stock,p.Product_Name,s.Quantity_Available
+    Select s.No_Stock,p.Image_link,p.Product_Name,s.Quantity_Available,s.Stock_Status
     From Stock s
     Join Product p
     ON
     s.No_Product=p.No_Product
-    Limit 7
     """
     cursor.execute(sql_command)
     stock=cursor.fetchall()

@@ -563,7 +563,7 @@
                 >
               </li>
               <li>
-                <a href="#" class="sidebar-link">Stock</a>
+                <a href="stock.html" class="sidebar-link">Stock</a>
               </li>
             </ul>
           </li>
@@ -573,8 +573,8 @@
               ><i class="fa-solid fa-tags"></i> Category</a
             >
             <ul class="sidebar-dropdown">
-              <li><a href="#" class="sidebar-link">Category List</a></li>
-              <li><a href="#" class="sidebar-link">Add New Category</a></li>
+              <li><a href="reservation.html" class="sidebar-link">Reservation</a></li>
+              <li><a href="table.html" class="sidebar-link">Table</a></li>
             </ul>
           </li>
 
@@ -583,7 +583,7 @@
               ><i class="fa-solid fa-users"></i> Users</a
             >
             <ul class="sidebar-dropdown">
-              <li><a href="#" class="sidebar-link">All Users</a></li>
+              <li><a href="user.html" class="sidebar-link">All Users</a></li>
               <li><a href="#" class="sidebar-link">Add New User</a></li>
             </ul>
           </li>
@@ -593,19 +593,20 @@
               ><i class="fa-solid fa-cart-shopping"></i> Orders</a
             >
             <ul class="sidebar-dropdown">
-              <li><a href="#" class="sidebar-link">Order List</a></li>
+              <li><a href="order.html" class="sidebar-link">Order List</a></li>
               <li><a href="#" class="sidebar-link">Order Details</a></li>
+              <li><a href="#" class="sidebar-link">Payment</a></li>
             </ul>
           </li>
 
           <li class="sidebar-item">
             <a href="#" class="sidebar-link"
-              ><i class="fa-solid fa-user-shield"></i> Role</a
+              ><i class="fa-solid fa-user-shield"></i> Account</a
             >
           </li>
           <li class="sidebar-item">
             <a href="#" class="sidebar-link"
-              ><i class="fa-solid fa-chart-line"></i> Reports</a
+              ><i class="fa-solid fa-chart-line"></i>Reports</a
             >
           </li>
           <li class="sidebar-item">
@@ -666,8 +667,8 @@
             <div class="search-bar">
               <input
                 type="search"
-                id="productSearch"
-                placeholder="Search Product..."
+                id="stockSearch"
+                placeholder="Search stock..."
               />
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
@@ -683,13 +684,14 @@
               </label>
             </div>
             <div>
-              <button>New</button>
+              <button class="save-btn">New</button>
             </div>
           </div>
 
           <table class="order-table">
             <thead>
               <tr>
+                <th>No</th>
                 <th>Image</th>
                 <th>Name</th>
                 <th>Qty</th>
@@ -697,18 +699,7 @@
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><img src="image1.jpg" width="40" /></td>
-                <td>Pizza</td>
-                <td>10</td>
-                <th>Available</th>
-                <td>
-                  <i class="fa-solid fa-eye view"></i>
-                  <i class="fa-solid fa-pen edit"></i>
-                  <i class="fa-solid fa-trash delete"></i>
-                </td>
-              </tr>
+            <tbody id="StockTableBody"></tbody>
             </tbody>
           </table>
         </main>
@@ -742,57 +733,155 @@
       </div>
     </div>
 
-    <!-- JS -->
-    <script>
-      const sidebar = document.getElementById("sidebar");
-      const main = document.getElementById("main");
-      const toggleBtn = document.getElementById("toggleSidebar");
-      const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
-      document.getElementById("toggleSidebar").addEventListener("click", () => {
-        sidebar.classList.toggle("hidden");
-        main.classList.toggle("expanded");
-      });
+  <script>
+  const sidebar = document.getElementById("sidebar");
+  const main = document.getElementById("main");
+  const toggleBtn = document.getElementById("toggleSidebar");
+  const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
+  const StockBody = document.getElementById("StockTableBody");
 
-      dropdowns.forEach((item) => {
-        item.addEventListener("click", (e) => {
-          e.stopPropagation();
-          item.classList.toggle("dropdown-open");
-          dropdowns.forEach((other) => {
-            if (other !== item) other.classList.remove("dropdown-open");
-          });
-        });
-      });
+  // Toggle sidebar
+  toggleBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("hidden");
+    main.classList.toggle("expanded");
+  });
 
-      const profile = document.querySelector(".profile");
-      profile.addEventListener("click", (e) => {
-        e.stopPropagation();
-        profile.classList.toggle("active");
+  // Sidebar dropdown logic
+  dropdowns.forEach((item) => {
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      item.classList.toggle("dropdown-open");
+      dropdowns.forEach((other) => {
+        if (other !== item) other.classList.remove("dropdown-open");
       });
+    });
+  });
 
-      document.addEventListener("click", () => {
-        profile.classList.remove("active");
-      });
-      // Popups
-      const editPopup = document.getElementById("editPopup");
-      const deletePopup = document.getElementById("deletePopup");
-      document.querySelectorAll(".edit").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const row = btn.closest("tr");
-          document.getElementById("editName").value = row.cells[1].textContent;
-          document.getElementById("editQty").value = row.cells[3].textContent;
-          editPopup.classList.add("active");
-        });
-      });
-      document.getElementById("closeEdit").onclick = () =>
-        editPopup.classList.remove("active");
+  // Profile dropdown
+  const profile = document.querySelector(".profile");
+  profile.addEventListener("click", (e) => {
+    e.stopPropagation();
+    profile.classList.toggle("active");
+  });
+  document.addEventListener("click", () => profile.classList.remove("active"));
 
-      document.querySelectorAll(".delete").forEach((btn) => {
-        btn.addEventListener("click", () =>
-          deletePopup.classList.add("active")
-        );
+  // API
+  const API_URL = "http://127.0.0.1:8000/stock/stock/Stock_limit";
+  let stockData = [];
+
+  // Fetch and render stock
+  async function loadStock() {
+    try {
+      const response = await fetch(API_URL);
+      if (!response.ok) throw new Error("Failed to fetch stock data");
+      stockData = await response.json();
+      renderTable(stockData);
+    } catch (error) {
+      console.error("Error fetching stock:", error);
+    }
+  }
+
+  // Render table
+  function renderTable(data) {
+    StockBody.innerHTML = "";
+
+    data.forEach((stock, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${stock.No_Stock}</td>
+        <td><img src="${stock.Image_link || 'No Image'}" width="100" /></td>
+        <td>${stock.Product_Name}</td>
+        <td>${stock.Quantity_Available}</td>
+        <td>${getStockState(stock.Stock_Status)}</td>
+        <td>
+          <i class="fa-solid fa-eye view" title="View"></i>
+          <i class="fa-solid fa-pen edit" title="Edit" data-index="${index}"></i>
+          <i class="fa-solid fa-trash delete" title="Delete" data-index="${index}"></i>
+        </td>
+      `;
+      StockBody.appendChild(row);
+    });
+
+    attachActionEvents();
+  }
+
+  // Search filter
+  const searchInput = document.getElementById("stockSearch");
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase();
+    const filtered = stockData.filter(
+      (stock) =>
+        stock.Product_Name.toLowerCase().includes(query) ||
+        stock.Stock_Status.toLowerCase().includes(query)
+    );
+    renderTable(filtered);
+  });
+
+  // Get readable stock state
+  function getStockState(status) {
+    if (!status || status === "null") return "Finished";
+    return status;
+  }
+
+  // POPUPS
+  const editPopup = document.getElementById("editPopup");
+  const deletePopup = document.getElementById("deletePopup");
+  const closeEditBtn = document.getElementById("closeEdit");
+  const closeDeleteBtn = document.getElementById("closeDelete");
+  const yesDeleteBtn = document.querySelector(".delete-box .yes");
+
+  let selectedIndex = null;
+
+  // Attach edit & delete buttons each time table is rendered
+  function attachActionEvents() {
+    document.querySelectorAll(".edit").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        selectedIndex = btn.getAttribute("data-index");
+        const product = stockData[selectedIndex];
+        document.getElementById("editName").value = product.Product_Name;
+        document.getElementById("editCategory").value = product.Category || "";
+        document.getElementById("editPrice").value = product.Price || "";
+        document.getElementById("editQty").value = product.Quantity_Available;
+        editPopup.classList.add("active");
       });
-      document.getElementById("closeDelete").onclick = () =>
-        deletePopup.classList.remove("active");
-    </script>
+    });
+
+    document.querySelectorAll(".delete").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        selectedIndex = btn.getAttribute("data-index");
+        deletePopup.classList.add("active");
+      });
+    });
+  }
+
+  // Close popups
+  closeEditBtn.addEventListener("click", () =>
+    editPopup.classList.remove("active")
+  );
+  closeDeleteBtn.addEventListener("click", () =>
+    deletePopup.classList.remove("active")
+  );
+
+  // Confirm delete
+  yesDeleteBtn.addEventListener("click", () => {
+    if (selectedIndex !== null) {
+      const deletedItem = stockData[selectedIndex];
+      console.log("Deleting:", deletedItem);
+      // Here you can call DELETE API, e.g.:
+      // fetch(`${API_URL}/${deletedItem.No_Stock}`, { method: 'DELETE' })
+      deletePopup.classList.remove("active");
+    }
+  });
+
+  // Outside click closes popups
+  [editPopup, deletePopup].forEach((popup) => {
+    popup.addEventListener("click", (e) => {
+      if (e.target === popup) popup.classList.remove("active");
+    });
+  });
+
+  loadStock();
+</script>
+
   </body>
 </html>

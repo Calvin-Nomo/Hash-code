@@ -201,7 +201,7 @@ def logout(response: Response):
 # ==========================================================
 #                 USER MANAGEMENT
 # ==========================================================
-@app.get("/user", dependencies=[Depends(get_current_active_user)])
+@app.get("/user", dependencies=[Depends(require_role(['admin']))])
 def get_all_users():
     cursor.execute("SELECT UserID, Username, Email, Roles, is_active FROM USERS")
     result = cursor.fetchall()

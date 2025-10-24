@@ -345,114 +345,146 @@
         >
       </nav>
     </div>
+  </body>
+  <script>
+    const orderType = document.getElementById("orderType");
+    const clientForm = document.getElementById("clientForm");
+    const reservationForm = document.getElementById("reservationForm");
+    const paybtn = document.getElementById("payBtn");
+    const loading = document.getElementById("loading");
 
-    <script>
-      const orderType = document.getElementById("orderType");
-      const clientForm = document.getElementById("clientForm");
-      const reservationForm = document.getElementById("reservationForm");
-      const paybtn = document.getElementById("payBtn");
-      const loading = document.getElementById("loading");
-
-      orderType.addEventListener("change", () => {
-        clientForm.classList.add("hidden");
-        reservationForm.classList.add("hidden");
-        if (orderType.value === "delivery" || orderType.value === "takeaway")
-          clientForm.classList.remove("hidden");
-        else if (orderType.value === "reservation")
-          reservationForm.classList.remove("hidden");
-      });
-
-      function loadOrderSummary() {
-        const orderContainer = document.getElementById("order-items");
-        const totalAmount = document.getElementById("total-amount");
-        const storedOrders = JSON.parse(localStorage.getItem("cart")) || [];
-        orderContainer.innerHTML = "";
-        let total = 0;
-        storedOrders.forEach((item) => {
-          const subtotal = item.Price * item.qty;
-          total += subtotal;
-          const itemDiv = document.createElement("div");
-          itemDiv.className = "item";
-          itemDiv.innerHTML = `
-            <div class="item-left">
-              <img src="${item.Image_link}" alt="${item.Product_Name}" />
-              <div class="item-info">
-                <h4>${item.Product_Name}</h4>
-                <p>${item.qty} × ${item.Price.toFixed(0)} FCFA</p>
-              </div>
-            </div>
-            <span class="price">${subtotal.toFixed(0)} FCFA</span>
-          `;
-          orderContainer.appendChild(itemDiv);
-        });
-        totalAmount.textContent = `${total.toFixed(0)} FCFA`;
+    // Show/hide form based on order type
+    orderType.addEventListener("change", () => {
+      clientForm.classList.add("hidden");
+      reservationForm.classList.add("hidden");
+      if (orderType.value === "delivery" || orderType.value === "takeaway") {
+        clientForm.classList.remove("hidden");
+      } else if (orderType.value === "reservation") {
+        reservationForm.classList.remove("hidden");
       }
+    });
 
-      function showError(input, msg) {
+    // Load cart summary
+    function loadOrderSummary() {
+      const orderContainer = document.getElementById("order-items");
+      const totalAmount = document.getElementById("total-amount");
+      const storedOrders = JSON.parse(localStorage.getItem("cart")) || [];
+      orderContainer.innerHTML = "";
+      let total = 0;
+      storedOrders.forEach((item) => {
+        const subtotal = item.Price * item.qty;
+        total += subtotal;
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "item";
+        itemDiv.innerHTML = `
+        <div class="item-left">
+          <img src="${item.Image_link}" alt="${item.Product_Name}" />
+          <div class="item-info">
+            <h4>${item.Product_Name}</h4>
+            <p>${item.qty} × ${item.Price.toFixed(0)} FCFA</p>
+          </div>
+        </div>
+        <span class="price">${subtotal.toFixed(0)} FCFA</span>
+      `;
+        orderContainer.appendChild(itemDiv);
+      });
+      totalAmount.textContent = `${total.toFixed(0)} FCFA`;
+    }
+
+    // Save client or reservation info to localStorage
+    function saveClientInfo() {
+      if (orderType.value === "delivery" || orderType.value === "takeaway") {
+        const client = {
+          name: document.getElementById("clientName").value.trim(),
+          phone: document.getElementById("clientPhone").value.trim(),
+          email: document.getElementById("clientEmail").value.trim(),
+          note: document.getElementById("note1").value.trim(),
+        };
+        localStorage.setItem("clientInfo", JSON.stringify(client));
+        localStorage.removeItem("reservationInfo"); // clear reservation
+      } else if (orderType.value === "reservation") {
+        const reservation = {
+          name: document.getElementById("resName").value.trim(),
+          phone: document.getElementById("resPhone").value.trim(),
+          email: document.getElementById("resEmail").value.trim(),
+          date: document.getElementById("resDate").value,
+          guests: document.getElementById("resperson").value,
+          note: document.getElementById("note2").value.trim(),
+        };
+        localStorage.setItem("reservationInfo", JSON.stringify(reservation));
+        localStorage.removeItem("clientInfo"); // clear client info
+      }
+      localStorage.setItem("orderType", orderType.value);
+    }
+
+    // Form validation
+    function validateForm() {
+      let valid = true;
+      document.querySelectorAll(".error-msg").forEach((e) => e.remove());
+
+      if (!orderType.value) {
+        valid = false;
         const error = document.createElement("div");
         error.className = "error-msg";
-        error.textContent = msg;
-        input.parentNode.appendChild(error);
+        error.textContent = "Please select order type";
+        orderType.parentNode.appendChild(error);
       }
 
-      function validateForm() {
-        let valid = true;
-        document.querySelectorAll(".error-msg").forEach((e) => e.remove());
-
-        if (!orderType.value) {
+      if (orderType.value === "delivery" || orderType.value === "takeaway") {
+        const name = document.getElementById("clientName");
+        const phone = document.getElementById("clientPhone");
+        if (!name.value.trim()) {
           valid = false;
-          const error = document.createElement("div");
-          error.className = "error-msg";
-          error.textContent = "Please select order type";
-          orderType.parentNode.appendChild(error);
+          showError(name, "Name is required");
         }
-
-        if (orderType.value === "delivery" || orderType.value === "takeaway") {
-          const name = document.getElementById("clientName");
-          const phone = document.getElementById("clientPhone");
-          if (!name.value.trim()) {
-            valid = false;
-            showError(name, "Name is required");
-          }
-          if (!phone.value.trim()) {
-            valid = false;
-            showError(phone, "Phone is required");
-          }
-        } else if (orderType.value === "reservation") {
-          const resName = document.getElementById("resName");
-          const resPhone = document.getElementById("resPhone");
-          const resDate = document.getElementById("resDate");
-          const resGuests = document.getElementById("resperson");
-          if (!resName.value.trim()) {
-            valid = false;
-            showError(resName, "Name is required");
-          }
-          if (!resPhone.value.trim()) {
-            valid = false;
-            showError(resPhone, "Phone is required");
-          }
-          if (!resDate.value) {
-            valid = false;
-            showError(resDate, "Reservation date required");
-          }
-          if (!resGuests.value || resGuests.value <= 0) {
-            valid = false;
-            showError(resGuests, "Number of guests required");
-          }
+        if (!phone.value.trim()) {
+          valid = false;
+          showError(phone, "Phone is required");
         }
-
-        return valid;
+      } else if (orderType.value === "reservation") {
+        const resName = document.getElementById("resName");
+        const resPhone = document.getElementById("resPhone");
+        const resDate = document.getElementById("resDate");
+        const resGuests = document.getElementById("resperson");
+        if (!resName.value.trim()) {
+          valid = false;
+          showError(resName, "Name is required");
+        }
+        if (!resPhone.value.trim()) {
+          valid = false;
+          showError(resPhone, "Phone is required");
+        }
+        if (!resDate.value) {
+          valid = false;
+          showError(resDate, "Reservation date required");
+        }
+        if (!resGuests.value || resGuests.value <= 0) {
+          valid = false;
+          showError(resGuests, "Number of guests required");
+        }
       }
 
-      paybtn.addEventListener("click", () => {
-        if (!validateForm()) return;
-        loading.style.display = "flex";
-        setTimeout(() => {
-          window.location.href = "pay.html";
-        }, 4000);
-      });
+      return valid;
+    }
 
-      window.addEventListener("DOMContentLoaded", loadOrderSummary);
-    </script>
-  </body>
+    function showError(input, msg) {
+      const error = document.createElement("div");
+      error.className = "error-msg";
+      error.textContent = msg;
+      input.parentNode.appendChild(error);
+    }
+
+    // Pay button
+    paybtn.addEventListener("click", () => {
+      if (!validateForm()) return;
+      saveClientInfo(); // save info in localStorage
+      loading.style.display = "flex";
+      setTimeout(() => {
+        window.location.href = "pay.html";
+      }, 2000);
+    });
+
+    // Load initial summary
+    window.addEventListener("DOMContentLoaded", loadOrderSummary);
+  </script>
 </html>
