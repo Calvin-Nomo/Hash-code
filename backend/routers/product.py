@@ -11,8 +11,7 @@ from dependencies import get_current_user,require_role
 import os, shutil
 import pymysql
 
-
-
+# google cloud console and the meta developer using authlib to make tologin with there google and facebook info
 DB= pymysql.connect(
     host="localhost",
     user="root",
@@ -20,7 +19,11 @@ DB= pymysql.connect(
     database=Database_Name, 
    cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
 )
-app = FastAPI()
+cursor = DB.cursor()
+
+
+router = APIRouter(prefix="/product", tags=["product"])
+
 # --- Logging Configuration ---
 logging.basicConfig(
     level=logging.INFO,  # can be DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -31,25 +34,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 # ---------------- Rate Limiter ----------------
 limiter = Limiter(key_func=get_remote_address)
-app.state.limiter = limiter
+router.state.limiter = limiter
 
-@app.exception_handler(RateLimitExceeded)
+@router.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request, exc):
     return JSONResponse(
         status_code=429,
         content={"detail": "Too many requests. Please wait a moment."},
     )
 
-cursor = DB.cursor()
 
-
-router = APIRouter(prefix="/product", tags=["product"])
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Serve static files at /uploads
-app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+router.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # BaseModel
 class Product(BaseModel):
@@ -128,8 +128,8 @@ async def update_product(
             "UPDATE Product SET Product_Name=%s, Product_Description=%s, Category=%s, Price=%s, Image_link=%s WHERE No_Product=%s",
             (Product_Name, Product_Description, Category,Price, db_image_path, No_Product)
         )
-
-        # Return full URL
+        logger.info(f"Product created: ID={No_Product}, Name={Product_Name}, by User={get_current_user['username']}")
+ # Return full URL
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -147,8 +147,7 @@ def delete_product(No_Product: int,current_user: dict = Depends(require_role(['a
         DB.commit()
 
     except Exception as e:
+        logger.error(f"Error creating product: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"Message": f"Product with ID {No_Product} has been successfully deleted."}
-
-app.include_router(router)

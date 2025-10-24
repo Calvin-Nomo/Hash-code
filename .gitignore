@@ -1,2 +1,6 @@
+env/
+database/
+.venv/
 .env 
+__pycache__/
 .database/menu.sql
