@@ -311,28 +311,6 @@
       .product-form textarea:focus {
         border-color: #1e293b;
       }
-      /* Button  */
-      .action-buttons {
-        margin-top: 1rem;
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-      }
-      .action-buttons button {
-        border: none;
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: 0.3s;
-      }
-      .add-btn {
-        background:#12C94D;
-        color: #fff;
-      }
 
       .product-form button {
         padding: 0.7rem 1.4rem;
@@ -440,237 +418,164 @@
       .delete:hover {
         color: #dc2626;
       }
-/* ===================== POPUP BACKGROUND ===================== */
-.edit-popup,
-.delete-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(17, 17, 17, 0.65);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(5px);
-  z-index: 2500;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
 
-.edit-popup.active,
-.delete-popup.active {
-  display: flex;
-  opacity: 1;
-}
+      /* Popups */
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      }
 
-/* ===================== EDIT BOX ===================== */
-.edit-box {
-  background: #fff;
-  width: 400px;
-  max-width: 90%;
-  padding: 30px 25px;
-  border-radius: 18px;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
-  position: relative;
-  animation: slideUp 0.35s ease forwards;
-}
+      .popup-overlay.active {
+        display: flex;
+      }
 
-.edit-box h3 {
-  text-align: center;
-  margin-bottom: 15px;
-  font-weight: 700;
-  font-size: 1.3rem;
-  color: #1e293b;
-}
+      .edit-form,
+      .delete-box {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        animation: popupFade 0.3s ease;
+      }
 
-/* ===================== CLOSE BUTTON ===================== */
-#closeEdit,
-#closeDelete {
-  position: absolute;
-  top: 12px;
-  right: 15px;
-  font-size: 24px;
-  cursor: pointer;
-  color: #555;
-  transition: color 0.2s ease;
-}
+      .edit-form {
+        width: 400px;
+      }
 
-#closeEdit:hover,
-#closeDelete:hover {
-  color: #dc2626;
-}
+      .delete-box {
+        width: 320px;
+        text-align: center;
+      }
 
-/* ===================== FORM INPUTS ===================== */
-.edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+      @keyframes popupFade {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
 
-.edit-form label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #444;
-}
+      .edit-form h3 {
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #1e293b;
+      }
 
-.edit-form input[type="text"],
-.edit-form input[type="number"],
-.edit-form input[type="file"] {
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 15px;
-  outline: none;
-  transition: all 0.25s ease;
-}
+      .edit-form input {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
 
-.edit-form input:focus {
-  border-color: #0078ff;
-  box-shadow: 0 0 6px rgba(0, 120, 255, 0.3);
-}
+      .save-btn {
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+      }
 
-/* ===================== IMAGE PREVIEW ===================== */
-#editImagePreview {
-  margin-top: 8px;
-  object-fit: cover;
-  width: 120px;
-  height: 120px;
-  border-radius: 12px;
-  border: 2px solid #eee;
-}
+      .cancel-btn {
+        background: #ccc;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
 
-/* ===================== SAVE BUTTON ===================== */
-.edit-form .save-btn {
-  margin-top: 12px;
-  background: #0078ff;
-  color: #fff;
-  border: none;
-  padding: 12px 0;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
+      .delete-box button {
+        margin: 10px;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
 
-.edit-form .save-btn:hover {
-  background: #005fcc;
-  transform: translateY(-2px);
-}
+      .delete-box .yes {
+        background: #dc2626;
+        color: #fff;
+      }
 
-/* ===================== DELETE BOX ===================== */
-.delete-box {
-  background: #fff;
-  width: 380px;
-  max-width: 90%;
-  padding: 35px 25px;
-  border-radius: 18px;
-  text-align: center;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
-  position: relative;
-  animation: slideDown 0.35s ease forwards;
-}
+      .delete-box .no {
+        background: #ccc;
+      }
 
-/* Delete Title and Message */
-.delete-box h3 {
-  color: #1e293b;
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
+      @media (max-width: 768px) {
+        #sidebar {
+          transform: translateX(-100%);
+        }
 
-.delete-box p {
-  color: #475569;
-  font-size: 1rem;
-  margin-bottom: 30px;
-}
+        #sidebar.active {
+          transform: translateX(0);
+        }
 
-/* Delete Buttons */
-.delete-box button {
-  padding: 10px 24px;
-  margin: 0 8px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  font-size: 1rem;
-}
+        .main {
+          margin-left: 0;
+        }
 
-.delete-box .yes {
-  background: #dc2626;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-}
+        .product-form {
+          padding: 1.5rem;
+          margin: 1rem;
+        }
+      }
+      .status {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: capitalize;
+        letter-spacing: 0.5px;
+      }
 
-.delete-box .yes:hover {
-  background: #b91c1c;
-  transform: translateY(-2px);
-}
+      /* Paid */
+      .status.paid {
+        background-color: #e6f4ea;
+        color: #1e8e3e;
+        border: 1px solid #b7e4c7;
+      }
 
-.delete-box .no {
-  background: #f1f5f9;
-  color: #1e293b;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
+      /* Pending */
+      .status.pending {
+        background-color: #fff4e5;
+        color: #ff9800;
+        border: 1px solid #ffd699;
+      }
 
-.delete-box .no:hover {
-  background: #e2e8f0;
-  transform: translateY(-2px);
-}
+      /* Failed */
+      .status.failed {
+        background-color: #fdecea;
+        color: #d93025;
+        border: 1px solid #f5b5b5;
+      }
 
-/* ===================== SUCCESS MESSAGE ===================== */
-.success-msg {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background: #28c76f;
-  color: #fff;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-weight: 500;
-  font-size: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.4s ease;
-  z-index: 3000;
-}
-
-.success-msg.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ===================== ANIMATIONS ===================== */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
+      /* Optional hover effect */
+      .status:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+        transition: all 0.2s ease-in-out;
+      }
     </style>
   </head>
 
   <body>
     <div class="wrapper">
-           <!-- SIDEBAR -->
+      <!-- SIDEBAR -->
       <aside id="sidebar">
         <div class="sidebar-logo">
           <a href="#">Smart Menu</a>
@@ -705,7 +610,9 @@
               ><i class="fa-solid fa-tags"></i> Category</a
             >
             <ul class="sidebar-dropdown">
-              <li><a href="reservation.html" class="sidebar-link">Reservation</a></li>
+              <li>
+                <a href="reservation.html" class="sidebar-link">Reservation</a>
+              </li>
               <li><a href="table.html" class="sidebar-link">Table</a></li>
             </ul>
           </li>
@@ -725,7 +632,7 @@
               ><i class="fa-solid fa-cart-shopping"></i> Orders</a
             >
             <ul class="sidebar-dropdown">
-              <li><a href="order.html" class="sidebar-link">Order List</a></li>
+              <li><a href="#" class="sidebar-link">Order List</a></li>
               <li><a href="#" class="sidebar-link">Order Details</a></li>
               <li><a href="#" class="sidebar-link">Payment</a></li>
             </ul>
@@ -748,7 +655,6 @@
           </li>
         </ul>
       </aside>
-
       <!-- MAIN -->
       <div class="main" id="main">
         <nav class="dashboard-navbar">
@@ -793,34 +699,21 @@
         </nav>
 
         <main class="content">
-          <h4>Product List</h4>
+          <h4>Product Management</h4>
 
           <div class="action-row">
             <div class="search-bar">
               <input
                 type="search"
                 id="productSearch"
-                placeholder="Search Product..."
+                placeholder="Search order..."
               />
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
-            <div class="filter">
-              <label
-                >Sort By:
-                <select>
-                  <option>All</option>
-                  <option>< max</option>
-                  <option>between min and max</option>
-                  <option>> max</option>
-                </select>
-              </label>
+            <div>
+              <button>New</button>
             </div>
-                      <div class="action-buttons">
-                <button class="save-btn">
-                </i>New
-                </button>
           </div>
-
           <table class="order-table">
             <thead>
               <tr>
@@ -829,251 +722,148 @@
                 <th>Category</th>
                 <th>Description</th>
                 <th>Price</th>
-                <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="productTableBody"></tbody>
+            <tbody id="productTableBody">
+              <!-- Dynamic rows will go here -->
+            </tbody>
           </table>
         </main>
       </div>
-<!-- ===================== EDIT POPUP ===================== -->
-<div class="edit-popup" id="editPopup">
-  <div class="edit-box">
-    <span id="closeEdit">&times;</span>
-    <h3>Edit Product</h3>
-    <form class="edit-form">
-      <label>Name</label>
-      <input type="text" id="editName" />
+      <!-- add popup -->
+      <div>
+        <div class="add-form"></div>
+      </div>
+      <!-- Edit Popup -->
+      <div class="popup-overlay" id="editPopup">
+        <div class="edit-form">
+          <h3>Edit Product</h3>
+          <label>Name <input type="text" id="editName" /></label>
+          <label>Category <input type="text" id="editCategory" /></label>
+          <label>Price <input type="number" id="editPrice" /></label>
+          <label>Quantity <input type="number" id="editQty" /></label>
+          <div style="text-align: center">
+            <button class="save-btn">Save</button>
+            <button class="cancel-btn" id="closeEdit">Cancel</button>
+          </div>
+        </div>
+      </div>
 
-      <label>Category</label>
-      <input type="text" id="editCategory" />
+      <!-- Delete Popup -->
+      <div class="popup-overlay" id="deletePopup">
+        <div class="delete-box">
+          <p>Do you want to delete this product?</p>
+          <button class="yes">Yes</button>
+          <button class="no" id="closeDelete">No</button>
+        </div>
+      </div>
+    </div>
 
-      <label>Price</label>
-      <input type="number" id="editPrice" />
-      <label>Image</label>
-      <input type="file" id="editImage" accept="image/*" />
-      <img id="editImagePreview"
-           style="display:none; width:120px; height:120px; border-radius:10px; margin-top:5px;" />
+    <!-- JS -->
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      const main = document.getElementById("main");
+      const toggleBtn = document.getElementById("toggleSidebar");
+      const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
+      document.getElementById("toggleSidebar").addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+        main.classList.toggle("expanded");
+      });
 
-      <button type="button" class="save-btn">Save Changes</button>
-    </form>
-  </div>
-</div>
+      dropdowns.forEach((item) => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.classList.toggle("dropdown-open");
+          dropdowns.forEach((other) => {
+            if (other !== item) other.classList.remove("dropdown-open");
+          });
+        });
+      });
 
-<!-- ===================== DELETE POPUP ===================== -->
-<div class="delete-popup" id="deletePopup">
-  <div class="delete-box">
-    <h3>Are you sure you want to delete this product?</h3>
-    <button class="yes">Yes</button>
-    <button class="no">No</button>
-  </div>
-</div>
+      const profile = document.querySelector(".profile");
+      profile.addEventListener("click", (e) => {
+        e.stopPropagation();
+        profile.classList.toggle("active");
+      });
 
-<!-- ===================== SUCCESS MESSAGE ===================== -->
-<div id="successMsg" class="success-msg"><span></span></div>
+      document.addEventListener("click", () => {
+        profile.classList.remove("active");
+      });
+      // Popups
+      const editPopup = document.getElementById("editPopup");
+      const deletePopup = document.getElementById("deletePopup");
+      document.querySelectorAll(".edit").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const row = btn.closest("tr");
+          document.getElementById("editName").value = row.cells[1].textContent;
+          document.getElementById("editQty").value = row.cells[3].textContent;
+          editPopup.classList.add("active");
+        });
+      });
+      document.getElementById("closeEdit").onclick = () =>
+        editPopup.classList.remove("active");
 
-<!-- ===================== MAIN SCRIPT ===================== -->
-<script>
-const sidebar = document.getElementById("sidebar");
-const main = document.getElementById("main");
-const toggleBtn = document.getElementById("toggleSidebar");
-const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
-const productTableBody = document.getElementById("productTableBody");
-const searchInput = document.getElementById("productSearch");
-const editPopup = document.getElementById("editPopup");
-const deletePopup = document.getElementById("deletePopup");
-const successMsg = document.getElementById("successMsg");
-const closeEdit = document.getElementById("closeEdit");
-const closeDelete = document.getElementById("closeDelete");
+      document.querySelectorAll(".delete").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          deletePopup.classList.add("active")
+        );
+      });
+      document.getElementById("closeDelete").onclick = () =>
+        deletePopup.classList.remove("active");
+    </script>
+    <script>
+      async function fetchProducts() {
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:8000/product/product/Product"
+          );
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
 
-let currentProduct = null;
-const API_URL = "http://127.0.0.1:8000/product/product/Product";
+          const products = await response.json();
+          const tableBody = document.getElementById("productTableBody");
+          tableBody.innerHTML = ""; // Clear previous rows
 
-// ===================== SIDEBAR TOGGLE =====================
-toggleBtn.addEventListener("click", () => {
-  sidebar.classList.toggle("hidden");
-  main.classList.toggle("expanded");
-});
+          products.forEach((product) => {
+            const row = document.createElement("tr");
 
-// ===================== DROPDOWN MENU =====================
-dropdowns.forEach((item) => {
-  item.addEventListener("click", (e) => {
-    e.stopPropagation();
-    item.classList.toggle("dropdown-open");
-    dropdowns.forEach((other) => {
-      if (other !== item) other.classList.remove("dropdown-open");
-    });
-  });
-});
+            row.innerHTML = `
+        <td>
+          <img src="${product.Image_link}" alt="${product.Name}" width="150">
+        </td>
+        <td>${product.Name}</td>
+        <td>${product.Category}</td>
+        <td>${product.Product_Description}</td>
+        <td>${product.Price.toLocaleString()} FCFA</td>
+        <td>
+          <button class="edit-btn" onclick="editProduct(${
+            product.No_Product
+          })">Edit</button>
+          <button class="delete-btn" onclick="deleteProduct(${
+            product.No_Product
+          })">Delete</button>
+        </td>
+      `;
 
-// ===================== PROFILE DROPDOWN =====================
-const profile = document.querySelector(".profile");
-profile.addEventListener("click", (e) => {
-  e.stopPropagation();
-  profile.classList.toggle("active");
-});
-document.addEventListener("click", () => profile.classList.remove("active"));
-
-// ===================== LOAD PRODUCTS =====================
-let productsData = [];
-
-async function loadProducts() {
-  try {
-    const response = await fetch(API_URL);
-    if (!response.ok) throw new Error("Failed to fetch products");
-    productsData = await response.json();
-    renderTable(productsData);
-  } catch (error) {
-    console.error("Error fetching products:", error);
-  }
-}
-
-// ===================== RENDER TABLE =====================
-function renderTable(products) {
-  productTableBody.innerHTML = "";
-
-  products.forEach((product) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td><img src="${product.Image_link || "https://via.placeholder.com/100"}"
-               width="80" height="80" style="border-radius:10px"/></td>
-      <td>${product.Product_Name}</td>
-      <td>${product.Category}</td>
-      <td>${product.Product_Description || "—"}</td>
-      <td>${product.Unit_Price || product.Price} FCFA</td>
-      <td>${product.Status || "Available"}</td>
-      <td>
-        <i class="fa-solid fa-pen edit" title="Edit"></i>
-        <i class="fa-solid fa-trash delete" title="Delete"></i>
-      </td>
-    `;
-
-    row.querySelector(".edit").addEventListener("click", () => openEditPopup(product));
-    row.querySelector(".delete").addEventListener("click", () => openDeletePopup(product));
-
-    productTableBody.appendChild(row);
-  });
-}
-
-// ===================== EDIT POPUP =====================
-function openEditPopup(product) {
-  currentProduct = product;
-  editPopup.classList.add("active");
-
-  // Fill input fields
-  document.getElementById("editName").value = product.Product_Name || "";
-  document.getElementById("editCategory").value = product.Category || "";
-  document.getElementById("editPrice").value = product.Price || "";
-  document.getElementById("editQty").value = product.Quantity || "";
-
-  // Image preview
-  const imgPreview = document.getElementById("editImagePreview");
-  imgPreview.src = product.Image_link || "https://via.placeholder.com/120";
-  imgPreview.style.display = "block";
-}
-
-// Close edit popup
-closeEdit.addEventListener("click", () => {
-  editPopup.classList.remove("active");
-});
-
-// Handle new image selection
-const editImageInput = document.getElementById("editImage");
-editImageInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      document.getElementById("editImagePreview").src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-// Save updated product (PUT request)
-document.querySelector(".edit-form .save-btn").addEventListener("click", async () => {
-  if (!currentProduct) return;
-
-  const updatedProduct = {
-    Product_Name: document.getElementById("editName").value.trim(),
-    Category: document.getElementById("editCategory").value.trim(),
-    Price: parseFloat(document.getElementById("editPrice").value),
-    Quantity: parseInt(document.getElementById("editQty").value),
-    Image_link: document.getElementById("editImagePreview").src
-  };
-
-  try {
-    const response = await fetch(
-      `http://127.0.0.1:8000/product/product/update_product/${currentProduct.No_Product}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedProduct),
+            tableBody.appendChild(row);
+          });
+        } catch (error) {
+          console.error("Error fetching products:", error);
+        }
       }
-    );
 
-    if (!response.ok) throw new Error("Failed to update product");
+      // Example action buttons
+      function editProduct(id) {
+        alert(`Edit product with ID: ${id}`);
+      }
+      function deleteProduct(id) {
+        alert(`Delete product with ID: ${id}`);
+      }
 
-    editPopup.classList.remove("active");
-    showSuccess("✅ Product updated successfully!");
-    loadProducts();
-  } catch (error) {
-    console.error("❌ Update error:", error);
-    showSuccess("❌ Failed to update product!");
-  }
-});
-
-// ===================== DELETE POPUP =====================
-function openDeletePopup(product) {
-  currentProduct = product;
-  deletePopup.classList.add("active");
-}
-
-closeDelete.addEventListener("click", () => deletePopup.classList.remove("active"));
-
-document.querySelector(".delete-box .yes").addEventListener("click", async () => {
-  if (!currentProduct) return;
-
-  try {
-    const response = await fetch(
-      `http://127.0.0.1:8000/product/product/delete_product/${currentProduct.No_Product}`,
-      { method: "DELETE" }
-    );
-
-    if (!response.ok) throw new Error("Failed to delete product");
-
-    deletePopup.classList.remove("active");
-    showSuccess("🗑️ Product deleted successfully!");
-    loadProducts();
-  } catch (error) {
-    console.error("❌ Delete error:", error);
-  }
-});
-
-// ===================== SUCCESS MESSAGE =====================
-function showSuccess(msg) {
-  successMsg.querySelector("span").textContent = msg;
-  successMsg.classList.add("show");
-  setTimeout(() => successMsg.classList.remove("show"), 3000);
-}
-
-// ===================== SEARCH BAR =====================
-searchInput.addEventListener("input", () => {
-  const query = searchInput.value.toLowerCase();
-  const filtered = productsData.filter(
-    (p) =>
-      p.Product_Name.toLowerCase().includes(query) ||
-      p.Category.toLowerCase().includes(query) ||
-      (p.Product_Description || "").toLowerCase().includes(query)
-  );
-  renderTable(filtered);
-});
-
-// ===================== INITIAL LOAD =====================
-loadProducts();
-</script>
-
-
+      // Load products when the page starts
+      fetchProducts();
+    </script>
   </body>
 </html>

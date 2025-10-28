@@ -36,9 +36,25 @@ def get_reservations():
     cursor.execute(sql_command)
     reservations =cursor.fetchall()
     return reservations
+@router.get('/all_reservation')
+def all_reservations():
+    sql_command="""SELECT 
+    r.No_Reservation,
+    c.Client_Name,
+    c.No_Telephone,
+    r.Reservation_Date,
+    r.No_Person
+FROM Reservation r
+JOIN Clients c
+    ON r.No_Client = c.No_Client
+ORDER BY r.Reservation_Date DESC
+"""
+    cursor.execute(sql_command)
+    reservations =cursor.fetchall()
+    return reservations
 @router.get('/total_reservations')
 def total_reservations():
-    sql_command="Select count(No_Reservation) as total from Reservation"
+    sql_command="Select count(*)as total  from Reservation"
     cursor.execute(sql_command)
     total=cursor.fetchone()
     return total

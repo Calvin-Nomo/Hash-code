@@ -315,9 +315,8 @@
           </div>
           <div class="location">
             <i class="material-icons-sharp">qr_code_2</i> Table
-            <b id="table-number">A1</b>
+            <b id="table-number">#1</b>
           </div>
-          <div class="profile"><i class="material-icons-sharp">person</i></div>
         </header>
         <div class="search-bar">
           <i class="material-icons-sharp">search</i
@@ -346,7 +345,7 @@
           ><i class="material-icons-sharp">shopping_cart</i
           ><span id="cart-count" class="cart-badge">0</span></a
         >
-        <a href="#" class="nav-item"
+        <a href="order_history.html" class="nav-item"
           ><i class="material-icons-sharp">receipt_long</i
           ><span>Orders</span></a
         >
@@ -391,7 +390,7 @@
             card.innerHTML = `<img src="${prod.Image_link}" alt="${
               prod.Product_Name
             }" />
-        <h4>${prod.Product_Name}</h4>
+        <h4>${prod.Name}</h4>
         <p>${prod.Product_Description}</p>
         <div class="product-footer">
           <span class="price">${prod.Price.toFixed(2)}FCFA</span>
@@ -524,7 +523,7 @@
           window.location.href = "detail.html";
         }, 3000);
       });
-
+      console.log(cart);
       loadProducts();
       updateCartUI();
     </script>

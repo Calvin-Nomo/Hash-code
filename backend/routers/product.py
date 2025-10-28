@@ -64,7 +64,16 @@ class Product(BaseModel):
 @router.get("/Product")
 # @limiter.limit("5/minute")
 def get_product():
-    cursor.execute("SELECT * FROM Product")
+    cursor.execute("""SELECT 
+    No_Product,
+    Image_link,
+    Product_Name AS Name,
+    Category AS Category,
+    Product_Description,
+    Price
+FROM Product 
+ORDER BY Product_Name ASC;
+""")
     products = cursor.fetchall()
     return products
 

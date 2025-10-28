@@ -177,7 +177,10 @@
       async function fetchOrders() {
         try {
           // Replace with your FastAPI endpoint
-          const response = await fetch("http://127.0.0.1:8000/order/Order");
+          const response = await fetch(
+            "http://127.0.0.1:8000/order/order/Client_Order"
+          );
+          console.log(response);
           if (!response.ok) throw new Error("Failed to fetch orders");
           const orders = await response.json();
 
@@ -192,7 +195,7 @@
             status: order.Order_Status || "pending", // adapt depending on backend
             total: order.Total_Amount || 0,
             client: order.Client_Name || "N/A",
-            phone: order.Client_Phone || "N/A",
+            phone: order.No_Telephone || "N/A",
             paymentMethod: order.Payment_Method || "N/A",
             orderType: order.Order_Type,
             items: order.items || [], // ensure backend sends items array

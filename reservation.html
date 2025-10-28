@@ -595,7 +595,7 @@
             <ul class="sidebar-dropdown">
               <li><a href="order.html" class="sidebar-link">Order List</a></li>
               <li><a href="#" class="sidebar-link">Order Details</a></li>
-              <li><a href="#" class="sidebar-link">Payment</a></li>
+              <li><a href="payment.html" class="sidebar-link">Payment</a></li>
             </ul>
           </li>
 
@@ -683,26 +683,11 @@
                 <th>Customer Name</th>
                 <th>No Telephone</th>
                 <th>Reservation_Date</th>
-                <th>Reservation time</th>
-                <th>No_guest</th>
+                <th>No_Guest</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>Bineli Nomo</td>
-                <td>623713276</td>
-                <th>2/10/2025</th>
-                <th>12:30:45</th>
-                <th>4</th>
-                <td>
-                  <i class="fa-solid fa-eye view"></i>
-                  <i class="fa-solid fa-pen edit"></i>
-                  <i class="fa-solid fa-trash delete"></i>
-                </td>
-              </tr>
-            </tbody>
+            <tbody id="reservationTableBody"></tbody>
           </table>
         </main>
       </div>
@@ -786,6 +771,57 @@
       });
       document.getElementById("closeDelete").onclick = () =>
         deletePopup.classList.remove("active");
+    </script>
+    <script>
+      async function fetchReservations() {
+        try {
+          const response = await fetch(
+            "http://localhost:8000/reservation/reservation/all_reservation"
+          );
+          if (!response.ok) {
+            throw new Error("Failed to fetch reservations");
+          }
+
+          const reservations = await response.json();
+          const tbody = document.getElementById("reservationTableBody");
+          tbody.innerHTML = ""; // clear old rows
+
+          reservations.forEach((res, index) => {
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${res.Client_Name}</td>
+        <td>${res.No_Telephone}</td>
+        <td>${new Date(res.Reservation_Date).toLocaleString()}</td>
+        <td>${res.No_Person}</td>
+        <td>
+          <button onclick="editReservation(${res.No_Reservation})">Edit</button>
+          <button onclick="deleteReservation(${
+            res.No_Reservation
+          })">Delete</button>
+        </td>
+      `;
+
+            tbody.appendChild(tr);
+          });
+
+          console.log("Reservations loaded successfully");
+        } catch (error) {
+          console.error("Error fetching reservations:", error);
+        }
+      }
+
+      // Load reservations on page load
+      window.addEventListener("load", fetchReservations);
+
+      // Example placeholder functions for action buttons
+      function editReservation(id) {
+        alert("Edit reservation ID: " + id);
+      }
+      function deleteReservation(id) {
+        alert("Delete reservation ID: " + id);
+      }
     </script>
   </body>
 </html>

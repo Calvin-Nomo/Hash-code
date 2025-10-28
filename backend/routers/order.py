@@ -47,13 +47,155 @@ def greetings():
 def get_orders(current_user: dict = Depends(require_role(["waiter", "admin"]))):
     cursor.execute("SELECT * FROM Orders")
     return cursor.fetchall()
+@router.get("/order_list")
+def orders_list():
+    cursor.execute("""SELECT 
+    o.Order_ID,
+    c.Client_Name,
+    c.No_Telephone,
+    o.Order_Date,
+    o.Order_Type,
+    COUNT(DISTINCT oi.No_Product) AS Total_Items,  -- count distinct products
+    p.Total_Amount AS Total_Amount
+FROM Orders o
+JOIN Clients c 
+    ON o.No_Client = c.No_Client
+JOIN Order_Items oi 
+    ON o.Order_ID = oi.Order_ID
+JOIN Payment p 
+    ON o.Order_ID = p.Order_ID
+GROUP BY 
+    o.Order_ID, 
+    c.Client_Name, 
+    c.No_Telephone, 
+    o.Order_Date, 
+    o.Order_Type,
+    p.Total_Amount
+ORDER BY o.Order_Date DESC;
 
+
+""")
+    return cursor.fetchall()
+
+
+@router.get("/recent_orders")
+def recent_order():
+    cursor.execute("""SELECT 
+    o.Order_ID,
+    c.Client_Name,
+    c.No_Telephone,
+    o.Order_Type,
+    p.Total_Amount,
+    p.Payment_Status,
+    p.Payment_Method,
+    o.Order_Date,
+    o.Order_Status
+FROM Orders o
+JOIN Payment p
+    ON o.Order_ID = p.Order_ID
+JOIN Clients c
+    ON o.No_Client = c.No_Client
+ORDER BY o.Order_Date DESC
+LIMIT 8
+;
+""")
+    return cursor.fetchall()
+
+    
+    
+    
 @router.get("/total_order")
-def total_orders(current_user: dict = Depends(require_role(["waiter", "admin"]))):
-    cursor.execute("SELECT COUNT(Order_ID) AS total FROM Orders")
+def total_orders():
+    cursor.execute("SELECT COUNT(*) AS total FROM Orders")
     return cursor.fetchone()
+# Order Detail
+# ---------------- GET Endpoint ----------------
+@router.get("/orders/{order_id}")
+def get_order_detail(order_id: int):
+    # -------- First query: Order + Client + Payment + Table + Reservation --------
+    cursor.execute("""
+SELECT  
+  o.Order_ID,
+  o.Order_Type,
+  o.Order_Date,
+o.Note,
+o.Order_Status,
+  p.Total_Amount,
+  t.No_Table,
+  p.Transaction_Fees,
+  p.Payment_Status,
+  p.Payment_Method,
+  c.Client_Name,
+  c.No_Telephone,
+  c.Email,
+  o.No_Reservation,
+  r.Reservation_Date,
+  r.No_Person
+FROM Orders o
+LEFT JOIN Payment p ON p.Order_ID = o.Order_ID
+JOIN Clients c ON c.No_Client = o.No_Client
+LEFT JOIN Tab t ON t.Table_ID = o.No_Table
+LEFT JOIN Reservation r ON o.No_Reservation = r.No_Reservation
+WHERE o.Order_ID = %s;
+    """, (order_id,))
+    
+    order = cursor.fetchone()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
 
-# ------------------- HELPER FUNCTIONS -------------------
+    # -------- Second query: Ordered items --------
+    cursor.execute("""
+        SELECT 
+            oi.Order_ID,
+            p.Image_link AS Image,
+            p.Product_Name,
+            SUM(oi.Quantity) AS Quantity,
+            p.Price,
+            SUM(oi.Quantity * p.Price) AS Total
+        FROM Order_Items oi
+        JOIN Product p ON oi.No_Product = p.No_Product
+        WHERE oi.Order_ID = %s
+        GROUP BY oi.Order_ID, p.Image_link, p.Product_Name, p.Price;
+    """, (order_id,))
+    items = cursor.fetchall()
+
+    # -------- Build response --------
+    return {
+        "Order_ID": order["Order_ID"],
+        "Order_Type": order["Order_Type"],
+        "Order_Date": str(order["Order_Date"]),
+                "Note": str(order["Note"]),
+                        "Order_Status": str(order["Order_Status"]),
+                                                "No_Reservation": str(order["No_Reservation"]),
+        "Total_Amount": float(order["Total_Amount"]),
+        "No_Table": order["No_Table"],
+        "Transaction_Fees": float(order["Transaction_Fees"]) if order["Transaction_Fees"] else 0,
+        "Payment_Status": order["Payment_Status"],
+        "Payment_Method": order["Payment_Method"],
+        "Client_Name": order["Client_Name"],
+        "No_Telephone": order["No_Telephone"],
+        "Email": order["Email"],
+        "Reservation_Date": str(order["Reservation_Date"]) if order["Reservation_Date"] else None,
+        "No_Person": order["No_Person"],
+        "Items": [dict(item) for item in items]
+    }
+
+############
+@router.get("/orderinfo")
+def orderinfo():
+    cursor.execute("""SELECT 
+    p.Image_link AS Image,
+    p.Product_Name AS Product_Name,
+    SUM(oi.Quantity) AS Quantity,
+    SUM(oi.Quantity * p.Price) AS Total
+FROM Order_Items oi
+JOIN Product p ON oi.No_Product = p.No_Product
+GROUP BY p.Image_link, p.Product_Name;
+
+""")
+    return cursor.fetchall()
+
+# ------------------- HELPER FUNCTIONS -----s--------------
 def check_table_availability(table_id: int, date: datetime):
     cursor.execute(
         "SELECT * FROM Reservation WHERE No_Table=%s AND Reservation_Date=%s",
@@ -72,7 +214,7 @@ def check_dine_in_availability(table_id: int):
 
 # ------------------- POST: CREATE FULL ORDER -------------------
 @router.post("/FullOrderRequest")
-def create_order(data: FullOrderRequest, current_user: dict = Depends(require_role(["admin"]))):
+def create_order(data: FullOrderRequest):
     try:
         cursor = DB.cursor()
         DB.begin()  # start transaction
@@ -84,8 +226,8 @@ def create_order(data: FullOrderRequest, current_user: dict = Depends(require_ro
             client_id = client["No_Client"]
         else:
             cursor.execute(
-                "INSERT INTO Clients(Client_Name, No_Telephone) VALUES (%s, %s)",
-                (data.client.Client_Name, data.client.No_Telephone)
+                "INSERT INTO Clients(Client_Name, No_Telephone,Email) VALUES (%s, %s,%s)",
+                (data.client.Client_Name, data.client.No_Telephone,data.client.Email)
             )
             client_id = cursor.lastrowid
 
@@ -143,17 +285,38 @@ def create_order(data: FullOrderRequest, current_user: dict = Depends(require_ro
 
         # 5️⃣ Insert Payment
         cursor.execute(
-            """SELECT SUM(oi.Quantity * p.Unit_Price) AS total
+            """SELECT SUM(oi.Quantity * p.Price) AS total
                FROM Order_Items oi
                JOIN Product p ON oi.No_Product = p.No_Product
                WHERE oi.Order_ID = %s""",
             (order_id,)
         )
         total = cursor.fetchone()["total"]
+        def total_and_fees(total:float,method:str,tax=100):
+            if method=='MTN Money'or method=='Orange Money':
+                amount=total//5000
+                fee= amount * tax
+                total_amount=total+fee
+                return total_amount
+            #here is in the case if the payment method is by cash
+            else:
+             return total
+        def transaction_fees(total:float,method:str,tax=100):
+            #initialising the fees variable to fee=0
+            fee=0
+            if method=='MTN Money'or method=='Orange Money':
+                #if the method is mtn or orange it calculate the fees and returns it
+                amount= total//5000
+                fee = amount * tax
+                return fee
+            #here if the fees forthe cash is returns 0
+            else:
+                
+             return fee
         cursor.execute(
-            """INSERT INTO Payment(Order_ID, Total_Amount, Payment_Date, Payment_Method, Payment_Status)
-               VALUES (%s, %s, %s, %s, %s)""",
-            (order_id, total, datetime.utcnow(), data.payment.Payment_Method, "Paid")
+            """INSERT INTO Payment(Order_ID, Total_Amount, Payment_Date, Payment_Method, Payment_Status,Transaction_Fees)
+               VALUES (%s, %s, %s, %s, %s, %s)""",
+            (order_id, total_and_fees(total=total,method=data.payment.Payment_Method), datetime.utcnow(), data.payment.Payment_Method, "Payed",transaction_fees(total=total,method=data.payment.Payment_Method))
         )
 
         DB.commit()
@@ -186,8 +349,8 @@ def update_order(order_id: int, data: FullOrderRequest, current_user: dict = Dep
             client_id = client["No_Client"]
         else:
             cursor.execute(
-                "INSERT INTO Clients(Client_Name, No_Telephone) VALUES (%s, %s)",
-                (data.client.Client_Name, data.client.No_Telephone)
+                "INSERT INTO Clients(Client_Name, No_Telephone,Email) VALUES (%s, %s,, %s)",
+                (data.client.Client_Name, data.client.No_Telephone,data.client.Email)
             )
             client_id = cursor.lastrowid
 
@@ -263,19 +426,40 @@ def update_order(order_id: int, data: FullOrderRequest, current_user: dict = Dep
 
         # 7️⃣ Update Payment
         cursor.execute(
-            """SELECT SUM(oi.Quantity * p.Unit_Price) AS total
+            """SELECT SUM(oi.Quantity * p.Price) AS total
                FROM Order_Items oi
                JOIN Product p ON oi.No_Product = p.No_Product
                WHERE oi.Order_ID = %s""",
             (order_id,)
         )
         total = cursor.fetchone()["total"]
+        def total_and_fees(total:float,method:str,tax=100):
+            if method=='MTN Money'or method=='Orange Money':
+                amount=total//5000
+                fee= amount * tax
+                total_amount=total+fee
+                return total_amount
+            #here is in the case if the payment method is by cash
+            else:
+             return total
+        def transaction_fees(total:float,method:str,tax=100):
+            #initialising the fees variable to fee=0
+            fee=0
+            if method=='MTN Money'or method=='Orange Money':
+                #if the method is mtn or orange it calculate the fees and returns it
+                amount= total//5000
+                fee = amount * tax
+                return fee
+            #here if the fees forthe cash is returns 0
+            else:
+                
+             return fee
         cursor.execute(
             """UPDATE Payment
-               SET Total_Amount=%s, Payment_Date=%s, Payment_Method=%s, Payment_Status=%s
+               SET Total_Amount=%s, Payment_Date=%s, Payment_Method=%s, Payment_Status=%s,Transaction_Fees=%s
                WHERE Order_ID=%s""",
-            (total, datetime.utcnow(), data.payment.Payment_Method, "Paid", order_id)
-        )
+            (total_and_fees(total=total,method=data.payment.Payment_Method), datetime.utcnow(), data.payment.Payment_Method, "Payed",transaction_fees(total=total,method=data.payment.Payment_Method),order_id)
+            )
 
         DB.commit()
         return {"message": "Order updated successfully", "order_id": order_id}

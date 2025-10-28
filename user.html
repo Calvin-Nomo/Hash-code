@@ -595,9 +595,9 @@
               ><i class="fa-solid fa-cart-shopping"></i> Orders</a
             >
             <ul class="sidebar-dropdown">
-              <li><a href="#" class="sidebar-link">Order List</a></li>
+              <li><a href="order.html" class="sidebar-link">Order List</a></li>
               <li><a href="#" class="sidebar-link">Order Details</a></li>
-              <li><a href="#" class="sidebar-link">Payment</a></li>
+              <li><a href="payment.html" class="sidebar-link">Payment</a></li>
             </ul>
           </li>
 
@@ -764,10 +764,10 @@
       function renderTable(data) {
         ClientBody.innerHTML = "";
 
-        data.forEach((client) => {
+        data.forEach((client, index) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-        <td>${client.No_Client}</td>
+        <td>${index + 1}</td>
         <td>${client.Client_Name}</td>
         <td>${client.No_Telephone}</td>
         <td>${client.Email}</td>

@@ -36,7 +36,21 @@ def total_revenue():
 
 @router.get('/Payment')
 def get_payment():
-    sql_command="Select* from Payment" 
+    sql_command="""SELECT 
+    p.Payment_ID,
+    c.Client_Name AS Name,
+    c.No_Telephone,
+    p.Payment_Date,
+    p.Payment_Method,
+    p.Payment_Status,
+    p.Total_Amount
+FROM Payment p
+JOIN Orders o
+    ON p.Order_ID = o.Order_ID
+JOIN Clients c
+    ON o.No_Client = c.No_Client
+ORDER BY p.Payment_Date DESC;
+""" 
     cursor.execute(sql_command)
     payments=cursor.fetchall()
     return payments

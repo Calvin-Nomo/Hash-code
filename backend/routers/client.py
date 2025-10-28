@@ -36,6 +36,18 @@ def get_client():
     cursor.execute(sql_command)
     clients=cursor.fetchall()
     return clients
+@router.get("/all_users")
+def get_all_users():
+    cursor.execute("""
+        SELECT UserID, Username, Email,Roles FROM Users
+    """)
+    rows = cursor.fetchall()
+    return rows
+
+@router.get("/total_client")
+def total_client():
+    cursor.execute("SELECT COUNT(*) AS total FROM Clients")
+    return cursor.fetchone()
 
 @router.post("/create_client")
 def create_stock(client:Client,current_user: dict = Depends(require_role(["admin"]))):

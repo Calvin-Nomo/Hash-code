@@ -214,7 +214,7 @@
         margin-top: 4px;
       }
 
-      /* 🔄 Spinner Overlay Inside Phone Frame */
+      /* 🔄 Spinner Overlay */
       .loading-overlay {
         position: absolute;
         top: 0;
@@ -239,10 +239,7 @@
       }
 
       @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
+        to {
           transform: rotate(360deg);
         }
       }
@@ -255,9 +252,9 @@
       }
     </style>
   </head>
+
   <body>
     <div class="phone-frame">
-      <!-- Inside-phone Loading Overlay -->
       <div class="loading-overlay" id="loading">
         <div class="spinner"></div>
         <div class="loading-text">Processing Payment...</div>
@@ -273,6 +270,7 @@
           </div>
         </header>
 
+        <!-- Order summary -->
         <section class="order-summary">
           <h3>Your Items</h3>
           <div class="order-items" id="order-items"></div>
@@ -281,22 +279,30 @@
           </div>
         </section>
 
+        <!-- Order type -->
         <section class="order-type">
           <label for="orderType">Select Order Type</label>
           <select id="orderType">
             <option value="">--Choose--</option>
-            <option value="delivery">Dine In</option>
-            <option value="takeaway">Takeaway</option>
-            <option value="reservation">Reservation</option>
+            <option value="Dine In">Dine In</option>
+            <option value="Take Away">Take Away</option>
+            <option value="Reservation">Reservation</option>
           </select>
         </section>
 
+        <!-- Client form -->
         <section class="form-section hidden" id="clientForm">
           <h3>Client Information</h3>
           <label for="clientName">Full Name</label>
           <input type="text" id="clientName" placeholder="Enter your name" />
           <label for="clientPhone">Telephone</label>
           <input type="tel" id="clientPhone" placeholder="Enter your phone" />
+          <div id="tableClientContainer">
+            <label for="tableSelectClient">Table</label>
+            <select id="tableSelectClient">
+              <option value="">Select a table</option>
+            </select>
+          </div>
           <label for="clientEmail">Email (Optional)</label>
           <input type="email" id="clientEmail" placeholder="Enter your email" />
           <label for="note1">Note</label>
@@ -306,6 +312,7 @@
           ></textarea>
         </section>
 
+        <!-- Reservation form -->
         <section class="form-section hidden" id="reservationForm">
           <h3>Reservation Details</h3>
           <label for="resName">Full Name</label>
@@ -316,8 +323,12 @@
           <input type="email" id="resEmail" placeholder="Enter your email" />
           <label for="resDate">Date</label>
           <input type="datetime-local" id="resDate" />
-          <label for="resperson">Number of Guest</label>
-          <input type="number" id="resperson" />
+          <label for="resperson">Number of Guests</label>
+          <input type="number" id="resperson" min="1" />
+          <label for="tableSelectReservation">Table</label>
+          <select id="tableSelectReservation">
+            <option value="">Select a table</option>
+          </select>
           <label for="note2">Note</label>
           <textarea
             id="note2"
@@ -345,146 +356,122 @@
         >
       </nav>
     </div>
-  </body>
-  <script>
-    const orderType = document.getElementById("orderType");
-    const clientForm = document.getElementById("clientForm");
-    const reservationForm = document.getElementById("reservationForm");
-    const paybtn = document.getElementById("payBtn");
-    const loading = document.getElementById("loading");
 
-    // Show/hide form based on order type
-    orderType.addEventListener("change", () => {
-      clientForm.classList.add("hidden");
-      reservationForm.classList.add("hidden");
-      if (orderType.value === "delivery" || orderType.value === "takeaway") {
-        clientForm.classList.remove("hidden");
-      } else if (orderType.value === "reservation") {
-        reservationForm.classList.remove("hidden");
-      }
-    });
+    <script>
+      const orderType = document.getElementById("orderType");
+      const clientForm = document.getElementById("clientForm");
+      const reservationForm = document.getElementById("reservationForm");
+      const paybtn = document.getElementById("payBtn");
+      const loading = document.getElementById("loading");
+      const tableSelectClient = document.getElementById("tableSelectClient");
+      const tableSelectReservation = document.getElementById(
+        "tableSelectReservation"
+      );
+      const tableClientContainer = document.getElementById(
+        "tableClientContainer"
+      );
 
-    // Load cart summary
-    function loadOrderSummary() {
-      const orderContainer = document.getElementById("order-items");
-      const totalAmount = document.getElementById("total-amount");
-      const storedOrders = JSON.parse(localStorage.getItem("cart")) || [];
-      orderContainer.innerHTML = "";
-      let total = 0;
-      storedOrders.forEach((item) => {
-        const subtotal = item.Price * item.qty;
-        total += subtotal;
-        const itemDiv = document.createElement("div");
-        itemDiv.className = "item";
-        itemDiv.innerHTML = `
-        <div class="item-left">
-          <img src="${item.Image_link}" alt="${item.Product_Name}" />
-          <div class="item-info">
-            <h4>${item.Product_Name}</h4>
-            <p>${item.qty} × ${item.Price.toFixed(0)} FCFA</p>
-          </div>
-        </div>
-        <span class="price">${subtotal.toFixed(0)} FCFA</span>
-      `;
-        orderContainer.appendChild(itemDiv);
+      // Handle order type visibility
+      orderType.addEventListener("change", () => {
+        clientForm.classList.add("hidden");
+        reservationForm.classList.add("hidden");
+
+        if (orderType.value === "Dine In") {
+          clientForm.classList.remove("hidden");
+          tableClientContainer.style.display = "block";
+        } else if (orderType.value === "Take Away") {
+          clientForm.classList.remove("hidden");
+          tableClientContainer.style.display = "none";
+        } else if (orderType.value === "Reservation") {
+          reservationForm.classList.remove("hidden");
+        }
       });
-      totalAmount.textContent = `${total.toFixed(0)} FCFA`;
-    }
 
-    // Save client or reservation info to localStorage
-    function saveClientInfo() {
-      if (orderType.value === "delivery" || orderType.value === "takeaway") {
-        const client = {
-          name: document.getElementById("clientName").value.trim(),
-          phone: document.getElementById("clientPhone").value.trim(),
-          email: document.getElementById("clientEmail").value.trim(),
-          note: document.getElementById("note1").value.trim(),
-        };
-        localStorage.setItem("clientInfo", JSON.stringify(client));
-        localStorage.removeItem("reservationInfo"); // clear reservation
-      } else if (orderType.value === "reservation") {
-        const reservation = {
-          name: document.getElementById("resName").value.trim(),
-          phone: document.getElementById("resPhone").value.trim(),
-          email: document.getElementById("resEmail").value.trim(),
-          date: document.getElementById("resDate").value,
-          guests: document.getElementById("resperson").value,
-          note: document.getElementById("note2").value.trim(),
-        };
-        localStorage.setItem("reservationInfo", JSON.stringify(reservation));
-        localStorage.removeItem("clientInfo"); // clear client info
-      }
-      localStorage.setItem("orderType", orderType.value);
-    }
+      // Fetch tables
+      const API_URL = "http://127.0.0.1:8000/table/table/Table";
+      async function loadTables() {
+        try {
+          const res = await fetch(API_URL);
+          if (!res.ok) throw new Error("Failed to fetch tables");
+          const tables = await res.json();
 
-    // Form validation
-    function validateForm() {
-      let valid = true;
-      document.querySelectorAll(".error-msg").forEach((e) => e.remove());
-
-      if (!orderType.value) {
-        valid = false;
-        const error = document.createElement("div");
-        error.className = "error-msg";
-        error.textContent = "Please select order type";
-        orderType.parentNode.appendChild(error);
-      }
-
-      if (orderType.value === "delivery" || orderType.value === "takeaway") {
-        const name = document.getElementById("clientName");
-        const phone = document.getElementById("clientPhone");
-        if (!name.value.trim()) {
-          valid = false;
-          showError(name, "Name is required");
-        }
-        if (!phone.value.trim()) {
-          valid = false;
-          showError(phone, "Phone is required");
-        }
-      } else if (orderType.value === "reservation") {
-        const resName = document.getElementById("resName");
-        const resPhone = document.getElementById("resPhone");
-        const resDate = document.getElementById("resDate");
-        const resGuests = document.getElementById("resperson");
-        if (!resName.value.trim()) {
-          valid = false;
-          showError(resName, "Name is required");
-        }
-        if (!resPhone.value.trim()) {
-          valid = false;
-          showError(resPhone, "Phone is required");
-        }
-        if (!resDate.value) {
-          valid = false;
-          showError(resDate, "Reservation date required");
-        }
-        if (!resGuests.value || resGuests.value <= 0) {
-          valid = false;
-          showError(resGuests, "Number of guests required");
+          tables.forEach((t) => {
+            const opt1 = new Option(t.No_Table, t.Table_ID);
+            tableSelectClient.appendChild(opt1);
+            const opt2 = new Option(t.No_Table, t.Table_ID);
+            tableSelectReservation.appendChild(opt2);
+          });
+        } catch (err) {
+          console.error("Error loading tables:", err);
         }
       }
 
-      return valid;
-    }
+      // Load cart
+      function loadOrderSummary() {
+        const orderContainer = document.getElementById("order-items");
+        const totalAmount = document.getElementById("total-amount");
+        const storedOrders = JSON.parse(localStorage.getItem("cart")) || [];
+        orderContainer.innerHTML = "";
+        let total = 0;
+        storedOrders.forEach((item) => {
+          const subtotal = item.Price * item.qty;
+          total += subtotal;
+          const div = document.createElement("div");
+          div.className = "item";
+          div.innerHTML = `
+            <div class="item-left">
+              <img src="${item.Image_link}" alt="${item.Product_Name}" />
+              <div class="item-info">
+                <h4>${item.Product_Name}</h4>
+                <p>${item.qty} × ${item.Price.toFixed(0)} FCFA</p>
+              </div>
+            </div>
+            <span class="price">${subtotal.toFixed(0)} FCFA</span>`;
+          orderContainer.appendChild(div);
+        });
+        totalAmount.textContent = `${total.toFixed(0)} FCFA`;
+      }
 
-    function showError(input, msg) {
-      const error = document.createElement("div");
-      error.className = "error-msg";
-      error.textContent = msg;
-      input.parentNode.appendChild(error);
-    }
+      // Save client or reservation info
+      function saveClientInfo() {
+        if (orderType.value === "Dine In" || orderType.value === "Take Away") {
+          const client = {
+            name: document.getElementById("clientName").value.trim(),
+            phone: document.getElementById("clientPhone").value.trim(),
+            email: document.getElementById("clientEmail").value.trim(),
+            note: document.getElementById("note1").value.trim(),
+            table:
+              orderType.value === "Dine In" ? tableSelectClient.value : null,
+          };
+          localStorage.setItem("clientInfo", JSON.stringify(client));
+        } else if (orderType.value === "Reservation") {
+          const reservation = {
+            name: document.getElementById("resName").value.trim(),
+            phone: document.getElementById("resPhone").value.trim(),
+            email: document.getElementById("resEmail").value.trim(),
+            date: document.getElementById("resDate").value,
+            guests: document.getElementById("resperson").value,
+            note: document.getElementById("note2").value.trim(),
+            table: tableSelectReservation.value,
+          };
+          localStorage.setItem("reservationInfo", JSON.stringify(reservation));
+        }
+        localStorage.setItem("orderType", orderType.value);
+      }
 
-    // Pay button
-    paybtn.addEventListener("click", () => {
-      if (!validateForm()) return;
-      saveClientInfo(); // save info in localStorage
-      loading.style.display = "flex";
-      setTimeout(() => {
-        window.location.href = "pay.html";
-      }, 2000);
-    });
+      // Pay button click
+      paybtn.addEventListener("click", () => {
+        saveClientInfo();
+        loading.style.display = "flex";
+        setTimeout(() => {
+          window.location.href = "pay.html";
+        }, 2000);
+      });
 
-    // Load initial summary
-    window.addEventListener("DOMContentLoaded", loadOrderSummary);
-  </script>
+      window.addEventListener("DOMContentLoaded", () => {
+        loadTables();
+        loadOrderSummary();
+      });
+    </script>
+  </body>
 </html>
