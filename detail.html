@@ -16,7 +16,7 @@
         font-family: "Poppins", sans-serif;
       }
       body {
-        background: #222;
+        background: #1e1e1e;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -25,11 +25,11 @@
 
       .phone-frame {
         background: #f8f9fa;
-        width: 375px;
-        height: 700px;
+        width: 380px;
+        height: 720px;
         border-radius: 25px;
         overflow: hidden;
-        box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
         display: flex;
         flex-direction: column;
         position: relative;
@@ -41,32 +41,28 @@
         padding-bottom: 80px;
       }
 
-      .top-header {
+      header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 15px;
+        padding: 12px 18px;
         background: #fff;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
-      .top-header .back-arrow {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        margin-right: 10px;
+      header h2 {
+        font-size: 20px;
+        color: #333;
       }
 
       .danger {
         color: #e74c3c;
       }
 
-      .order-summary,
-      .order-type,
-      .form-section {
+      section {
         background: #fff;
         margin: 15px;
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 15px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       }
@@ -76,27 +72,27 @@
         justify-content: space-between;
         align-items: center;
         margin: 8px 0;
-        background: #fafafa;
-        border-radius: 8px;
+        background: #f9f9f9;
+        border-radius: 10px;
         padding: 8px;
       }
 
       .item-left {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
       }
 
       .item-left img {
-        width: 50px;
-        height: 50px;
-        border-radius: 8px;
+        width: 55px;
+        height: 55px;
+        border-radius: 10px;
         object-fit: cover;
       }
 
       .item-info h4 {
-        font-size: 13px;
-        margin-bottom: 3px;
+        font-size: 14px;
+        margin-bottom: 2px;
       }
 
       .item-info p {
@@ -131,10 +127,10 @@
       select {
         width: 100%;
         padding: 8px;
-        border: 1px solid #ddd;
+        border: 1px solid #ccc;
         border-radius: 8px;
         outline: none;
-        margin-top: 4px;
+        margin-top: 5px;
         font-size: 13px;
       }
 
@@ -147,6 +143,12 @@
         display: none;
       }
 
+      .error-msg {
+        color: red;
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
       .pay-section {
         margin: 15px;
       }
@@ -156,15 +158,15 @@
         background: #e74c3c;
         color: #fff;
         border: none;
-        padding: 12px;
+        padding: 13px;
         font-size: 16px;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 5px;
-        transition: 0.3s ease;
+        gap: 6px;
+        transition: 0.3s;
       }
 
       .pay-btn:hover {
@@ -184,23 +186,16 @@
         box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
-        z-index: 100;
       }
 
       .nav-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
         font-size: 11px;
         color: #777;
         text-decoration: none;
         transition: color 0.3s ease;
-      }
-
-      .nav-item i {
-        font-size: 20px;
-        margin-bottom: 3px;
       }
 
       .nav-item.active,
@@ -208,13 +203,7 @@
         color: #e74c3c;
       }
 
-      .error-msg {
-        color: red;
-        font-size: 12px;
-        margin-top: 4px;
-      }
-
-      /* 🔄 Spinner Overlay */
+      /* Spinner */
       .loading-overlay {
         position: absolute;
         top: 0;
@@ -226,7 +215,7 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        z-index: 500;
+        z-index: 999;
       }
 
       .spinner {
@@ -246,13 +235,11 @@
 
       .loading-text {
         margin-top: 10px;
-        font-size: 15px;
         color: #e74c3c;
         font-weight: bold;
       }
     </style>
   </head>
-
   <body>
     <div class="phone-frame">
       <div class="loading-overlay" id="loading">
@@ -261,13 +248,11 @@
       </div>
 
       <div class="app-container">
-        <header class="top-header">
+        <header>
           <div class="back-arrow" onclick="window.location.href='Phone.html'">
             <i class="material-icons-sharp">arrow_back</i>
           </div>
-          <div class="logo-area">
-            <h2>Order-<span class="danger">Details</span></h2>
-          </div>
+          <h2>Order-<span class="danger">Details</span></h2>
         </header>
 
         <!-- Order summary -->
@@ -275,11 +260,11 @@
           <h3>Your Items</h3>
           <div class="order-items" id="order-items"></div>
           <div class="order-total">
-            <span>Total</span><span id="total-amount">0.00 FCFA</span>
+            <span>Total</span><span id="total-amount">0 FCFA</span>
           </div>
         </section>
 
-        <!-- Order type -->
+        <!-- Order Type -->
         <section class="order-type">
           <label for="orderType">Select Order Type</label>
           <select id="orderType">
@@ -288,24 +273,31 @@
             <option value="Take Away">Take Away</option>
             <option value="Reservation">Reservation</option>
           </select>
+          <div id="orderTypeError" class="error-msg"></div>
         </section>
 
         <!-- Client form -->
         <section class="form-section hidden" id="clientForm">
           <h3>Client Information</h3>
-          <label for="clientName">Full Name</label>
+          <label>Full Name</label>
           <input type="text" id="clientName" placeholder="Enter your name" />
-          <label for="clientPhone">Telephone</label>
+          <div class="error-msg" id="clientNameError"></div>
+
+          <label>Telephone</label>
           <input type="tel" id="clientPhone" placeholder="Enter your phone" />
+          <div class="error-msg" id="clientPhoneError"></div>
+
           <div id="tableClientContainer">
-            <label for="tableSelectClient">Table</label>
+            <label>Table</label>
             <select id="tableSelectClient">
               <option value="">Select a table</option>
             </select>
+            <div class="error-msg" id="clientTableError"></div>
           </div>
-          <label for="clientEmail">Email (Optional)</label>
+
+          <label>Email (Optional)</label>
           <input type="email" id="clientEmail" placeholder="Enter your email" />
-          <label for="note1">Note</label>
+          <label>Note</label>
           <textarea
             id="note1"
             placeholder="Add a note or request..."
@@ -315,21 +307,29 @@
         <!-- Reservation form -->
         <section class="form-section hidden" id="reservationForm">
           <h3>Reservation Details</h3>
-          <label for="resName">Full Name</label>
+          <label>Full Name</label>
           <input type="text" id="resName" placeholder="Enter your name" />
-          <label for="resPhone">Telephone</label>
+          <div class="error-msg" id="resNameError"></div>
+
+          <label>Telephone</label>
           <input type="tel" id="resPhone" placeholder="Enter your phone" />
-          <label for="resEmail">Email (Optional)</label>
-          <input type="email" id="resEmail" placeholder="Enter your email" />
-          <label for="resDate">Date</label>
+          <div class="error-msg" id="resPhoneError"></div>
+
+          <label>Date</label>
           <input type="datetime-local" id="resDate" />
-          <label for="resperson">Number of Guests</label>
+          <div class="error-msg" id="resDateError"></div>
+
+          <label>Guests</label>
           <input type="number" id="resperson" min="1" />
-          <label for="tableSelectReservation">Table</label>
+          <div class="error-msg" id="resPersonError"></div>
+
+          <label>Table</label>
           <select id="tableSelectReservation">
             <option value="">Select a table</option>
           </select>
-          <label for="note2">Note</label>
+          <div class="error-msg" id="resTableError"></div>
+
+          <label>Note</label>
           <textarea
             id="note2"
             placeholder="Add a note or request..."
@@ -361,7 +361,7 @@
       const orderType = document.getElementById("orderType");
       const clientForm = document.getElementById("clientForm");
       const reservationForm = document.getElementById("reservationForm");
-      const paybtn = document.getElementById("payBtn");
+      const payBtn = document.getElementById("payBtn");
       const loading = document.getElementById("loading");
       const tableSelectClient = document.getElementById("tableSelectClient");
       const tableSelectReservation = document.getElementById(
@@ -371,7 +371,7 @@
         "tableClientContainer"
       );
 
-      // Handle order type visibility
+      // Order type toggle
       orderType.addEventListener("change", () => {
         clientForm.classList.add("hidden");
         reservationForm.classList.add("hidden");
@@ -387,86 +387,123 @@
         }
       });
 
-      // Fetch tables
-      const API_URL = "http://127.0.0.1:8000/table/table/Table";
+      // Fetch table list
       async function loadTables() {
         try {
-          const res = await fetch(API_URL);
-          if (!res.ok) throw new Error("Failed to fetch tables");
-          const tables = await res.json();
-
-          tables.forEach((t) => {
-            const opt1 = new Option(t.No_Table, t.Table_ID);
-            tableSelectClient.appendChild(opt1);
-            const opt2 = new Option(t.No_Table, t.Table_ID);
-            tableSelectReservation.appendChild(opt2);
+          const res = await fetch("http://127.0.0.1:8000/table/table/Table");
+          const data = await res.json();
+          data.forEach((t) => {
+            tableSelectClient.add(new Option(t.No_Table, t.Table_ID));
+            tableSelectReservation.add(new Option(t.No_Table, t.Table_ID));
           });
         } catch (err) {
           console.error("Error loading tables:", err);
         }
       }
 
-      // Load cart
-      function loadOrderSummary() {
-        const orderContainer = document.getElementById("order-items");
-        const totalAmount = document.getElementById("total-amount");
-        const storedOrders = JSON.parse(localStorage.getItem("cart")) || [];
-        orderContainer.innerHTML = "";
-        let total = 0;
-        storedOrders.forEach((item) => {
-          const subtotal = item.Price * item.qty;
-          total += subtotal;
-          const div = document.createElement("div");
-          div.className = "item";
-          div.innerHTML = `
-            <div class="item-left">
-              <img src="${item.Image_link}" alt="${item.Product_Name}" />
-              <div class="item-info">
-                <h4>${item.Product_Name}</h4>
-                <p>${item.qty} × ${item.Price.toFixed(0)} FCFA</p>
-              </div>
-            </div>
-            <span class="price">${subtotal.toFixed(0)} FCFA</span>`;
-          orderContainer.appendChild(div);
-        });
-        totalAmount.textContent = `${total.toFixed(0)} FCFA`;
-      }
-
-      // Save client or reservation info
-      function saveClientInfo() {
-        if (orderType.value === "Dine In" || orderType.value === "Take Away") {
-          const client = {
-            name: document.getElementById("clientName").value.trim(),
-            phone: document.getElementById("clientPhone").value.trim(),
-            email: document.getElementById("clientEmail").value.trim(),
-            note: document.getElementById("note1").value.trim(),
-            table:
-              orderType.value === "Dine In" ? tableSelectClient.value : null,
-          };
-          localStorage.setItem("clientInfo", JSON.stringify(client));
-        } else if (orderType.value === "Reservation") {
-          const reservation = {
-            name: document.getElementById("resName").value.trim(),
-            phone: document.getElementById("resPhone").value.trim(),
-            email: document.getElementById("resEmail").value.trim(),
-            date: document.getElementById("resDate").value,
-            guests: document.getElementById("resperson").value,
-            note: document.getElementById("note2").value.trim(),
-            table: tableSelectReservation.value,
-          };
-          localStorage.setItem("reservationInfo", JSON.stringify(reservation));
+      // Validation function
+      function validateForm() {
+        let valid = true;
+        document
+          .querySelectorAll(".error-msg")
+          .forEach((el) => (el.textContent = ""));
+        if (!orderType.value) {
+          document.getElementById("orderTypeError").textContent =
+            "Please select an order type.";
+          valid = false;
         }
-        localStorage.setItem("orderType", orderType.value);
+
+        if (orderType.value === "Dine In" || orderType.value === "Take Away") {
+          const name = document.getElementById("clientName").value.trim();
+          const phone = document.getElementById("clientPhone").value.trim();
+          const table = tableSelectClient.value;
+          if (!name) {
+            document.getElementById("clientNameError").textContent =
+              "Name is required.";
+            valid = false;
+          }
+          if (!phone) {
+            document.getElementById("clientPhoneError").textContent =
+              "Phone number required.";
+            valid = false;
+          }
+          if (orderType.value === "Dine In" && !table) {
+            document.getElementById("clientTableError").textContent =
+              "Please select a table.";
+            valid = false;
+          }
+        }
+
+        if (orderType.value === "Reservation") {
+          const resName = document.getElementById("resName").value.trim();
+          const resPhone = document.getElementById("resPhone").value.trim();
+          const resDate = document.getElementById("resDate").value;
+          const resGuests = document.getElementById("resperson").value;
+          const resTable = tableSelectReservation.value;
+
+          if (!resName) {
+            document.getElementById("resNameError").textContent =
+              "Name is required.";
+            valid = false;
+          }
+          if (!resPhone) {
+            document.getElementById("resPhoneError").textContent =
+              "Phone required.";
+            valid = false;
+          }
+          if (!resDate) {
+            document.getElementById("resDateError").textContent =
+              "Date required.";
+            valid = false;
+          }
+          if (!resGuests || resGuests < 1) {
+            document.getElementById("resPersonError").textContent =
+              "Enter number of guests.";
+            valid = false;
+          }
+          if (!resTable) {
+            document.getElementById("resTableError").textContent =
+              "Select a table.";
+            valid = false;
+          }
+        }
+
+        return valid;
       }
 
-      // Pay button click
-      paybtn.addEventListener("click", () => {
-        saveClientInfo();
+      // Pay button
+      payBtn.addEventListener("click", () => {
+        if (!validateForm()) return;
         loading.style.display = "flex";
         setTimeout(() => {
           window.location.href = "pay.html";
         }, 2000);
       });
+
+      function loadOrderSummary() {
+        const orderContainer = document.getElementById("order-items");
+        const totalAmount = document.getElementById("total-amount");
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        orderContainer.innerHTML = "";
+        let total = 0;
+
+        cart.forEach((item) => {
+          const subtotal = item.Price * item.qty;
+          total += subtotal;
+          orderContainer.innerHTML += `
+            <div class="item">
+              <div class="item-left">
+                <img src="${item.Image_link}" alt="${item.Product_Name}" />
+                <div class="item-info">
+                  <h4>${item.Product_Name}</h4>
+                  <p>${item.qty} × ${item.Price.toFixed(0)} FCFA</p>
+                </div>
+              </div>
+              <span class="price">${subtotal.toFixed(0)} FCFA</span>
+            </div>`;
+        });
+        totalAmount.textContent = `${total.toFixed(0)} FCFA`;
+      }
 
       window.addEventListener("DOMContentLoaded", () => {
         loadTables();

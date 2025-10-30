@@ -15,6 +15,7 @@
         box-sizing: border-box;
         font-family: "Poppins", sans-serif;
       }
+
       body {
         background: #111;
         display: flex;
@@ -50,14 +51,21 @@
         padding: 10px 0;
         border-bottom: 1px solid #333;
       }
+
       header h2 {
         font-size: 18px;
         color: #fff;
       }
+
       .back-arrow {
         cursor: pointer;
         display: flex;
         align-items: center;
+        color: #fff;
+        transition: 0.3s;
+      }
+
+      .back-arrow:hover {
         color: #e74c3c;
       }
 
@@ -68,6 +76,13 @@
         border-radius: 10px;
         margin-top: 10px;
       }
+
+      .payment-methods h3 {
+        color: #fff;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+
       .method-option {
         display: flex;
         align-items: center;
@@ -80,11 +95,15 @@
         cursor: pointer;
         transition: 0.3s;
       }
+
       .method-option:hover {
-        border-color: #e74c3c;
+        box-shadow: 0 0 10px #fff;
+        border-color: #fff;
       }
+
       .method-option.selected {
-        border-color: #e74c3c;
+        border-color: #fff;
+        box-shadow: 0 0 15px #fff;
         background: #292929;
       }
 
@@ -95,10 +114,12 @@
         border-radius: 10px;
         margin-top: 15px;
       }
+
       .payment-form label {
         font-size: 13px;
         color: #ccc;
       }
+
       .payment-form input {
         width: 100%;
         padding: 10px;
@@ -108,7 +129,14 @@
         color: #fff;
         margin-top: 5px;
         font-size: 14px;
+        transition: 0.3s;
       }
+
+      .payment-form input:focus {
+        border-color: #fff;
+        box-shadow: 0 0 10px #fff;
+      }
+
       .error-msg {
         color: #e74c3c;
         font-size: 12px;
@@ -122,24 +150,28 @@
         border-radius: 10px;
         margin-top: 15px;
       }
+
       .payment-summary h3 {
-        color: #e74c3c;
+        color: #fff;
         margin-bottom: 10px;
       }
+
       .summary-item {
         display: flex;
         justify-content: space-between;
         margin-top: 8px;
         font-size: 14px;
       }
+
       .summary-item.final span:last-child {
         color: #2ecc71;
         font-weight: bold;
       }
+
       .pay-btn {
         width: 100%;
-        background: #e74c3c;
-        color: #fff;
+        background: #fff;
+        color: #000;
         padding: 15px;
         border: none;
         font-size: 16px;
@@ -152,8 +184,10 @@
         gap: 5px;
         transition: 0.3s;
       }
+
       .pay-btn:hover {
-        background: #c0392b;
+        box-shadow: 0 0 15px #fff;
+        background: #eaeaea;
       }
 
       /* ---------- Loading Overlay ---------- */
@@ -170,14 +204,16 @@
         flex-direction: column;
         z-index: 1000;
       }
+
       .spinner {
-        border: 4px solid rgba(231, 76, 60, 0.2);
-        border-top: 4px solid #e74c3c;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top: 4px solid #fff;
         border-radius: 50%;
         width: 50px;
         height: 50px;
         animation: spin 1s linear infinite;
       }
+
       @keyframes spin {
         0% {
           transform: rotate(0deg);
@@ -186,6 +222,7 @@
           transform: rotate(360deg);
         }
       }
+
       .loading-text {
         margin-top: 15px;
         font-size: 15px;
@@ -198,9 +235,9 @@
       }
     </style>
   </head>
+
   <body>
     <div class="phone-frame">
-      <!-- 🔄 Loading -->
       <div class="loading-overlay" id="loading">
         <div class="spinner"></div>
         <div class="loading-text" id="loading-text">Processing...</div>
@@ -214,39 +251,25 @@
           <h2>Payment</h2>
         </header>
 
-        <!-- Step 1: Select Payment Method -->
         <section class="payment-methods">
           <h3>Select Payment Method</h3>
           <div class="method-option" data-method="Cash">
-            <span
-              ><div class="logo"></div>
-              Cash</span
-            >
-            <i class="material-icons-sharp">check_circle</i>
+            Cash <i class="material-icons-sharp">check_circle</i>
           </div>
           <div class="method-option" data-method="MTN Money">
-            <span
-              ><div class="logo"></div>
-              MTN Money</span
-            >
-            <i class="material-icons-sharp">check_circle</i>
+            MTN Money <i class="material-icons-sharp">check_circle</i>
           </div>
           <div class="method-option" data-method="Orange Money">
-            <span
-              ><div class="logo"></div>
-              Orange Money</span
-            >
-            <i class="material-icons-sharp">check_circle</i>
+            Orange Money <i class="material-icons-sharp">check_circle</i>
           </div>
         </section>
 
-        <!-- Step 2: Enter Number -->
         <section class="payment-form hidden" id="numberSection">
           <label for="phoneNumber">Enter Your Mobile Number</label>
           <input
             type="tel"
             id="phoneNumber"
-            placeholder=" 237 6xxxxxxxx"
+            placeholder="237 6xxxxxxxx"
             maxlength="9"
           />
           <div id="phoneError" class="error-msg hidden">
@@ -254,7 +277,6 @@
           </div>
         </section>
 
-        <!-- Step 3: Payment Summary -->
         <section class="payment-summary hidden" id="paymentSummary">
           <h3>Payment Summary</h3>
           <div class="summary-item">
@@ -279,11 +301,7 @@
       </div>
     </div>
     <script>
-      // ====================== SELECTORS ======================
       const methodOptions = document.querySelectorAll(".method-option");
-      const numberSection = document.getElementById("numberSection");
-      const phoneInput = document.getElementById("phoneNumber");
-      const phoneError = document.getElementById("phoneError");
       const paymentSummary = document.getElementById("paymentSummary");
       const methodDisplay = document.getElementById("method");
       const summaryNumber = document.getElementById("summaryNumber");
@@ -294,158 +312,141 @@
       const loading = document.getElementById("loading");
       const loadingText = document.getElementById("loading-text");
 
-      // ====================== VARIABLES ======================
       let selectedMethod = null;
       let total = 0,
         fee = 0,
         finalAmount = 0;
 
-      // ====================== CLIENT / RESERVATION DATA ======================
-      const orderType = localStorage.getItem("orderType"); // "reservation" or "takeaway"
-      let clientData = {};
-      if (orderType === "reservation") {
-        clientData = JSON.parse(
-          localStorage.getItem("reservationInfo") || "{}"
-        );
-      } else {
-        clientData = JSON.parse(localStorage.getItem("clientInfo") || "{}");
+      // ✅ Ensure session ID exists
+      if (!localStorage.getItem("sessionId")) {
+        const sessionId =
+          "sess_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+        localStorage.setItem("sessionId", sessionId);
       }
 
-      if (clientData.telephone) phoneInput.value = clientData.telephone;
-
-      // ====================== PAYMENT METHOD SELECTION ======================
-      methodOptions.forEach((opt) => {
-        opt.addEventListener("click", () => {
-          methodOptions.forEach((o) => o.classList.remove("selected"));
-          opt.classList.add("selected");
-          selectedMethod = opt.dataset.method;
-          methodDisplay.textContent = selectedMethod;
-          numberSection.classList.remove("hidden");
-          validatePhoneAndShowSummary();
-        });
-      });
-
-      // ====================== CART TOTALS ======================
+      // ✅ Load and calculate totals
       function loadCartTotal() {
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
         total = cart.reduce((sum, item) => sum + item.Price * item.qty, 0);
-        const blocks = Math.ceil(total / 5000);
-        fee = blocks * 150;
+
+        fee = 0;
+        if (
+          selectedMethod === "MTN Money" ||
+          selectedMethod === "Orange Money"
+        ) {
+          const blocks = Math.ceil(total / 5000);
+          fee = blocks * 100;
+        }
+
         finalAmount = total + fee;
         totalEl.textContent = `${total.toFixed(0)} FCFA`;
         feeEl.textContent = `${fee.toFixed(0)} FCFA`;
         finalEl.textContent = `${finalAmount.toFixed(0)} FCFA`;
       }
 
-      // ====================== PHONE VALIDATION ======================
-      function validatePhoneAndShowSummary() {
-        const value = phoneInput.value.trim();
-        if (value.length >= 9) {
-          phoneError.classList.add("hidden");
-          if (selectedMethod) paymentSummary.classList.remove("hidden");
-          summaryNumber.textContent = value;
-          loadCartTotal();
-        } else {
-          paymentSummary.classList.add("hidden");
-          phoneError.classList.remove("hidden");
-        }
+      // ✅ Show payment summary
+      function showPaymentSummary() {
+        const clientData = JSON.parse(localStorage.getItem("clientData")) || {};
+        const clientPhone = clientData.phone || "N/A";
+        paymentSummary.classList.remove("hidden");
+        summaryNumber.textContent = clientPhone;
+        loadCartTotal();
       }
 
-      phoneInput.addEventListener("input", validatePhoneAndShowSummary);
+      // ✅ Select payment method
+      methodOptions.forEach((opt) => {
+        opt.addEventListener("click", () => {
+          methodOptions.forEach((o) => o.classList.remove("selected"));
+          opt.classList.add("selected");
+          selectedMethod = opt.dataset.method;
+          methodDisplay.textContent = selectedMethod;
+          showPaymentSummary();
+        });
+      });
 
-      // ====================== SEND ORDER REQUEST ======================
-      async function sendOrderRequest(orderData) {
-        try {
-          const response = await fetch(
-            "http://127.0.0.1:8000/order/order/FullOrderRequest",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(orderData),
-            }
-          );
-
-          if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
-            console.error("Server validation error:", err);
-            throw new Error("Failed to submit order");
-          }
-
-          const result = await response.json();
-          console.log("Order success:", result);
-          return result;
-        } catch (error) {
-          console.error("Order error:", error);
-          alert("Failed to submit order. Please try again.");
-          return null;
-        }
-      }
-
-      // ====================== PAY BUTTON CLICK ======================
+      // ✅ Submit order
       payBtn.addEventListener("click", async () => {
-        const phoneValue = phoneInput.value.trim();
+        if (!selectedMethod) return;
 
-        if (!selectedMethod) {
-          alert("Please select a payment method.");
-          return;
-        }
-        if (phoneValue.length < 9) {
-          phoneError.classList.remove("hidden");
-          return;
-        }
-
-        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-        // 🧩 Build FullOrderRequest JSON for FastAPI
-        const orderData = {
-          client: {
-            Client_Name: clientData.name || "Anonymous",
-            No_Telephone: phoneValue,
-            Email: clientData.email || "unknown@example.com",
-          },
-          reservation: {
-            No_Table: clientData.table || 0,
-            Reservation_Date: new Date().toISOString(),
-            No_Person: clientData.guests || 1,
-          },
-          order: {
-            Order_Type: orderType || "Takeaway",
-            No_Table: clientData.table || 0,
-            Note: clientData.note || "",
-            items: cart.map((item) => ({
-              No_Product: item.id || item.No_Product || 0,
-              Quantity: item.qty || 1,
-            })),
-          },
-          payment: {
-            Payment_Method: selectedMethod,
-          },
-        };
-
-        // Show loading overlay
         loading.style.display = "flex";
         loadingText.textContent = `Processing ${finalAmount.toFixed(
           0
         )} FCFA via ${selectedMethod}...`;
 
-        const result = await sendOrderRequest(orderData);
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const clientData = JSON.parse(localStorage.getItem("clientData")) || {};
+        const sessionId = localStorage.getItem("sessionId");
 
-        if (result) {
-          loadingText.textContent = "Payment & Order Successful!";
+        // ✅ Prepare payload (consistent with FastAPI FullOrderRequest)
+        const orderPayload = {
+          order: {
+            Session_id: sessionId,
+            Order_Type: clientData.type || "Take Away",
+            No_Table: clientData.table || null,
+            Note: clientData.note || null,
+            items: cart.map((item) => ({
+              No_Product: item.No_Product,
+              Quantity: item.qty,
+            })),
+          },
+          client: {
+            Client_Name: clientData.name || "Guest",
+            No_Telephone: clientData.phone || "000000000",
+            Email: clientData.email || "noemail@example.com",
+          },
+          reservation:
+            clientData.type === "Reservation"
+              ? {
+                  No_Table: clientData.table || null,
+                  Reservation_Date: clientData.date || null,
+                  No_Person: clientData.guests || 1,
+                }
+              : null,
+          payment: {
+            Payment_Method: selectedMethod,
+            Payment_Phone: clientData.phone || null,
+          },
+        };
+
+        console.log("Order Payload:", orderPayload);
+
+        try {
+          const res = await fetch(
+            "http://127.0.0.1:8000/order/order/FullOrderRequest",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(orderPayload),
+            }
+          );
+
+          if (!res.ok) {
+            const errorData = await res.json();
+            console.error("Backend Error:", errorData);
+            throw new Error(errorData.detail || "Failed to submit order");
+          }
+
+          const result = await res.json();
+          console.log("Order response:", result);
+
+          // ✅ Clear local data after success
           localStorage.removeItem("cart");
-          localStorage.setItem("lastOrder", JSON.stringify(result));
+          localStorage.removeItem("clientData");
+
+          loadingText.textContent = "Payment & Order Successful!";
           setTimeout(() => {
-            window.location.href = "order_history.html";
-          }, 2000);
-        } else {
-          loading.style.display = "none";
+            window.location.href = "Phone.html";
+          }, 1500);
+        } catch (err) {
+          console.error("Error submitting order:", err);
+          loadingText.textContent = "Error submitting order. Try again.";
+          setTimeout(() => (loading.style.display = "none"), 2000);
         }
       });
 
-      window.addEventListener("DOMContentLoaded", () => {
-        loadCartTotal();
-        validatePhoneAndShowSummary();
-      });
+      window.addEventListener("DOMContentLoaded", loadCartTotal);
     </script>
   </body>
 </html>

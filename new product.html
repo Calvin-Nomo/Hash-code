@@ -338,6 +338,12 @@
         background: #b91c1c;
       }
 
+      #successMsg {
+        margin-top: 1rem;
+        font-weight: bold;
+        text-align: center;
+      }
+
       @media (max-width: 768px) {
         #sidebar {
           transform: translateX(-100%);
@@ -369,30 +375,26 @@
 
         <ul class="sidebar-nav">
           <li class="sidebar-item">
-            <a href="admin.html" class="sidebar-link"
-              ><i class="fa-solid fa-chart-line"></i> Dashboard</a
-            >
+            <a href="admin.html" class="sidebar-link">
+              <i class="fa-solid fa-chart-line"></i> Dashboard
+            </a>
           </li>
 
           <li class="sidebar-item dropdown">
-            <a href="#" class="sidebar-link has-dropdown"
-              ><i class="fa-solid fa-box"></i> Inventory</a
-            >
+            <a href="#" class="sidebar-link has-dropdown">
+              <i class="fa-solid fa-box"></i> Inventory
+            </a>
             <ul class="sidebar-dropdown">
               <li><a href="product.html" class="sidebar-link">Products</a></li>
-              <li>
-                <a href="#" class="sidebar-link">Add New Product</a>
-              </li>
-              <li>
-                <a href="stock.html" class="sidebar-link">Stock</a>
-              </li>
+              <li><a href="#" class="sidebar-link">Add New Product</a></li>
+              <li><a href="stock.html" class="sidebar-link">Stock</a></li>
             </ul>
           </li>
 
           <li class="sidebar-item dropdown">
-            <a href="#" class="sidebar-link has-dropdown"
-              ><i class="fa-solid fa-tags"></i> Category</a
-            >
+            <a href="#" class="sidebar-link has-dropdown">
+              <i class="fa-solid fa-tags"></i> Category
+            </a>
             <ul class="sidebar-dropdown">
               <li>
                 <a href="reservation.html" class="sidebar-link">Reservation</a>
@@ -402,9 +404,9 @@
           </li>
 
           <li class="sidebar-item dropdown">
-            <a href="#" class="sidebar-link has-dropdown"
-              ><i class="fa-solid fa-users"></i> Users</a
-            >
+            <a href="#" class="sidebar-link has-dropdown">
+              <i class="fa-solid fa-users"></i> Users
+            </a>
             <ul class="sidebar-dropdown">
               <li><a href="user.html" class="sidebar-link">All Users</a></li>
               <li><a href="#" class="sidebar-link">Add New User</a></li>
@@ -412,9 +414,9 @@
           </li>
 
           <li class="sidebar-item dropdown">
-            <a href="#" class="sidebar-link has-dropdown"
-              ><i class="fa-solid fa-cart-shopping"></i> Orders</a
-            >
+            <a href="#" class="sidebar-link has-dropdown">
+              <i class="fa-solid fa-cart-shopping"></i> Orders
+            </a>
             <ul class="sidebar-dropdown">
               <li><a href="order.html" class="sidebar-link">Order List</a></li>
               <li><a href="#" class="sidebar-link">Order Details</a></li>
@@ -423,19 +425,15 @@
           </li>
 
           <li class="sidebar-item">
-            <a href="#" class="sidebar-link"
-              ><i class="fa-solid fa-user-shield"></i> Account</a
-            >
+            <a href="#" class="sidebar-link">
+              <i class="fa-solid fa-user-shield"></i> Account
+            </a>
           </li>
+
           <li class="sidebar-item">
-            <a href="#" class="sidebar-link"
-              ><i class="fa-solid fa-chart-line"></i>Reports</a
-            >
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link"
-              ><i class="fa-solid fa-gear"></i> System Settings</a
-            >
+            <a href="#" class="sidebar-link">
+              <i class="fa-solid fa-gear"></i> System Settings
+            </a>
           </li>
         </ul>
       </aside>
@@ -486,35 +484,41 @@
         <main class="content">
           <!-- PRODUCT FORM -->
           <div class="product-form">
-            <form action="#" id="add-form">
+            <form id="add-form">
               <div class="title">Product Information</div>
               <div class="info">
-                <label for=""
-                  >Name<input type="text" placeholder="Enter product name"
-                /></label>
-                <label for=""
-                  >Category<input type="text" placeholder="Enter category"
-                /></label>
-                <label for="">
-                  Description
+                <label
+                  >Name
+                  <input type="text" placeholder="Enter product name" />
+                </label>
+                <label
+                  >Category
+                  <input type="text" placeholder="Enter category" />
+                </label>
+                <label
+                  >Description
                   <textarea
                     id="prod-desc"
                     placeholder="Describe your product..."
                   ></textarea>
                 </label>
-                <label for=""
-                  >Price<input type="number" placeholder="Enter price"
-                /></label>
-                <label for="">Image <input type="file" /></label>
-                <p id="show_image"></p>
+                <label
+                  >Price
+                  <input type="number" placeholder="Enter price" />
+                </label>
+                <label
+                  >Image
+                  <input type="file" />
+                </label>
                 <div>
-                  <button type="submit" onclick="addProdut()">
+                  <button type="submit">
                     <i class="fa-solid fa-save"></i> Save
                   </button>
                   <button type="reset">
                     <i class="fa-solid fa-xmark"></i> Cancel
                   </button>
                 </div>
+                <p id="successMsg" style="display: none"></p>
               </div>
             </form>
           </div>
@@ -524,6 +528,7 @@
 
     <!-- JS -->
     <script>
+      // Sidebar toggle
       const sidebar = document.getElementById("sidebar");
       const main = document.getElementById("main");
       const toggleBtn = document.getElementById("toggleSidebar");
@@ -549,11 +554,72 @@
         e.stopPropagation();
         profile.classList.toggle("active");
       });
-
       document.addEventListener("click", () => {
         profile.classList.remove("active");
       });
-      /* Post endpoint */
+
+      // Product form submission
+      const addForm = document.getElementById("add-form");
+      const successMsg = document.getElementById("successMsg");
+
+      addForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const name = addForm
+          .querySelector("input[placeholder='Enter product name']")
+          .value.trim();
+        const category = addForm
+          .querySelector("input[placeholder='Enter category']")
+          .value.trim();
+        const description = document.getElementById("prod-desc").value.trim();
+        const price = parseFloat(
+          addForm.querySelector("input[placeholder='Enter price']").value
+        );
+        const imageFile = addForm.querySelector("input[type='file']").files[0];
+
+        if (!name || !category || !description || !price || !imageFile) {
+          successMsg.style.color = "red";
+          successMsg.textContent =
+            "Please fill in all fields and select an image.";
+          successMsg.style.display = "block";
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("Product_Name", name);
+        formData.append("Category", category);
+        formData.append("Product_Description", description);
+        formData.append("Price", price);
+        formData.append("image", imageFile);
+
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:8000/product/product/create_product",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+          if (response.ok) {
+            successMsg.style.color = "green";
+            successMsg.textContent = " Product successfully created!";
+            successMsg.style.display = "block";
+            addForm.reset();
+
+            setTimeout(() => {
+              window.location.href = "product.html";
+            }, 2000);
+          } else {
+            const err = await response.json();
+            throw new Error(err.detail || "Failed to create product");
+          }
+        } catch (error) {
+          successMsg.style.color = "red";
+          successMsg.textContent = " Error: " + error.message;
+          successMsg.style.display = "block";
+        }
+      });
     </script>
   </body>
 </html>

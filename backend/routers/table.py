@@ -34,6 +34,12 @@ def get_tables():
     cursor.execute(sql_command)
     table=cursor.fetchall()
     return table
+@router.get('/onlytable')
+def get_tables():
+    sql_command="Select Table_ID,No_Table from Tab" 
+    cursor.execute(sql_command)
+    table=cursor.fetchall()
+    return table
 
 ###################################Post Method############################# 
 @router.post("/create_table")
