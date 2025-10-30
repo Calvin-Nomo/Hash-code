@@ -774,7 +774,7 @@
                width="80" height="80" style="border-radius:10px"/></td>
       <td>${order.Product_Name}</td>
       <td>${order.Quantity}</td>
-      <td>${order.Total} FCFA</td>
+      <td>${order.Total.toLocaleString()} FCFA</td>
     `;
             tbody.appendChild(row);
           });
@@ -784,7 +784,7 @@
           );
           document.getElementById("totalRevenue").textContent = `${Number(
             data1.total
-          )} FCFA`;
+          ).toLocaleString()} FCFA`;
           document.getElementById("totalOrders").textContent = `${Number(
             data2.total
           )}`;

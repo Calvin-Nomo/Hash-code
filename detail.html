@@ -314,6 +314,9 @@
           <label>Telephone</label>
           <input type="tel" id="resPhone" placeholder="Enter your phone" />
           <div class="error-msg" id="resPhoneError"></div>
+          <label>Email</label>
+          <input type="email" id="resEmail" placeholder="Enter your email" />
+          <div class="error-msg" id="resEmailError"></div>
 
           <label>Date</label>
           <input type="datetime-local" id="resDate" />
@@ -371,7 +374,20 @@
         "tableClientContainer"
       );
 
-      // Order type toggle
+      // --- Generate session ID if not exists ---
+      function generateSessionId() {
+        let sessionId = localStorage.getItem("sessionId");
+        if (!sessionId) {
+          sessionId = "sess-" + Math.random().toString(36).substr(2, 9);
+          localStorage.setItem("sessionId", sessionId);
+        }
+        return sessionId;
+      }
+
+      const sessionId = generateSessionId();
+      console.log("Session ID:", sessionId);
+
+      // --- Toggle forms based on order type ---
       orderType.addEventListener("change", () => {
         clientForm.classList.add("hidden");
         reservationForm.classList.add("hidden");
@@ -387,7 +403,7 @@
         }
       });
 
-      // Fetch table list
+      // --- Fetch tables ---
       async function loadTables() {
         try {
           const res = await fetch("http://127.0.0.1:8000/table/table/Table");
@@ -401,12 +417,13 @@
         }
       }
 
-      // Validation function
+      // --- Validation ---
       function validateForm() {
         let valid = true;
         document
           .querySelectorAll(".error-msg")
           .forEach((el) => (el.textContent = ""));
+
         if (!orderType.value) {
           document.getElementById("orderTypeError").textContent =
             "Please select an order type.";
@@ -416,7 +433,9 @@
         if (orderType.value === "Dine In" || orderType.value === "Take Away") {
           const name = document.getElementById("clientName").value.trim();
           const phone = document.getElementById("clientPhone").value.trim();
+          const email = document.getElementById("clientEmail").value.trim();
           const table = tableSelectClient.value;
+
           if (!name) {
             document.getElementById("clientNameError").textContent =
               "Name is required.";
@@ -424,7 +443,12 @@
           }
           if (!phone) {
             document.getElementById("clientPhoneError").textContent =
-              "Phone number required.";
+              "Phone is required.";
+            valid = false;
+          }
+          if (!email) {
+            document.getElementById("clientEmailError").textContent =
+              "Email is required.";
             valid = false;
           }
           if (orderType.value === "Dine In" && !table) {
@@ -437,18 +461,24 @@
         if (orderType.value === "Reservation") {
           const resName = document.getElementById("resName").value.trim();
           const resPhone = document.getElementById("resPhone").value.trim();
+          const resEmail = document.getElementById("resEmail").value.trim();
           const resDate = document.getElementById("resDate").value;
           const resGuests = document.getElementById("resperson").value;
           const resTable = tableSelectReservation.value;
 
           if (!resName) {
             document.getElementById("resNameError").textContent =
-              "Name is required.";
+              "Name required.";
             valid = false;
           }
           if (!resPhone) {
             document.getElementById("resPhoneError").textContent =
               "Phone required.";
+            valid = false;
+          }
+          if (!resEmail) {
+            document.getElementById("resEmailError").textContent =
+              "Email required.";
             valid = false;
           }
           if (!resDate) {
@@ -471,15 +501,49 @@
         return valid;
       }
 
-      // Pay button
+      // --- Save client/reservation info to localStorage ---
+      function saveClientData() {
+        let clientData = {
+          sessionId: sessionId,
+          type: orderType.value,
+        };
+
+        if (orderType.value === "Dine In" || orderType.value === "Take Away") {
+          clientData.name = document.getElementById("clientName").value.trim();
+          clientData.phone = document
+            .getElementById("clientPhone")
+            .value.trim();
+          clientData.email = document
+            .getElementById("clientEmail")
+            .value.trim();
+          if (orderType.value === "Dine In") {
+            clientData.table = tableSelectClient.value;
+          }
+        } else if (orderType.value === "Reservation") {
+          clientData.name = document.getElementById("resName").value.trim();
+          clientData.phone = document.getElementById("resPhone").value.trim();
+          clientData.email = document.getElementById("resEmail").value.trim();
+          clientData.date = document.getElementById("resDate").value;
+          clientData.guests = document.getElementById("resperson").value;
+          clientData.table = tableSelectReservation.value;
+        }
+
+        localStorage.setItem("clientData", JSON.stringify(clientData));
+      }
+
+      // --- Handle pay button ---
       payBtn.addEventListener("click", () => {
         if (!validateForm()) return;
+
+        saveClientData();
+
         loading.style.display = "flex";
         setTimeout(() => {
           window.location.href = "pay.html";
         }, 2000);
       });
 
+      // --- Load order summary ---
       function loadOrderSummary() {
         const orderContainer = document.getElementById("order-items");
         const totalAmount = document.getElementById("total-amount");
@@ -491,16 +555,16 @@
           const subtotal = item.Price * item.qty;
           total += subtotal;
           orderContainer.innerHTML += `
-            <div class="item">
-              <div class="item-left">
-                <img src="${item.Image_link}" alt="${item.Product_Name}" />
-                <div class="item-info">
-                  <h4>${item.Product_Name}</h4>
-                  <p>${item.qty} × ${item.Price.toFixed(0)} FCFA</p>
-                </div>
-              </div>
-              <span class="price">${subtotal.toFixed(0)} FCFA</span>
-            </div>`;
+        <div class="item">
+          <div class="item-left">
+            <img src="${item.Image_link}" alt="${item.Product_Name}" />
+            <div class="item-info">
+              <h4>${item.Product_Name}</h4>
+              <p>${item.qty} × ${item.Price.toFixed(0)} FCFA</p>
+            </div>
+          </div>
+          <span class="price">${subtotal.toFixed(0)} FCFA</span>
+        </div>`;
         });
         totalAmount.textContent = `${total.toFixed(0)} FCFA`;
       }

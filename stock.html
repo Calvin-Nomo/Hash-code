@@ -713,9 +713,9 @@
         <div class="edit-form">
           <h3>Edit Product</h3>
           <label>Name <input type="text" id="editName" /></label>
-          <label>Category <input type="text" id="editCategory" /></label>
-          <label>Price <input type="number" id="editPrice" /></label>
           <label>Quantity <input type="number" id="editQty" /></label>
+          <label>Status <input type="text" id="editCategory" /></label>
+
           <div style="text-align: center">
             <button class="save-btn">Save</button>
             <button class="cancel-btn" id="closeEdit">Cancel</button>
@@ -788,15 +788,14 @@
     data.forEach((stock, index) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${stock.No_Stock}</td>
+        <td>${index+1}</td>
         <td><img src="${stock.Image_link || 'No Image'}" width="100" /></td>
         <td>${stock.Product_Name}</td>
         <td>${stock.Quantity_Available}</td>
         <td>${getStockState(stock.Stock_Status)}</td>
         <td>
-          <i class="fa-solid fa-eye view" title="View"></i>
-          <i class="fa-solid fa-pen edit" title="Edit" data-index="${index}"></i>
-          <i class="fa-solid fa-trash delete" title="Delete" data-index="${index}"></i>
+          <i class="fa-solid fa-pen edit" title="Edit"></i>
+          <i class="fa-solid fa-trash delete" title="Delete"></i>
         </td>
       `;
       StockBody.appendChild(row);
@@ -839,8 +838,7 @@
         selectedIndex = btn.getAttribute("data-index");
         const product = stockData[selectedIndex];
         document.getElementById("editName").value = product.Product_Name;
-        document.getElementById("editCategory").value = product.Category || "";
-        document.getElementById("editPrice").value = product.Price || "";
+        document.getElementById("editCategory").value = product.Stock_Status || "";
         document.getElementById("editQty").value = product.Quantity_Available;
         editPopup.classList.add("active");
       });
@@ -879,7 +877,6 @@
       if (e.target === popup) popup.classList.remove("active");
     });
   });
-
   loadStock();
 </script>
 

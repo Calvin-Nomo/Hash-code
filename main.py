@@ -9,7 +9,7 @@ import jwt
 import pymysql
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routers import client, order, order_items, reservation, payment, product, stock, table
+from backend.routers import client, order, order_items, reservation, payment, product, stock, table,notification
 
 # ==========================================================
 #                 APP CONFIGURATION
@@ -44,6 +44,7 @@ app.include_router(product.router, prefix="/product", tags=["product"])
 app.include_router(payment.router, prefix="/payment", tags=["payment"])
 app.include_router(stock.router, prefix="/stock", tags=["stock"])
 app.include_router(table.router, prefix="/table", tags=["table"])
+app.include_router(notification.router, prefix="/notification", tags=["notification"])
 
 # ==========================================================
 #                 AUTHENTICATION CONFIG

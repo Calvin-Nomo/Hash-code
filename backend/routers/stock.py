@@ -26,7 +26,7 @@ def greetings():
 }
 
 @router.get('/Stock')
-def get_stock(current_user: dict = Depends(get_current_active_user)):
+def get_stock():
     sql_command="Select * from Stock" 
     cursor.execute(sql_command)
     stock=cursor.fetchall()

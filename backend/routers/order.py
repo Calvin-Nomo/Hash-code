@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi import Response
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+import math
 import pymysql
 
 from dependencies import require_role
@@ -28,6 +30,7 @@ class Order(BaseModel):
     No_Table: Optional[int] = None
     Note: Optional[str] = None
     items: List[Items]
+    Sesion_id: Optional[str] = None
 
 class FullOrderRequest(BaseModel):
     client: Client
@@ -179,6 +182,77 @@ WHERE o.Order_ID = %s;
         "No_Person": order["No_Person"],
         "Items": [dict(item) for item in items]
     }
+@router.get("/orders/history")
+def get_order_history(session_id: str):
+    # -------- Query: Orders + Payment + Table + Client + Reservation --------
+    cursor.execute("""
+    SELECT  
+        o.Order_ID,
+        o.Order_Type,
+        o.Order_Date,
+        o.Note,
+        o.Order_Status,
+        p.Total_Amount,
+        t.No_Table,
+        p.Transaction_Fees,
+        p.Payment_Status,
+        p.Payment_Method,
+        c.Client_Name,
+        c.No_Telephone,
+        c.Email,
+        o.No_Reservation,
+        r.Reservation_Date,
+        r.No_Person
+    FROM Orders o
+    LEFT JOIN Payment p ON p.Order_ID = o.Order_ID
+    JOIN Clients c ON c.No_Client = o.No_Client
+    LEFT JOIN Tab t ON t.Table_ID = o.No_Table
+    LEFT JOIN Reservation r ON o.No_Reservation = r.No_Reservation
+    WHERE o.Session_id = %s
+    ORDER BY o.Order_Date DESC;
+    """, (session_id,))
+    
+    orders = cursor.fetchall()
+    if not orders:
+        raise HTTPException(status_code=404, detail="No orders found for this session")
+
+    # -------- Query: Ordered items per order --------
+    order_list = []
+    for order in orders:
+        cursor.execute("""
+            SELECT 
+                oi.Order_ID,
+                p.Product_Name,
+                SUM(oi.Quantity) AS Quantity,
+                p.Price
+            FROM Order_Items oi
+            JOIN Product p ON oi.No_Product = p.No_Product
+            WHERE oi.Order_ID = %s
+            GROUP BY oi.Order_ID, p.Product_Name, p.Price;
+        """, (order["Order_ID"],))
+        items = cursor.fetchall()
+
+        order_list.append({
+            "Order_ID": order["Order_ID"],
+            "Order_Type": order["Order_Type"],
+            "Order_Date": str(order["Order_Date"]),
+            "Note": str(order["Note"]) if order["Note"] else None,
+            "Order_Status": str(order["Order_Status"]),
+            "No_Reservation": str(order["No_Reservation"]) if order["No_Reservation"] else None,
+            "Total_Amount": float(order["Total_Amount"]),
+            "No_Table": order["No_Table"],
+            "Transaction_Fees": float(order["Transaction_Fees"]) if order["Transaction_Fees"] else 0,
+            "Payment_Status": order["Payment_Status"],
+            "Payment_Method": order["Payment_Method"],
+            "Client_Name": order["Client_Name"],
+            "No_Telephone": order["No_Telephone"],
+            "Email": order["Email"],
+            "Reservation_Date": str(order["Reservation_Date"]) if order["Reservation_Date"] else None,
+            "No_Person": order["No_Person"],
+            "Items": [dict(item) for item in items]
+        })
+    
+    return order_list
 
 ############
 @router.get("/orderinfo")
@@ -258,10 +332,11 @@ def create_order(data: FullOrderRequest):
 
         # 3️⃣ Create Order
         order_date = datetime.utcnow()
+        status = "Pending"
         cursor.execute(
-            """INSERT INTO Orders(No_Client, No_Reservation, Order_Date, Order_Type, No_Table, Note)
-               VALUES (%s, %s, %s, %s, %s, %s)""",
-            (client_id, reservation_id, order_date, data.order.Order_Type, table_id, data.order.Note)
+            """INSERT INTO Orders(No_Client, No_Reservation, Order_Date, Order_Type, No_Table,Session_id,Order_Status, Note)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+            (client_id, reservation_id, order_date, data.order.Order_Type, table_id,data.order.Sesion_id,status, data.order.Note)
         )
         order_id = cursor.lastrowid
 
@@ -301,18 +376,15 @@ def create_order(data: FullOrderRequest):
             #here is in the case if the payment method is by cash
             else:
              return total
-        def transaction_fees(total:float,method:str,tax=100):
-            #initialising the fees variable to fee=0
-            fee=0
-            if method=='MTN Money'or method=='Orange Money':
-                #if the method is mtn or orange it calculate the fees and returns it
-                amount= total//5000
-                fee = amount * tax
-                return fee
-            #here if the fees forthe cash is returns 0
-            else:
-                
-             return fee
+
+
+        def transaction_fees(total: float, method: str, tax=100):
+            fee = 0
+            if method in ['MTN Money', 'Orange Money']:
+                blocks = math.ceil(total / 5000)
+                fee = blocks * tax
+            return fee
+
         cursor.execute(
             """INSERT INTO Payment(Order_ID, Total_Amount, Payment_Date, Payment_Method, Payment_Status,Transaction_Fees)
                VALUES (%s, %s, %s, %s, %s, %s)""",

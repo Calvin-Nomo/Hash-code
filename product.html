@@ -436,6 +436,40 @@
       .popup-overlay.active {
         display: flex;
       }
+/* --- Button Styles --- */
+.edit-btn,
+.delete-btn {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: background 0.3s, transform 0.2s;
+}
+
+/* Edit Button */
+.edit-btn {
+  background-color: #1e293b;
+  color: #fff;
+}
+
+.edit-btn:hover {
+  background-color: #334155;
+  transform: translateY(-1px);
+}
+
+/* Delete Button */
+.delete-btn {
+  background-color: #dc2626;
+  color: #fff;
+  margin-left: 5px;
+}
+
+.delete-btn:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+}
 
       .edit-form,
       .delete-box {
@@ -711,7 +745,7 @@
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
             <div>
-              <button>New</button>
+              <button class="save-btn">New</button>
             </div>
           </div>
           <table class="order-table">
@@ -860,11 +894,11 @@ document.getElementById("saveEdit").addEventListener("click", async () => {
   const formData = new FormData();
   formData.append("Product_Name", document.getElementById("editName").value);
   formData.append("Category", document.getElementById("editCategory").value);
-  formData.append("Description", document.getElementById("editdesc").value);
+  formData.append("Product_Description", document.getElementById("editdesc").value);
   formData.append("Price", document.getElementById("editPrice").value);
 
   const fileInput = document.getElementById("editimage");
-  if (fileInput.files[0]) formData.append("Image", fileInput.files[0]);
+  if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
 
   try {
     const res = await fetch(`${API_BASE_URL}/product/product/update_product/${currentEditId}`, {
@@ -900,7 +934,10 @@ document.getElementById("closeDelete").addEventListener("click", () => {
 document.getElementById("confirmDelete").addEventListener("click", async () => {
   if (!currentDeleteId) return;
   try {
-    const res = await fetch(`${API_BASE_URL}/product/product/delete_product/${currentDeleteId}`, { method: "DELETE" });
+    const res = await fetch(`${API_BASE_URL}/product/product/delete_product/${currentDeleteId}`,
+     { method: "DELETE" 
+    
+    });
     if (!res.ok) throw new Error("Failed to delete product");
 
     alert("Product deleted successfully!");

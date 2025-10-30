@@ -98,6 +98,7 @@ async def create_product(
         )
         product_id=cursor.lastrowid
         cursor.execute("INSERT INTO STOCK(No_Product)VALUES(%s)",(product_id,))
+        DB.commit()
     
     except Exception as e:
 
@@ -117,7 +118,7 @@ async def update_product(
     Product_Description: str = Form(...),
     Category: str = Form(...),
     Price: float = Form(...),
-    image: UploadFile = File(None),current_user: dict = Depends(require_role(["admin"]))):
+    image: UploadFile = File(None)):
     cursor.execute("SELECT * FROM Product WHERE No_Product=%s", (No_Product,))
     prod = cursor.fetchone()
     if not prod:
@@ -131,25 +132,29 @@ async def update_product(
             db_image_path = f"{UPLOAD_DIR}/{image.filename}"
         else:
             db_image_path = prod['Image_link']
+            
 
         cursor.execute(
             "UPDATE Product SET Product_Name=%s, Product_Description=%s, Category=%s, Price=%s, Image_link=%s WHERE No_Product=%s",
             (Product_Name, Product_Description, Category,Price, db_image_path, No_Product)
         )
+        DB.commit()
 
  # Return full URL
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"message": "Product updated successfully", "Image_Path": {db_image_path}}
+
 @router.delete("/delete_product/{No_Product}")
-def delete_product(No_Product: int,current_user: dict = Depends(require_role(['admin']))):
+def delete_product(No_Product: int):
     try:
         cursor.execute("SELECT * FROM Product WHERE No_Product=%s", (No_Product,))
         prod = cursor.fetchone()
         if not prod:
             raise HTTPException(status_code=404, detail="Product not found")
-
+        cursor.execute("DELETE FROM order_items WHERE No_Product=%s", (No_Product,))
+        cursor.execute("DELETE FROM Stock WHERE No_Product=%s", (No_Product,))
         cursor.execute("DELETE FROM Product WHERE No_Product=%s", (No_Product,))
         DB.commit()
 
