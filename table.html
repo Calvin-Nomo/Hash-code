@@ -616,12 +616,12 @@
       <div class="popup-overlay" id="addPopup">
         <div class="add-form">
           <h3>Add Table</h3>
-          <label>Table Number <input type="text" id="addNumber" /></label>
+          <label>Table Number <input type="number" id="addNumber" /></label>
           <label>Seats <input type="number" id="addSeats" /></label>
           <label>Status <input type="text" id="addState" /></label>
           <div style="text-align: center">
-            <button class="save-btn" id="saveEdit">Save</button>
-            <button class="cancel-btn" id="closeEdit">Cancel</button>
+            <button class="save-btn"  id="saveAdd"></button>Save</button>
+            <button class="cancel-btn" id="closeAdd">Cancel</button>
           </div>
         </div>
       </div>
@@ -629,7 +629,7 @@
       <div class="popup-overlay" id="editPopup">
         <div class="edit-form">
           <h3>Edit Table</h3>
-          <label>Table Number <input type="text" id="editNumber" /></label>
+          <label>Table Number <input type="number" id="editNumber" /></label>
           <label>Seats <input type="number" id="editSeats" /></label>
           <label>Status <input type="text" id="editState" /></label>
           <div style="text-align: center">
@@ -653,20 +653,17 @@
       const main = document.getElementById("main");
       const toggleBtn = document.getElementById("toggleSidebar");
       const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
-      const TableBody = document.getElementById("TablesTableBody");
 
       toggleBtn.addEventListener("click", () => {
         sidebar.classList.toggle("hidden");
         main.classList.toggle("expanded");
       });
 
-      // Sidebar Dropdown
+      // Sidebar Dropdowns
       dropdowns.forEach((item) => {
         item.addEventListener("click", (e) => {
           e.stopPropagation();
           item.classList.toggle("dropdown-open");
-
-          // Close other dropdowns
           dropdowns.forEach((other) => {
             if (other !== item) other.classList.remove("dropdown-open");
           });
@@ -679,140 +676,207 @@
         e.stopPropagation();
         profile.classList.toggle("active");
       });
-
-      // Close profile on outside click
-      document.addEventListener("click", () => {
-        profile.classList.remove("active");
-      });
-
-      // API URL
-      const API_URL = "http://127.0.0.1:8000/table/table/Table";
-      let tablesData = [];
-
-      async function loadTables() {
-        try {
-          const res = await fetch(API_URL);
-          if (!res.ok) throw new Error("Failed to load data");
-          tablesData = await res.json();
-          renderTable(tablesData);
-        } catch (err) {
-          console.error(err);
-        }
-      }
-
-      function renderTable(data) {
-        TableBody.innerHTML = "";
-        data.forEach((table) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${table.Table_ID}</td>
-            <td>${table.No_Table}</td>
-            <td>${table.Seat_Number}</td>
-            <td>${table.State}</td>
-            <td>
-              <i class="fa-solid fa-pen edit"></i>
-              <i class="fa-solid fa-trash delete"></i>
-            </td>
-          `;
-          TableBody.appendChild(tr);
-        });
-
-        attachRowEvents();
-      }
-
-      function attachRowEvents() {
-        document.querySelectorAll(".edit").forEach((btn) =>
-          btn.addEventListener("click", (e) => {
-            const row = e.target.closest("tr");
-            document.getElementById("editNumber").value =
-              row.cells[1].textContent;
-            document.getElementById("editSeats").value =
-              row.cells[2].textContent;
-            document.getElementById("editState").value =
-              row.cells[3].textContent;
-            document.getElementById("editPopup").classList.add("active");
-          })
-        );
-
-        document.querySelectorAll(".delete").forEach((btn) =>
-          btn.addEventListener("click", () => {
-            document.getElementById("deletePopup").classList.add("active");
-          })
-        );
-      }
-
-      // Popup close buttons
-      document.getElementById("closeEdit").onclick = () =>
-        document.getElementById("editPopup").classList.remove("active");
-
-      document.getElementById("closeDelete").onclick = () =>
-        document.getElementById("deletePopup").classList.remove("active");
-      const searchInput = document.getElementById("tableSearch");
-      // Search filter
-      searchInput.addEventListener("input", () => {
-        const query = searchInput.value.toLowerCase();
-        const filtered = tablesData.filter(
-          (table) =>
-            table.No_Table.toLowerCase().includes(query) ||
-            table.State.toLowerCase().includes(query)
-        );
-        renderTable(filtered);
-      });
-      //  Show popup when "New" is pressed
-      document.getElementById("addBtn").addEventListener("click", () => {
-        document.getElementById("addPopup").style.display = "flex";
-      });
-
-      //  Close popup when "Cancel" is pressed
-      document.getElementById("closeEdit").addEventListener("click", () => {
-        document.getElementById("addPopup").style.display = "none";
-      });
-
-      //  Save new table
-      document
-        .getElementById("saveEdit")
-        .addEventListener("click", async () => {
-          const tableNumber = document.getElementById("addNumber").value.trim();
-          const seats = document.getElementById("addSeats").value.trim();
-          const status = document.getElementById("addState").value.trim();
-
-          if (!tableNumber || !seats || !status) {
-            alert(" Please fill in all fields!");
-            return;
-          }
-
-          const data = {
-            Table_Number: tableNumber,
-            Seats: parseInt(seats),
-            Status: status,
-          };
-
-          try {
-            const response = await fetch(
-              "http://127.0.0.1:8000/table/table/Table",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-              }
-            );
-
-            if (response.ok) {
-              alert("Table added successfully!");
-              document.getElementById("addPopup").style.display = "none";
-              // Optional: refresh table list if you display it elsewhere
-              // fetchTables();
-            } else {
-              const err = await response.json();
-              alert(" Error: " + err.detail);
-            }
-          } catch (error) {
-            alert(" Connection error: " + error.message);
-          }
-        });
-      loadTables();
+      document.addEventListener("click", () =>
+        profile.classList.remove("active")
+      );
     </script>
   </body>
+  <script>
+  const TableBody = document.getElementById("TablesTableBody");
+  const API_URL = "http://127.0.0.1:8000/table/table";
+  let tablesData = [];
+  let selectedTableId = null;
+
+  // ===== LOAD TABLES =====
+  async function loadTables() {
+    try {
+      const res = await fetch(`${API_URL}/Table`);
+      if (!res.ok) throw new Error("Failed to fetch tables");
+      tablesData = await res.json();
+      renderTable(tablesData);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // ===== RENDER TABLE =====
+  function renderTable(data) {
+    TableBody.innerHTML = "";
+    data.forEach((table, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${table.No_Table}</td>
+        <td>${table.Seat_Number}</td>
+        <td>${table.Table_Status}</td>
+        <td>
+          <i class="fa-solid fa-pen edit" data-id="${table.Table_ID}"></i>
+          <i class="fa-solid fa-trash delete" data-id="${table.Table_ID}"></i>
+        </td>`;
+      TableBody.appendChild(tr);
+    });
+    attachRowEvents();
+  }
+
+  // ===== ATTACH ROW EVENTS =====
+  function attachRowEvents() {
+    // Edit
+    document.querySelectorAll(".edit").forEach((btn) =>
+      btn.addEventListener("click", (e) => {
+        const id = e.target.dataset.id;
+        const table = tablesData.find((t) => t.Table_ID == id);
+        if (table) {
+          selectedTableId = id;
+          document.getElementById("editNumber").value = table.No_Table;
+          document.getElementById("editSeats").value = table.Seat_Number;
+          document.getElementById("editState").value = table.Table_Status;
+          document.getElementById("editPopup").style.display = "flex";
+        }
+      })
+    );
+
+    // Delete
+    document.querySelectorAll(".delete").forEach((btn) =>
+      btn.addEventListener("click", (e) => {
+        selectedTableId = e.target.dataset.id;
+        document.getElementById("deletePopup").style.display = "flex";
+      })
+    );
+  }
+
+  // ===== CLOSE POPUPS =====
+  document.querySelectorAll(".cancel-btn").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".popup-overlay").forEach(
+        (popup) => (popup.style.display = "none")
+      );
+    })
+  );
+
+  document.getElementById("closeDelete").addEventListener("click", () => {
+    document.getElementById("deletePopup").style.display = "none";
+  });
+
+  // ===== ADD TABLE =====
+  document.getElementById("addBtn").addEventListener("click", () => {
+    document.getElementById("addPopup").style.display = "flex";
+  });
+
+  document.getElementById("saveAdd").addEventListener("click", async () => {
+    const tableNumberStr = document.getElementById("addNumber").value.trim();
+    const seatsStr = document.getElementById("addSeats").value.trim();
+    const status = document.getElementById("addState").value.trim();
+
+    const tableNumber = parseInt(tableNumberStr, 10);
+    const seats = parseInt(seatsStr, 10);
+
+    if (isNaN(tableNumber) || isNaN(seats) || !status) {
+      alert("Please fill all fields with valid numbers!");
+      return;
+    }
+
+    const data = {
+      Table_Number: tableNumber,
+      Seat_Number: seats,
+      State: status // or Table_Status depending on backend
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/create_table`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert("Table added successfully!");
+        document.getElementById("addPopup").style.display = "none";
+        loadTables();
+      } else {
+        const error = await response.json();
+        console.error("Backend error:", error);
+        alert("Failed to add table!");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  // ===== EDIT TABLE =====
+  document.getElementById("saveEdit").addEventListener("click", async () => {
+    const tableNumberStr = document.getElementById("editNumber").value.trim();
+    const seatsStr = document.getElementById("editSeats").value.trim();
+    const status = document.getElementById("editState").value.trim();
+
+    const tableNumber = parseInt(tableNumberStr, 10);
+    const seats = parseInt(seatsStr, 10);
+
+    if (isNaN(tableNumber) || isNaN(seats) || !status) {
+      alert("Please fill all fields with valid numbers!");
+      return;
+    }
+
+    const updatedData = {
+      Table_Number: tableNumber,
+      Seat_Number: seats,
+      State: status // or Table_Status depending on backend
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/update_table/${selectedTableId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (response.ok) {
+        alert("Table updated successfully!");
+        document.getElementById("editPopup").style.display = "none";
+        loadTables();
+      } else {
+        const error = await response.json();
+        console.error("Backend error:", error);
+        alert("Failed to update table!");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  // ===== DELETE TABLE =====
+  document.getElementById("confirmDelete").addEventListener("click", async () => {
+    try {
+      const response = await fetch(`${API_URL}/delete_table/${selectedTableId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        alert("Table deleted successfully!");
+        document.getElementById("deletePopup").style.display = "none";
+        loadTables();
+      } else {
+        const error = await response.json();
+        console.error("Backend error:", error);
+        alert("Failed to delete table!");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  // ===== SEARCH FILTER =====
+  document.getElementById("tableSearch").addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase();
+    const filtered = tablesData.filter(
+      (t) =>
+        t.No_Table.toString().includes(query) ||
+        t.State.toLowerCase().includes(query) // or t.Table_Status
+    );
+    renderTable(filtered);
+  });
+
+  // ===== INITIAL LOAD =====
+  loadTables();
+</script>
+
 </html>

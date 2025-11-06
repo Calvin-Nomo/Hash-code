@@ -1,327 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QR Code Generator - Tables</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-
+    <title>Reçu - Santa Lucia Melen</title>
     <style>
       body {
-        font-family: "Poppins", sans-serif;
-        background: #f9fafc;
-        margin: 0;
+        background: #f5f5f5;
+        font-family: "Courier New", monospace;
+        display: flex;
+        justify-content: center;
         padding: 20px;
       }
 
-      h1 {
+      .receipt {
+        background: white;
+        width: 320px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         text-align: center;
-        color: #333;
-        margin-bottom: 20px;
       }
 
-      .order-table {
+      h2 {
+        margin-bottom: 5px;
+      }
+
+      p {
+        margin: 2px 0;
+        font-size: 14px;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px dashed #999;
+        margin: 8px 0;
+      }
+
+      table {
         width: 100%;
         border-collapse: collapse;
-        background: #fff;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-size: 13px;
       }
 
-      .order-table th,
-      .order-table td {
-        padding: 12px;
-        text-align: center;
-        border-bottom: 1px solid #ddd;
+      th,
+      td {
+        padding: 4px;
+        text-align: left;
       }
 
-      .order-table th {
-        background: #007bff;
-        color: white;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+      th {
+        border-bottom: 1px dashed #ccc;
       }
 
-      .btn-download,
-      .btn-edit,
-      .btn-delete {
+      .totals {
+        text-align: right;
+        font-size: 14px;
+      }
+
+      .footer {
+        font-size: 12px;
+        color: #555;
+      }
+
+      button {
+        margin-top: 10px;
         padding: 6px 12px;
+        background: black;
+        color: white;
         border: none;
-        border-radius: 6px;
-        color: #fff;
+        border-radius: 5px;
         cursor: pointer;
-        transition: 0.3s;
-        margin: 2px;
+        font-family: inherit;
       }
 
-      .btn-download {
-        background: #28a745;
-      }
-      .btn-edit {
-        background: #ffc107;
-        color: #222;
-      }
-      .btn-delete {
-        background: #dc3545;
-      }
-
-      .btn-download:hover {
-        background: #1e7e34;
-      }
-      .btn-edit:hover {
-        background: #e0a800;
-      }
-      .btn-delete:hover {
-        background: #c82333;
-      }
-
-      .qr-code canvas {
-        width: 80px;
-        height: 80px;
-      }
-
-      .loading {
-        text-align: center;
-        color: #888;
-        margin-top: 30px;
-        font-size: 1.1em;
-      }
-
-      /* === POPUP STYLES === */
-      .popup-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 10;
-      }
-
-      .popup-box {
-        background: #fff;
-        padding: 20px 25px;
-        border-radius: 10px;
-        width: 320px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        text-align: center;
-      }
-
-      .popup-box h3 {
-        margin-bottom: 15px;
-        color: #333;
-      }
-
-      .popup-box input {
-        width: 80%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        margin-bottom: 15px;
-      }
-
-      .popup-box button {
-        margin: 5px;
-        padding: 8px 15px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 600;
-      }
-
-      .save-btn {
-        background: #007bff;
-        color: white;
-      }
-      .cancel-btn {
-        background: #6c757d;
-        color: white;
-      }
-      .yes {
-        background: #dc3545;
-        color: white;
-      }
-      .no {
-        background: #6c757d;
-        color: white;
+      button:hover {
+        opacity: 0.8;
       }
     </style>
   </head>
-
   <body>
-    <h1>QR Code Generator for Tables</h1>
+    <div class="receipt" id="receipt">
+      <h2>AGENCE MELEN</h2>
+      <p>Bienvenue à SANTA LUCIA MELEN</p>
+      <p>Tel: 690 307 021</p>
+      <p>Servi par <strong>OMBILEN PRUDENCE</strong></p>
 
-    <table class="order-table">
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Table Number</th>
-          <th>QR Code</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="qrcodeTableBody"></tbody>
-    </table>
+      <hr />
 
-    <p id="loading" class="loading">Loading tables...</p>
+      <table class="items">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Qté</th>
+            <th>Prix Unité</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="item-list">
+          <!-- Items go here -->
+        </tbody>
+      </table>
 
-    <!-- Edit Popup -->
-    <div class="popup-overlay" id="editPopup">
-      <div class="popup-box">
-        <h3>Edit Table</h3>
-        <input
-          type="text"
-          id="editNumber"
-          placeholder="Enter new table number"
-        />
-        <br />
-        <button class="save-btn" id="saveEdit">Save</button>
-        <button class="cancel-btn" id="closeEdit">Cancel</button>
+      <hr />
+
+      <div class="totals">
+        <p><strong>Total:</strong> <span id="total">0</span> FCFA</p>
+        <p><strong>Espèces:</strong> <span id="cash">5000</span> FCFA</p>
+        <p><strong>Monnaie:</strong> <span id="change">0</span> FCFA</p>
       </div>
-    </div>
 
-    <!-- Delete Popup -->
-    <div class="popup-overlay" id="deletePopup">
-      <div class="popup-box">
-        <p>Do you want to delete this table’s QR code?</p>
-        <button class="yes" id="confirmDelete">Yes</button>
-        <button class="no" id="closeDelete">No</button>
-      </div>
+      <hr />
+
+      <p>
+        Taxe 0% | Montant: 0 | Base: <span id="base">0</span> | Total:
+        <span id="final">0</span>
+      </p>
+      <p><strong>MERCI POUR VOTRE CONFIANCE À BIENTÔT !</strong></p>
+
+      <hr />
+
+      <p class="footer">
+        NC: M011812675860P<br />
+        RC: RC/YAO/2018/B/64<br />
+        Commande 06213-017-0882<br />
+        29/10/2023 - 11:36:31
+      </p>
+
+      <button onclick="window.print()">🖨️ Imprimer le reçu</button>
     </div>
 
     <script>
-      const API_URL = "http://127.0.0.1:8000/table/table/onlytable"; // Get tables
-      const BASE_ORDER_URL = "http://smartmenu.com"; // Order link
+      // Example items
+      const items = [
+        { name: "POMME SAUTÉ DE 700", qty: 1, price: 2000 },
+        { name: "PLAT POULET/POISSON", qty: 1, price: 1800 },
+      ];
 
-      let currentEditId = null;
-      let currentDeleteId = null;
+      const itemList = document.getElementById("item-list");
+      let total = 0;
 
-      async function fetchTables() {
-        try {
-          const res = await fetch(API_URL);
-          if (!res.ok) throw new Error("Failed to fetch tables");
-          const tables = await res.json();
-          document.getElementById("loading").style.display = "none";
-          generateQRCodes(tables);
-        } catch (err) {
-          console.error(err);
-          document.getElementById("loading").textContent =
-            "Error loading tables.";
-        }
-      }
+      // Fill in the items
+      items.forEach((item) => {
+        const row = document.createElement("tr");
+        const totalItem = item.qty * item.price;
+        total += totalItem;
 
-      function generateQRCodes(tables) {
-        const tbody = document.getElementById("qrcodeTableBody");
-        tbody.innerHTML = "";
+        row.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.qty}</td>
+        <td>${item.price.toLocaleString()} FCFA</td>
+        <td>${totalItem.toLocaleString()} FCFA</td>
+      `;
+        itemList.appendChild(row);
+      });
 
-        tables.forEach((table, index) => {
-          const tr = document.createElement("tr");
-          const qrId = `qr-${table.Table_ID}`;
+      // Display totals
+      document.getElementById("total").textContent = total.toLocaleString();
+      document.getElementById("base").textContent = total.toLocaleString();
+      document.getElementById("final").textContent = total.toLocaleString();
 
-          tr.innerHTML = `
-            <td>${index + 1}</td>
-            <td>Table ${table.No_Table}</td>
-            <td><div id="${qrId}" class="qr-code"></div></td>
-            <td>
-              <button class="btn-download" onclick="downloadQR('${qrId}', '${
-            table.No_Table
-          }')">⬇ Download</button>
-              <button class="btn-edit" onclick="openEditPopup(${
-                table.Table_ID
-              }, '${table.No_Table}')">✏ Edit</button>
-              <button class="btn-delete" onclick="openDeletePopup(${
-                table.Table_ID
-              })">🗑 Delete</button>
-            </td>`;
-
-          tbody.appendChild(tr);
-
-          const qrText = `${BASE_ORDER_URL}/table/${table.Table_ID}`;
-          new QRCode(document.getElementById(qrId), {
-            text: qrText,
-            width: 100,
-            height: 100,
-          });
-        });
-      }
-
-      // Download QR
-      function downloadQR(qrId, tableNum) {
-        const canvas = document.querySelector(`#${qrId} canvas`);
-        if (!canvas) return alert("QR not generated yet!");
-        const link = document.createElement("a");
-        link.href = canvas.toDataURL("image/png");
-        link.download = `Table_${tableNum}_QR.png`;
-        link.click();
-      }
-
-      // ===== Edit Popup =====
-      function openEditPopup(id, tableNum) {
-        currentEditId = id;
-        document.getElementById("editNumber").value = tableNum;
-        document.getElementById("editPopup").style.display = "flex";
-      }
-
-      document.getElementById("closeEdit").onclick = function () {
-        document.getElementById("editPopup").style.display = "none";
-      };
-
-      document.getElementById("saveEdit").onclick = async function () {
-        const newNumber = document.getElementById("editNumber").value.trim();
-        if (!newNumber) return alert("Enter a valid table number!");
-
-        try {
-          const res = await fetch(
-            `http://127.0.0.1:8000/table/table/update_table/${currentEditId}`,
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ No_Table: newNumber }),
-            }
-          );
-
-          if (!res.ok) throw new Error("Failed to update table");
-          alert("Table updated successfully!");
-          document.getElementById("editPopup").style.display = "none";
-          fetchTables();
-        } catch (err) {
-          alert("Error updating table.");
-          console.error(err);
-        }
-      };
-
-      // ===== Delete Popup =====
-      function openDeletePopup(id) {
-        currentDeleteId = id;
-        document.getElementById("deletePopup").style.display = "flex";
-      }
-
-      document.getElementById("closeDelete").onclick = function () {
-        document.getElementById("deletePopup").style.display = "none";
-      };
-
-      document.getElementById("confirmDelete").onclick = async function () {
-        try {
-          const res = await fetch(
-            `http://127.0.0.1:8000/table/table/delete_table/${currentDeleteId}`,
-            { method: "DELETE" }
-          );
-          if (!res.ok) throw new Error("Failed to delete table");
-          alert("Table deleted successfully!");
-          document.getElementById("deletePopup").style.display = "none";
-          fetchTables();
-        } catch (err) {
-          alert("Error deleting table.");
-          console.error(err);
-        }
-      };
-
-      // Run on page load
-      fetchTables();
+      const cash = 5000;
+      document.getElementById("cash").textContent = cash.toLocaleString();
+      const change = cash - total;
+      document.getElementById("change").textContent = changess.toLocaleString();
     </script>
   </body>
 </html>

@@ -16,9 +16,15 @@ from backend.routers import client, order, order_items, reservation, payment, pr
 # ==========================================================
 app = FastAPI(title="Qrcode Order System")
 # --- CORS Middleware ---
+# Liste des origines autorisées (ton frontend)
+origins = [
+"http://127.0.0.1:5500",
+"http://127.0.0.1:8000"
+# ou ton domaine exact
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # your frontend server
+    allow_origins=origins,  # your frontend server
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,  # very important for cookies
@@ -145,26 +151,36 @@ def register_user(user: UserCreate):
 def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     cursor.execute("SELECT * FROM USERS WHERE Email = %s", (form_data.username,))
     user = cursor.fetchone()
-    if not user or not verify_pwd(form_data.password, user["PasswordHash"]):
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
-    if not user.get("is_active", True):
-        raise HTTPException(status_code=401, detail="Inactive user")
+    try :
+        if not user or not verify_pwd(form_data.password, user["PasswordHash"]):
+           raise HTTPException(status_code=401, detail="Incorrect email or password")
+        if not user.get("is_active", True):
+           raise HTTPException(status_code=401, detail="Inactive user")
     
-    access_token = create_access_token({"sub": user["Email"]})
-    refresh_token = create_refresh_token({"sub": user["Email"]})
+        access_token = create_access_token({"sub": user["Email"]})
+        refresh_token = create_refresh_token({"sub": user["Email"]})
 
-    response.set_cookie(
-        key="access_token", value=access_token,
-        httponly=True, secure=False, samesite="lax",
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES*60
-    )
-    response.set_cookie(
+        response.set_cookie(
+           key="access_token", value=access_token,
+           httponly=True, secure=False, samesite="lax",
+            max_age=ACCESS_TOKEN_EXPIRE_MINUTES*60)
+        response.set_cookie(
         key="refresh_token", value=refresh_token,
         httponly=True, secure=False, samesite="lax",
-        max_age=REFRESH_TOKEN_EXPIRE_DAYS*24*3600
-    )
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS*24*3600 )
+        # Getting the user
+        cursor.execute(""" Select Roles from Users Where Email = %s""",(form_data.username,))
+        role=cursor.fetchone()
+        return {"message": "Successfully logged in",
+                "role":f"{role['Roles']}"
+                
+                }
+    except Exception as e :
+        return {"message": "error logged in"}
+        # raise HTTPException(status_code=401, message="Incorrect email or password")
+        
 
-    return {"message": "Successfully logged in"}
+    
 
 @app.post("/refresh")
 def refresh_access_token(response: Response, refresh_token: str = Cookie(None)):

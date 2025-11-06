@@ -700,13 +700,13 @@
       <!-- Edit Popup -->
       <div class="popup-overlay" id="editPopup">
         <div class="edit-form">
-          <h3>Edit Product</h3>
+          <h3>Edit Client</h3>
           <label>Name <input type="text" id="editName" /></label>
-          <label>Category <input type="text" id="editCategory" /></label>
-          <label>Price <input type="number" id="editPrice" /></label>
-          <label>Quantity <input type="number" id="editQty" /></label>
+          <label>Telephone Number <input type="text" id="edittel" /></label>
+          <label>Email <input type="email" id="editemail" /></label>
           <div style="text-align: center">
-            <button class="save-btn">Save</button>
+            <button class="save-btn" id="saveEdit">Save</button>
+            <!-- added id -->
             <button class="cancel-btn" id="closeEdit">Cancel</button>
           </div>
         </div>
@@ -715,132 +715,208 @@
       <!-- Delete Popup -->
       <div class="popup-overlay" id="deletePopup">
         <div class="delete-box">
-          <p>Do you want to delete this product?</p>
-          <button class="yes">Yes</button>
+          <p>Do you want to delete <span id="deleteClientName"></span>?</p>
+          <button class="yes" id="confirmDelete">Yes</button>
+          <!-- added id -->
           <button class="no" id="closeDelete">No</button>
         </div>
       </div>
     </div>
 
     <script>
-      const sidebar = document.getElementById("sidebar");
-      const main = document.getElementById("main");
-      const toggleBtn = document.getElementById("toggleSidebar");
-      const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
-      const ClientBody = document.getElementById("UserTableBody");
-      const API_URL = "http://127.0.0.1:8000/client/client/Client";
-      let clientData = [];
+      document.addEventListener("DOMContentLoaded", () => {
+        const sidebar = document.getElementById("sidebar");
+        const main = document.getElementById("main");
+        const toggleBtn = document.getElementById("toggleSidebar");
+        const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
+        const ClientBody = document.getElementById("UserTableBody");
+        const API_URL = "http://127.0.0.1:8000/client/client/Client";
 
-      // Sidebar toggle
-      toggleBtn.addEventListener("click", () => {
-        sidebar.classList.toggle("hidden");
-        main.classList.toggle("expanded");
-      });
+        const editPopup = document.getElementById("editPopup");
+        const deletePopup = document.getElementById("deletePopup");
+        const closeEdit = document.getElementById("closeEdit");
+        const closeDelete = document.getElementById("closeDelete");
+        const deleteClientNameSpan =
+          document.getElementById("deleteClientName");
+        const saveEditBtn = document.getElementById("saveEdit");
+        const confirmDeleteBtn = document.getElementById("confirmDelete");
+        const searchInput = document.getElementById("userSearch");
 
-      // Dropdown menus
-      dropdowns.forEach((item) => {
-        item.addEventListener("click", (e) => {
-          e.stopPropagation();
-          item.classList.toggle("dropdown-open");
-          dropdowns.forEach((other) => {
-            if (other !== item) other.classList.remove("dropdown-open");
+        let clientData = [];
+        let selectedClientId = null;
+        let selectedClientName = "";
+
+        // Sidebar toggle
+        toggleBtn?.addEventListener("click", () => {
+          sidebar.classList.toggle("hidden");
+          main.classList.toggle("expanded");
+        });
+
+        // Dropdown menus
+        dropdowns.forEach((item) => {
+          item.addEventListener("click", (e) => {
+            e.stopPropagation();
+            item.classList.toggle("dropdown-open");
+            dropdowns.forEach((other) => {
+              if (other !== item) other.classList.remove("dropdown-open");
+            });
           });
         });
-      });
 
-      // Load clients
-      async function loadClient() {
-        try {
-          const response = await fetch(API_URL);
-          if (!response.ok) throw new Error("Failed to fetch clients");
-          clientData = await response.json();
-          renderTable(clientData);
-        } catch (error) {
-          console.error("Error fetching clients:", error);
+        // Load clients
+        async function loadClient() {
+          try {
+            const res = await fetch(API_URL);
+            if (!res.ok) throw new Error("Failed to fetch clients");
+            clientData = await res.json();
+            renderTable(clientData);
+          } catch (err) {
+            console.error(err);
+          }
         }
-      }
 
-      // Render table
-      function renderTable(data) {
-        ClientBody.innerHTML = "";
-
-        data.forEach((client, index) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
+        // Render table
+        function renderTable(data) {
+          ClientBody.innerHTML = "";
+          data.forEach((client, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
         <td>${index + 1}</td>
         <td>${client.Client_Name}</td>
         <td>${client.No_Telephone}</td>
         <td>${client.Email}</td>
         <td>
           <i class="fa-solid fa-eye view"></i>
-          <i class="fa-solid fa-pen edit" data-id="${client.No_Client}"></i>
-          <i class="fa-solid fa-trash delete" data-id="${client.No_Client}"></i>
+          <i class="fa-solid fa-pen edit" data-id="${
+            client.No_Client
+          }" data-name="${client.Client_Name}"></i>
+          <i class="fa-solid fa-trash delete" data-id="${
+            client.No_Client
+          }" data-name="${client.Client_Name}"></i>
         </td>
       `;
-          ClientBody.appendChild(row);
+            ClientBody.appendChild(row);
+          });
+        }
+
+        // Search filter
+        searchInput?.addEventListener("input", () => {
+          const query = searchInput.value.toLowerCase();
+          const filtered = clientData.filter(
+            (c) =>
+              c.Client_Name.toLowerCase().includes(query) ||
+              c.Email.toLowerCase().includes(query) ||
+              c.No_Telephone.includes(query)
+          );
+          renderTable(filtered);
         });
-      }
 
-      // ===== Search Filter =====
-      const searchInput = document.getElementById("userSearch");
-      searchInput.addEventListener("input", () => {
-        const query = searchInput.value.toLowerCase();
-        const filtered = clientData.filter(
-          (client) =>
-            client.Client_Name.toLowerCase().includes(query) ||
-            client.Email.toLowerCase().includes(query) ||
-            client.No_Telephone.includes(query)
+        // Profile dropdown
+        const profile = document.querySelector(".profile");
+        profile?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          profile.classList.toggle("active");
+        });
+        document.addEventListener("click", () => {
+          profile?.classList.remove("active");
+        });
+
+        // Delegate edit/delete popup
+        ClientBody.addEventListener("click", (e) => {
+          const target = e.target;
+          const row = target.closest("tr");
+          if (!row) return;
+
+          if (target.classList.contains("edit")) {
+            const name = row.cells[1].textContent;
+            const tel = row.cells[2].textContent;
+            const email = row.cells[3].textContent;
+
+            selectedClientId = target.dataset.id;
+            selectedClientName = name;
+
+            document.getElementById("editName").value = name;
+            document.getElementById("edittel").value = tel;
+            document.getElementById("editemail").value = email;
+            editPopup?.classList.add("active");
+          }
+
+          if (target.classList.contains("delete")) {
+            selectedClientId = target.dataset.id;
+            selectedClientName = target.dataset.name;
+            if (deleteClientNameSpan)
+              deleteClientNameSpan.textContent = selectedClientName;
+            deletePopup?.classList.add("active");
+          }
+        });
+
+        // Close popups
+        closeEdit?.addEventListener("click", () =>
+          editPopup?.classList.remove("active")
         );
-        renderTable(filtered);
+        closeDelete?.addEventListener("click", () =>
+          deletePopup?.classList.remove("active")
+        );
+        window.addEventListener("click", (e) => {
+          if (e.target === editPopup) editPopup?.classList.remove("active");
+          if (e.target === deletePopup) deletePopup?.classList.remove("active");
+        });
+
+        // Update client (PUT)
+        saveEditBtn?.addEventListener("click", async () => {
+          const name = document.getElementById("editName").value;
+          const tel = document.getElementById("edittel").value;
+          const email = document.getElementById("editemail").value;
+
+          if (!selectedClientId) return alert("No client selected");
+
+          try {
+            const res = await fetch(
+              `http://127.0.0.1:8000/client/client/update_client/${selectedClientId}`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  Client_Name: name,
+                  No_Telephone: tel,
+                  Email: email,
+                }),
+              }
+            );
+            if (!res.ok) throw new Error("Failed to update client");
+            const data = await res.json();
+            alert("You have successfully updated the client");
+            editPopup?.classList.remove("active");
+            loadClient();
+          } catch (err) {
+            console.error(err);
+            alert("Error updating client");
+          }
+        });
+
+        // Delete client (DELETE)
+        confirmDeleteBtn?.addEventListener("click", async () => {
+          if (!selectedClientId) return alert("No client selected");
+
+          try {
+            const res = await fetch(
+              `http://127.0.0.1:8000/client/client/delete_client/${selectedClientId}`,
+              { method: "DELETE" }
+            );
+            if (!res.ok) throw new Error("Failed to delete client");
+            const data = await res.json();
+            alert(data.message);
+            deletePopup?.classList.remove("active");
+            loadClient();
+          } catch (err) {
+            console.error(err);
+            alert("Error deleting client");
+          }
+        });
+
+        // Initial load
+        loadClient();
       });
-
-      // ===== Profile Dropdown =====
-      const profile = document.querySelector(".profile");
-      profile.addEventListener("click", (e) => {
-        e.stopPropagation();
-        profile.classList.toggle("active");
-      });
-      document.addEventListener("click", () => {
-        profile.classList.remove("active");
-      });
-
-      // ===== Popups =====
-      const editPopup = document.getElementById("editPopup");
-      const deletePopup = document.getElementById("deletePopup");
-      const closeEdit = document.getElementById("closeEdit");
-      const closeDelete = document.getElementById("closeDelete");
-
-      // Delegate popup actions (works on dynamic rows)
-      ClientBody.addEventListener("click", (e) => {
-        if (e.target.classList.contains("edit")) {
-          const row = e.target.closest("tr");
-          const name = row.cells[1].textContent;
-          const tel = row.cells[2].textContent;
-          const email = row.cells[3].textContent;
-
-          document.getElementById("editName").value = name;
-          document.getElementById("editCategory").value = tel;
-          document.getElementById("editPrice").value = email;
-          editPopup.classList.add("active");
-        }
-
-        if (e.target.classList.contains("delete")) {
-          deletePopup.classList.add("active");
-        }
-      });
-
-      // Close popups
-      closeEdit.onclick = () => editPopup.classList.remove("active");
-      closeDelete.onclick = () => deletePopup.classList.remove("active");
-
-      // Click outside popup closes it
-      window.addEventListener("click", (e) => {
-        if (e.target === editPopup) editPopup.classList.remove("active");
-        if (e.target === deletePopup) deletePopup.classList.remove("active");
-      });
-
-      // Initial load
-      loadClient();
     </script>
   </body>
 </html>

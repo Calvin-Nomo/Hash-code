@@ -434,6 +434,7 @@
           const name = document.getElementById("clientName").value.trim();
           const phone = document.getElementById("clientPhone").value.trim();
           const email = document.getElementById("clientEmail").value.trim();
+          const note = document.getElementById("note1").value.trim();
           const table = tableSelectClient.value;
 
           if (!name) {
@@ -464,6 +465,7 @@
           const resEmail = document.getElementById("resEmail").value.trim();
           const resDate = document.getElementById("resDate").value;
           const resGuests = document.getElementById("resperson").value;
+          const note = document.getElementById("note2").value.trim();
           const resTable = tableSelectReservation.value;
 
           if (!resName) {
@@ -516,6 +518,7 @@
           clientData.email = document
             .getElementById("clientEmail")
             .value.trim();
+          clientData.note = document.getElementById("note1").value.trim();
           if (orderType.value === "Dine In") {
             clientData.table = tableSelectClient.value;
           }
@@ -525,6 +528,7 @@
           clientData.email = document.getElementById("resEmail").value.trim();
           clientData.date = document.getElementById("resDate").value;
           clientData.guests = document.getElementById("resperson").value;
+          clientData.note = document.getElementById("note2").value;
           clientData.table = tableSelectReservation.value;
         }
 

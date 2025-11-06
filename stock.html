@@ -711,10 +711,9 @@
       <!-- Edit Popup -->
       <div class="popup-overlay" id="editPopup">
         <div class="edit-form">
-          <h3>Edit Product</h3>
-          <label>Name <input type="text" id="editName" /></label>
+          <h3>Edit Stock</h3>
           <label>Quantity <input type="number" id="editQty" /></label>
-          <label>Status <input type="text" id="editCategory" /></label>
+          <label>Status <input type="text" id="editstatus" /></label>
 
           <div style="text-align: center">
             <button class="save-btn">Save</button>
@@ -733,152 +732,229 @@
       </div>
     </div>
 
-  <script>
-  const sidebar = document.getElementById("sidebar");
-  const main = document.getElementById("main");
-  const toggleBtn = document.getElementById("toggleSidebar");
-  const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
-  const StockBody = document.getElementById("StockTableBody");
+<script>
+const sidebar = document.getElementById("sidebar");
+const main = document.getElementById("main");
+const toggleBtn = document.getElementById("toggleSidebar");
+const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
+const StockBody = document.getElementById("StockTableBody");
 
-  // Toggle sidebar
-  toggleBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("hidden");
-    main.classList.toggle("expanded");
-  });
+// Toggle sidebar
+toggleBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("hidden");
+  main.classList.toggle("expanded");
+});
 
-  // Sidebar dropdown logic
-  dropdowns.forEach((item) => {
-    item.addEventListener("click", (e) => {
-      e.stopPropagation();
-      item.classList.toggle("dropdown-open");
-      dropdowns.forEach((other) => {
-        if (other !== item) other.classList.remove("dropdown-open");
-      });
-    });
-  });
-
-  // Profile dropdown
-  const profile = document.querySelector(".profile");
-  profile.addEventListener("click", (e) => {
+// Sidebar dropdown logic
+dropdowns.forEach((item) => {
+  item.addEventListener("click", (e) => {
     e.stopPropagation();
-    profile.classList.toggle("active");
-  });
-  document.addEventListener("click", () => profile.classList.remove("active"));
-
-  // API
-  const API_URL = "http://127.0.0.1:8000/stock/stock/Stock_limit";
-  let stockData = [];
-
-  // Fetch and render stock
-  async function loadStock() {
-    try {
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error("Failed to fetch stock data");
-      stockData = await response.json();
-      renderTable(stockData);
-    } catch (error) {
-      console.error("Error fetching stock:", error);
-    }
-  }
-
-  // Render table
-  function renderTable(data) {
-    StockBody.innerHTML = "";
-
-    data.forEach((stock, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${index+1}</td>
-        <td><img src="${stock.Image_link || 'No Image'}" width="100" /></td>
-        <td>${stock.Product_Name}</td>
-        <td>${stock.Quantity_Available}</td>
-        <td>${getStockState(stock.Stock_Status)}</td>
-        <td>
-          <i class="fa-solid fa-pen edit" title="Edit"></i>
-          <i class="fa-solid fa-trash delete" title="Delete"></i>
-        </td>
-      `;
-      StockBody.appendChild(row);
+    item.classList.toggle("dropdown-open");
+    dropdowns.forEach((other) => {
+      if (other !== item) other.classList.remove("dropdown-open");
     });
+  });
+});
 
-    attachActionEvents();
+// Profile dropdown
+const profile = document.querySelector(".profile");
+profile.addEventListener("click", (e) => {
+  e.stopPropagation();
+  profile.classList.toggle("active");
+});
+document.addEventListener("click", () => profile.classList.remove("active"));
+
+// API
+const API_URL = "http://127.0.0.1:8000/stock/stock/Stock_limit";
+let stockData = [];
+
+// Fetch and render stock
+async function loadStock() {
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error("Failed to fetch stock data");
+    stockData = await response.json();
+    renderTable(stockData);
+  } catch (error) {
+    console.error("Error fetching stock:", error);
   }
+}
 
-  // Search filter
-  const searchInput = document.getElementById("stockSearch");
-  searchInput.addEventListener("input", () => {
-    const query = searchInput.value.toLowerCase();
-    const filtered = stockData.filter(
-      (stock) =>
-        stock.Product_Name.toLowerCase().includes(query) ||
-        stock.Stock_Status.toLowerCase().includes(query)
-    );
-    renderTable(filtered);
+// Render table
+function renderTable(data) {
+  StockBody.innerHTML = "";
+
+  data.forEach((stock, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${index+1}</td>
+      <td><img src="${stock.Image_link || 'No Image'}" width="100" /></td>
+      <td>${stock.Product_Name}</td>
+      <td>${stock.Quantity_Available}</td>
+      <td>${getStockState(stock.Stock_Status)}</td>
+      <td>
+        <i class="fa-solid fa-pen edit" data-index="${index}" title="Edit"></i>
+        <i class="fa-solid fa-trash delete" data-index="${index}" title="Delete"></i>
+      </td>
+    `;
+    StockBody.appendChild(row);
   });
 
-  // Get readable stock state
-  function getStockState(status) {
-    if (!status || status === "null") return "Finished";
-    return status;
-  }
+  attachActionEvents();
+}
 
-  // POPUPS
-  const editPopup = document.getElementById("editPopup");
-  const deletePopup = document.getElementById("deletePopup");
-  const closeEditBtn = document.getElementById("closeEdit");
-  const closeDeleteBtn = document.getElementById("closeDelete");
-  const yesDeleteBtn = document.querySelector(".delete-box .yes");
-
-  let selectedIndex = null;
-
-  // Attach edit & delete buttons each time table is rendered
-  function attachActionEvents() {
-    document.querySelectorAll(".edit").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        selectedIndex = btn.getAttribute("data-index");
-        const product = stockData[selectedIndex];
-        document.getElementById("editName").value = product.Product_Name;
-        document.getElementById("editCategory").value = product.Stock_Status || "";
-        document.getElementById("editQty").value = product.Quantity_Available;
-        editPopup.classList.add("active");
-      });
-    });
-
-    document.querySelectorAll(".delete").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        selectedIndex = btn.getAttribute("data-index");
-        deletePopup.classList.add("active");
-      });
-    });
-  }
-
-  // Close popups
-  closeEditBtn.addEventListener("click", () =>
-    editPopup.classList.remove("active")
+// Search filter
+const searchInput = document.getElementById("stockSearch");
+searchInput.addEventListener("input", () => {
+  const query = searchInput.value.toLowerCase();
+  const filtered = stockData.filter(
+    (stock) =>
+      stock.Product_Name.toLowerCase().includes(query) ||
+      (stock.Stock_Status && stock.Stock_Status.toLowerCase().includes(query))
   );
-  closeDeleteBtn.addEventListener("click", () =>
-    deletePopup.classList.remove("active")
-  );
+  renderTable(filtered);
+});
 
-  // Confirm delete
-  yesDeleteBtn.addEventListener("click", () => {
-    if (selectedIndex !== null) {
-      const deletedItem = stockData[selectedIndex];
-      console.log("Deleting:", deletedItem);
-      // Here you can call DELETE API, e.g.:
-      // fetch(`${API_URL}/${deletedItem.No_Stock}`, { method: 'DELETE' })
-      deletePopup.classList.remove("active");
-    }
-  });
+// Get readable stock state
+function getStockState(status) {
+  if (!status || status === "null") return "Finished";
+  return status;
+}
 
-  // Outside click closes popups
-  [editPopup, deletePopup].forEach((popup) => {
-    popup.addEventListener("click", (e) => {
-      if (e.target === popup) popup.classList.remove("active");
+// POPUPS
+const editPopup = document.getElementById("editPopup");
+const deletePopup = document.getElementById("deletePopup");
+const closeEditBtn = document.getElementById("closeEdit");
+const closeDeleteBtn = document.getElementById("closeDelete");
+const yesDeleteBtn = document.querySelector(".delete-box .yes");
+
+let selectedIndex = null;
+
+// Attach edit & delete buttons each time table is rendered
+function attachActionEvents() {
+  document.querySelectorAll(".edit").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      selectedIndex = btn.getAttribute("data-index");
+      const product = stockData[selectedIndex];
+      document.getElementById("editQty").value = product.Quantity_Available;
+      document.getElementById("editstatus").value = product.Stock_Status || "";
+      editPopup.classList.add("active");
     });
   });
+
+  document.querySelectorAll(".delete").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      selectedIndex = btn.getAttribute("data-index");
+      deletePopup.classList.add("active");
+    });
+  });
+}
+
+// Close popups
+closeEditBtn.addEventListener("click", () =>
+  editPopup.classList.remove("active")
+);
+closeDeleteBtn.addEventListener("click", () =>
+  deletePopup.classList.remove("active")
+);
+
+// Confirm delete
+yesDeleteBtn.addEventListener("click", () => {
+  if (selectedIndex !== null) {
+    const deletedItem = stockData[selectedIndex];
+    console.log("Deleting:", deletedItem);
+    // Call DELETE API here if needed
+    deletePopup.classList.remove("active");
+  }
+});
+
+// Outside click closes popups
+[editPopup, deletePopup].forEach((popup) => {
+  popup.addEventListener("click", (e) => {
+    if (e.target === popup) popup.classList.remove("active");
+  });
+});
+
+// --- WEBSOCKET FOR LIVE NOTIFICATIONS ---
+const socket = new WebSocket("ws://127.0.0.1:8000/notification/notification/ws/notifications");
+
+socket.onopen = () => console.log("✅ WebSocket connected for stock updates");
+
+socket.onmessage = (event) => {
+  console.log("📢 Notification received:", event.data);
+  // Refresh stock table whenever a notification arrives
   loadStock();
+};
+
+socket.onclose = () => {
+  console.warn("❌ WebSocket closed. Attempting reconnect in 5s...");
+  setTimeout(() => window.location.reload(), 5000);
+};
+
+socket.onerror = (err) => console.error("⚠️ WebSocket error:", err);
+
+// Initial load
+loadStock();
 </script>
+<script>
+  // --- Save edit changes (PUT request) ---
+document.querySelector("#editPopup .save-btn").addEventListener("click", async () => {
+  if (selectedIndex === null) return;
+
+  const product = stockData[selectedIndex];
+  const updatedQty = Number(document.getElementById("editQty").value);
+  const updatedStatus = document.getElementById("editstatus").value;
+
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/stock/stock/update_stock/${product.No_Stock}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ Quantity_Available: updatedQty, Stock_Status: updatedStatus }),
+    });
+
+    const result = await response.json();
+    console.log(result.message);
+
+    editPopup.classList.remove("active");
+    loadStock();
+
+    // Optional: notify other clients via WebSocket
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(`Stock updated: ${product.Product_Name}`);
+    }
+
+  } catch (err) {
+    console.error("Error updating stock:", err);
+  }
+});
+
+// --- Confirm delete (DELETE request) ---
+yesDeleteBtn.addEventListener("click", async () => {
+  if (selectedIndex === null) return;
+
+  const product = stockData[selectedIndex];
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/stock/stock/delete_stock/${product.No_Stock}`, {
+      method: "DELETE",
+    });
+    const result = await response.json();
+    console.log(result.message);
+
+    deletePopup.classList.remove("active");
+    loadStock();
+
+    // Optional: notify other clients via WebSocket
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(`Stock deleted: ${product.Product_Name}`);
+    }
+
+  } catch (err) {
+    console.error("Error deleting stock:", err);
+  }
+});
+
+</script>
+
 
   </body>
 </html>

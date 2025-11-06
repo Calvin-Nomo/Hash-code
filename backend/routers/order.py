@@ -3,6 +3,7 @@ from fastapi import Response
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+
 import math
 import pymysql
 
@@ -339,6 +340,7 @@ def create_order(data: FullOrderRequest):
             (client_id, reservation_id, order_date, data.order.Order_Type, table_id,data.order.Sesion_id,status, data.order.Note)
         )
         order_id = cursor.lastrowid
+      
 
         # 4️⃣ Insert Items and Update Stock
         for item in data.order.items:

@@ -9,7 +9,8 @@ DB= pymysql.connect(
     user="root",
     password=Mysql_password,
     database=Database_Name, 
-   cursorclass=pymysql.cursors.DictCursor  # so results come as dicts instead of tuples
+   cursorclass=pymysql.cursors.DictCursor,
+   # so results come as dicts instead of tuples
 )
 
 cursor=DB.cursor()
@@ -50,7 +51,7 @@ def total_client():
     return cursor.fetchone()
 
 @router.post("/create_client")
-def create_stock(client:Client,current_user: dict = Depends(require_role(["admin"]))):
+def create_stock(client:Client):
     try:
         sql_command="""INSERT INTO Clients(Client_Name,No_Telephone,Email)
         VALUES(%s,%s,%s)"""
@@ -63,12 +64,12 @@ def create_stock(client:Client,current_user: dict = Depends(require_role(["admin
     }
 
 @router.put('/update_client/{client_id}')
-async def update_client(client_id:int,client:Client,current_user: dict = Depends(require_role(["admin"]))):
+async def update_client(client_id:int,client:Client):
     try:
         sql_command="""
         UPDATE Clients
         SET 
-        Client_Name=%s,No_Telephone=%s,Email=%s
+        Client_Name= %s,No_Telephone=%s,Email=%s
         WHERE No_Client=%s
         """
         cursor.execute(sql_command,(client.Client_Name,client.No_Telephone,client.Email,client_id))
@@ -80,7 +81,7 @@ async def update_client(client_id:int,client:Client,current_user: dict = Depends
     }
 
 @router.delete('/delete_client/{client_id}')
-def delete_client(client_id: int,current_user: dict = Depends(require_role(["admin"]))):
+def delete_client(client_id: int):
     try:
         sql_command = """
             DELETE FROM Clients

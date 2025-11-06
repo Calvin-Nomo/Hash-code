@@ -43,9 +43,9 @@ def get_tables():
 
 ###################################Post Method############################# 
 @router.post("/create_table")
-async def create_table(table:Table, current_user: dict = Depends(require_role(["admin"]))):
+async def create_table(table:Table):
     try:
-        sql_command="""INSERT INTO Tab(No_Table,Seat_Number,State)
+        sql_command="""INSERT INTO Tab(No_Table,Seat_Number,Table_Status)
         VALUES(%s,%s,%s)"""
         cursor.execute(sql_command,(table.Table_Number,table.Seat_Number,table.State))
         table_id=cursor.lastrowid
@@ -57,15 +57,15 @@ async def create_table(table:Table, current_user: dict = Depends(require_role(["
     }
 ###################################Put Method#############################     
 @router.put('/update_table/{table_id}')
-async def update_table(table_id:int,table:Table,current_user: dict = Depends(require_role(["admin"]))):
+async def update_table(table_id:int,table:Table):
     try:
         sql_command="""
         UPDATE Tab
         SET 
-        No_Table=%s,Seat_Number=%s
+        No_Table=%s,Seat_Number=%s,Table_Status=%s
         WHERE Table_ID=%s
         """
-        cursor.execute(sql_command,(table.Table_Number,table.Seat_Number,table_id))
+        cursor.execute(sql_command,(table.Table_Number,table.Seat_Number,table.State,table_id))
         DB.commit()
     except Exception as e:
         raise HTTPException(status_code=404,detail=(e))
@@ -74,7 +74,7 @@ async def update_table(table_id:int,table:Table,current_user: dict = Depends(req
     }
 ###################################Delete Method############################# 
 @router.delete('/delete_table/{table_id}')
-async def delete_table(table_id: int,current_user: dict = Depends(require_role(["admin"]))):
+async def delete_table(table_id: int):
         try:
             sql_command = """
                 DELETE FROM Tab

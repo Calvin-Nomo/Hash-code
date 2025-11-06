@@ -689,7 +689,6 @@
               />
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
-            <button id="addBtn">New</button>
           </div>
 
           <table class="order-table">
@@ -707,19 +706,6 @@
           <p id="loading" class="loading">Loading tables...</p>
         </main>
       </div>
-
-      <!-- Add Popup -->
-      <div class="popup-overlay" id="addPopup">
-        <!-- <div class="add-form">
-          <h3>Add Table</h3>
-          <label>Table Number <input type="text" id="addNumber" /></label>
-          <label>Seats <input type="number" id="addSeats" /></label>
-          <label>Status <input type="text" id="addState" /></label>
-          <div style="text-align: center">
-            <button class="save-btn" id="saveEdit">Save</button>
-            <button class="cancel-btn" id="closeEdit">Cancel</button>
-          </div>
-        </div> -->
       </div>
       <!-- Edit Popup -->
       <div class="popup-overlay" id="editPopup">
@@ -780,135 +766,150 @@
       });
     </script>
 
-    <script>
-      const API_URL = "http://127.0.0.1:8000/table/table/onlytable"; // Get tables
-      const BASE_ORDER_URL = "http://smartmenu.com"; // Order link
+  <script>
+const API_URL = "http://127.0.0.1:8000/table/table/onlytable"; // Get tables
+const BASE_ORDER_URL = "http://smartmenu.com"; // Order link
 
-      let currentEditId = null;
-      let currentDeleteId = null;
+let currentEditId = null;
+let currentDeleteId = null;
+let allTables = [];
 
-      async function fetchTables() {
-        try {
-          const res = await fetch(API_URL);
-          if (!res.ok) throw new Error("Failed to fetch tables");
-          const tables = await res.json();
-          document.getElementById("loading").style.display = "none";
-          generateQRCodes(tables);
-        } catch (err) {
-          console.error(err);
-          document.getElementById("loading").textContent =
-            "Error loading tables.";
-        }
-      }
+// --- FETCH TABLES ---
+async function fetchTables() {
+  const loadingEl = document.getElementById("loading");
+  loadingEl.style.display = "block";
+  loadingEl.textContent = "Loading tables...";
 
-      function generateQRCodes(tables) {
-        const tbody = document.getElementById("qrcodeTableBody");
-        tbody.innerHTML = "";
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error("Failed to fetch tables");
+    allTables = await res.json();
+    loadingEl.style.display = "none";
+    generateQRCodes(allTables);
+  } catch (err) {
+    console.error(err);
+    loadingEl.textContent = "Error loading tables.";
+  }
+}
 
-        tables.forEach((table, index) => {
-          const tr = document.createElement("tr");
-          const qrId = `qr-${table.Table_ID}`;
+// --- GENERATE QR CODES ---
+function generateQRCodes(tables) {
+  const tbody = document.getElementById("qrcodeTableBody");
+  tbody.innerHTML = "";
 
-          tr.innerHTML = `
-            <td>${index + 1}</td>
-            <td>Table ${table.No_Table}</td>
-            <td><div id="${qrId}" class="qr-code"></div></td>
-            <td>
-              <button class="btn-download" onclick="downloadQR('${qrId}', '${
-            table.No_Table
-          }')">⬇ Download</button>
-              <button class="btn-edit" onclick="openEditPopup(${
-                table.Table_ID
-              }, '${table.No_Table}')">✏ Edit</button>
-              <button class="btn-delete" onclick="openDeletePopup(${
-                table.Table_ID
-              })">🗑 Delete</button>
-            </td>`;
+  if (tables.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center">No tables found</td></tr>`;
+    return;
+  }
 
-          tbody.appendChild(tr);
+  tables.forEach((table, index) => {
+    const tr = document.createElement("tr");
+    const qrId = `qr-${table.Table_ID}`;
 
-          const qrText = `${BASE_ORDER_URL}/table/${table.Table_ID}`;
-          new QRCode(document.getElementById(qrId), {
-            text: qrText,
-            width: 150,
-            height: 150,
-          });
-        });
-      }
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>Table ${table.No_Table}</td>
+      <td><div id="${qrId}" class="qr-code"></div></td>
+      <td>
+        <button class="btn-download" onclick="downloadQR('${qrId}', '${table.No_Table}')">⬇ Download</button>
+        <button class="btn-edit" onclick="openEditPopup(${table.Table_ID}, '${table.No_Table}')">✏ Edit</button>
+        <button class="btn-delete" onclick="openDeletePopup(${table.Table_ID})">🗑 Delete</button>
+      </td>
+    `;
 
-      // Download QR
-      function downloadQR(qrId, tableNum) {
-        const canvas = document.querySelector(`#${qrId} canvas`);
-        if (!canvas) return alert("QR not generated yet!");
-        const link = document.createElement("a");
-        link.href = canvas.toDataURL("image/png");
-        link.download = `Table_${tableNum}_QR.png`;
-        link.click();
-      }
+    tbody.appendChild(tr);
 
-      // ===== Edit Popup =====
-      function openEditPopup(id, tableNum) {
-        currentEditId = id;
-        document.getElementById("editNumber").value = tableNum;
-        document.getElementById("editPopup").style.display = "flex";
-      }
+    const qrText = `${BASE_ORDER_URL}/table/${table.Table_ID}`;
+    new QRCode(document.getElementById(qrId), {
+      text: qrText,
+      width: 150,
+      height: 150,
+    });
+  });
+}
 
-      document.getElementById("closeEdit").onclick = function () {
-        document.getElementById("editPopup").style.display = "none";
-      };
+// --- DOWNLOAD QR ---
+function downloadQR(qrId, tableNum) {
+  const canvas = document.querySelector(`#${qrId} canvas`);
+  if (!canvas) return alert("QR code not generated yet!");
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = `Table_${tableNum}_QR.png`;
+  link.click();
+}
 
-      document.getElementById("saveEdit").onclick = async function () {
-        const newNumber = document.getElementById("editNumber").value.trim();
-        if (!newNumber) return alert("Enter a valid table number!");
+// --- EDIT TABLE ---
+function openEditPopup(id, tableNum) {
+  currentEditId = id;
+  document.getElementById("editNumber").value = tableNum;
+  document.getElementById("editPopup").style.display = "flex";
+}
 
-        try {
-          const res = await fetch(
-            `http://127.0.0.1:8000/table/table/update_table/${currentEditId}`,
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ No_Table: newNumber }),
-            }
-          );
+document.getElementById("closeEdit").onclick = () => {
+  document.getElementById("editPopup").style.display = "none";
+  currentEditId = null;
+};
 
-          if (!res.ok) throw new Error("Failed to update table");
-          alert("Table updated successfully!");
-          document.getElementById("editPopup").style.display = "none";
-          fetchTables();
-        } catch (err) {
-          alert("Error updating table.");
-          console.error(err);
-        }
-      };
+document.getElementById("saveEdit").onclick = async () => {
+  const newNumber = document.getElementById("editNumber").value.trim();
+  if (!newNumber) return alert("Enter a valid table number!");
 
-      // ===== Delete Popup =====
-      function openDeletePopup(id) {
-        currentDeleteId = id;
-        document.getElementById("deletePopup").style.display = "flex";
-      }
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/table/table/update_table/${currentEditId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ No_Table: newNumber }),
+    });
 
-      document.getElementById("closeDelete").onclick = function () {
-        document.getElementById("deletePopup").style.display = "none";
-      };
+    if (!res.ok) throw new Error("Failed to update table");
+    alert("Table updated successfully!");
+    document.getElementById("editPopup").style.display = "none";
+    fetchTables();
+  } catch (err) {
+    console.error(err);
+    alert("Error updating table.");
+  }
+};
 
-      document.getElementById("confirmDelete").onclick = async function () {
-        try {
-          const res = await fetch(
-            `http://127.0.0.1:8000/table/table/delete_table/${currentDeleteId}`,
-            { method: "DELETE" }
-          );
-          if (!res.ok) throw new Error("Failed to delete table");
-          alert("Table deleted successfully!");
-          document.getElementById("deletePopup").style.display = "none";
-          fetchTables();
-        } catch (err) {
-          alert("Error deleting table.");
-          console.error(err);
-        }
-      };
+// --- DELETE TABLE ---
+function openDeletePopup(id) {
+  currentDeleteId = id;
+  document.getElementById("deletePopup").style.display = "flex";
+}
 
-      // Run on page load
-      fetchTables();
-    </script>
+document.getElementById("closeDelete").onclick = () => {
+  document.getElementById("deletePopup").style.display = "none";
+  currentDeleteId = null;
+};
+
+document.getElementById("confirmDelete").onclick = async () => {
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/table/table/delete_table/${currentDeleteId}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) throw new Error("Failed to delete table");
+    alert("Table deleted successfully!");
+    document.getElementById("deletePopup").style.display = "none";
+    fetchTables();
+  } catch (err) {
+    console.error(err);
+    alert("Error deleting table.");
+  }
+};
+
+// --- SEARCH FUNCTIONALITY ---
+document.getElementById("tableSearch").addEventListener("input", (e) => {
+  const query = e.target.value.toLowerCase();
+  const filtered = allTables.filter(table => 
+    table.No_Table.toString().includes(query)
+  );
+  generateQRCodes(filtered);
+});
+
+// --- INITIAL LOAD ---
+fetchTables();
+</script>
+
   </body>
 </html>

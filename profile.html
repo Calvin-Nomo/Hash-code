@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile Settings</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <!-- optional if styles are shared -->
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background: #f4f6f8;
+        color: #333;
+      }
+
+      .container {
+        max-width: 700px;
+        margin: 100px auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: #1e293b;
+      }
+
+      .profile-form label {
+        display: block;
+        margin-top: 1rem;
+        font-weight: 500;
+        color: #475569;
+      }
+
+      .profile-form input,
+      .profile-form select {
+        width: 100%;
+        padding: 0.7rem;
+        margin-top: 0.4rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        outline: none;
+        font-size: 1rem;
+        transition: border 0.3s;
+      }
+
+      .profile-form input:focus {
+        border-color: #1e293b;
+      }
+
+      .profile-pic {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .profile-pic img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #1e293b;
+      }
+
+      .profile-pic label {
+        background: #1e293b;
+        color: #fff;
+        padding: 0.4rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .profile-pic label:hover {
+        background: #334155;
+      }
+
+      .save-btn {
+        width: 100%;
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        padding: 0.8rem;
+        margin-top: 2rem;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .save-btn:hover {
+        background: #334155;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Profile Settings</h2>
+      <form class="profile-form" id="profileForm">
+        <div class="profile-pic">
+          <img id="preview" src="image/person_1.jpg" alt="Profile Picture" />
+          <label for="profileImage"
+            ><i class="fa-solid fa-camera"></i> Change</label
+          >
+          <input type="file" id="profileImage" accept="image/*" hidden />
+        </div>
+
+        <label for="username">Full Name</label>
+        <input type="text" id="username" value="Calvin Nomo" />
+
+        <label for="email">Email Address</label>
+        <input type="email" id="email" value="calvin@example.com" />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="********" />
+
+        <label for="role">Role</label>
+        <select id="role">
+          <option selected>Admin</option>
+          <option>User</option>
+          <option>Manager</option>
+        </select>
+
+        <button type="button" class="save-btn">Save Changes</button>
+      </form>
+    </div>
+
+    <script>
+      // Preview profile picture
+      const inputFile = document.getElementById("profileImage");
+      const preview = document.getElementById("preview");
+
+      inputFile.addEventListener("change", function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function () {
+            preview.src = reader.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Save form (no API yet)
+      document.querySelector(".save-btn").addEventListener("click", () => {
+        alert("Profile updated successfully (no backend connected).");
+      });
+    </script>
+  </body>
+</html>

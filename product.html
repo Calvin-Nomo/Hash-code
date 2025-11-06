@@ -745,7 +745,7 @@
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
             <div>
-              <button class="save-btn">New</button>
+              <button class="save-btn" id="new-product">New</button>
             </div>
           </div>
           <table class="order-table">
@@ -792,90 +792,117 @@
   </div>
 </div>
   </body>
-  <script>
-const API_BASE_URL = "http://127.0.0.1:8000"; // FastAPI base URL
+      <script>
+      const sidebar = document.getElementById("sidebar");
+      const main = document.getElementById("main");
+      const toggleBtn = document.getElementById("toggleSidebar");
+      const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
+
+      toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+        main.classList.toggle("expanded");
+      });
+
+      // Sidebar Dropdowns
+      dropdowns.forEach((item) => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.classList.toggle("dropdown-open");
+          dropdowns.forEach((other) => {
+            if (other !== item) other.classList.remove("dropdown-open");
+          });
+        });
+      });
+
+      // Profile Dropdown
+      const profile = document.querySelector(".profile");
+      profile.addEventListener("click", (e) => {
+        e.stopPropagation();
+        profile.classList.toggle("active");
+      });
+      document.addEventListener("click", () =>
+        profile.classList.remove("active")
+      );
+    </script>
+ <script>
+const API_BASE_URL = "http://127.0.0.1:8000"; 
 let currentEditId = null;
 let currentDeleteId = null;
-
-// --- SIDEBAR & DROPDOWN ---
-const sidebar = document.getElementById("sidebar");
-const main = document.getElementById("main");
-const toggleBtn = document.getElementById("toggleSidebar");
-const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
-
-toggleBtn.addEventListener("click", () => {
-  sidebar.classList.toggle("hidden");
-  main.classList.toggle("expanded");
-});
-
-dropdowns.forEach(item => {
-  item.addEventListener("click", e => {
-    e.stopPropagation();
-    item.classList.toggle("dropdown-open");
-    dropdowns.forEach(other => {
-      if (other !== item) other.classList.remove("dropdown-open");
-    });
-  });
-});
-
-const profile = document.querySelector(".profile");
-profile.addEventListener("click", e => {
-  e.stopPropagation();
-  profile.classList.toggle("active");
-});
-document.addEventListener("click", () => profile.classList.remove("active"));
+let productsData = []; // store fetched products for search
 
 // --- FETCH PRODUCTS ---
 async function fetchProducts() {
   try {
     const res = await fetch(`${API_BASE_URL}/product/product/Product`);
     if (!res.ok) throw new Error("Failed to fetch products");
-    const products = await res.json();
-
-    const tbody = document.getElementById("productTableBody");
-    tbody.innerHTML = "";
-
-    products.forEach(product => {
-      const row = document.createElement("tr");
-      row.dataset.id = product.No_Product;
-
-      row.innerHTML = `
-        <td><img src="${product.Image_link}" alt="${product.Name}" width="150"></td>
-        <td>${product.Name}</td>
-        <td>${product.Category}</td>
-        <td>${product.Product_Description}</td>
-        <td>${Number(product.Price).toLocaleString()} FCFA</td>
-        <td>
-          <button class="edit-btn" onclick="editProductFromRow(this)">Edit</button>
-          <button class="delete-btn" onclick="deleteProductFromRow(this)">Delete</button>
-        </td>
-      `;
-      tbody.appendChild(row);
-    });
+    productsData = await res.json();
+    renderProducts(productsData);
   } catch (err) {
     console.error(err);
+    const tbody = document.getElementById("productTableBody");
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red">Error loading products</td></tr>`;
   }
 }
 
-// --- EDIT USING ROW CELLS ---
+// --- RENDER PRODUCTS ---
+function renderProducts(data) {
+  const tbody = document.getElementById("productTableBody");
+  tbody.innerHTML = "";
+
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center">No products found</td></tr>`;
+    return;
+  }
+
+  data.forEach(product => {
+    const row = document.createElement("tr");
+    row.dataset.id = product.No_Product;
+
+    row.innerHTML = `
+      <td><img src="${product.Image_link}" alt="${product.Name}" width="150"></td>
+      <td>${product.Name}</td>
+      <td>${product.Category}</td>
+      <td>${product.Product_Description}</td>
+      <td>${Number(product.Price).toLocaleString()} FCFA</td>
+      <td>
+        <button class="edit-btn" onclick="editProductFromRow(this)">Edit</button>
+        <button class="delete-btn" onclick="deleteProductFromRow(this)">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// --- SEARCH FUNCTIONALITY ---
+document.getElementById("productSearch").addEventListener("input", (e) => {
+  const query = e.target.value.toLowerCase();
+  const filtered = productsData.filter(p => 
+    p.Name.toLowerCase().includes(query) ||
+    p.Category.toLowerCase().includes(query) ||
+    p.Product_Description.toLowerCase().includes(query)
+  );
+  renderProducts(filtered);
+});
+
+// --- EDIT PRODUCT ---
 function editProductFromRow(button) {
   const row = button.closest("tr");
   currentEditId = row.dataset.id;
-
   const cells = row.cells;
   const imgElem = cells[0].querySelector("img");
 
+  // Fill edit form with existing data
   document.getElementById("editName").value = cells[1].textContent;
   document.getElementById("editCategory").value = cells[2].textContent;
   document.getElementById("editdesc").value = cells[3].textContent;
-  document.getElementById("editPrice").value = parseFloat(cells[4].textContent.replace(/\D/g, '')) || 0;
+  document.getElementById("editPrice").value = parseFloat(cells[4].textContent.replace(/\D/g,'')) || 0;
   document.getElementById("editImagePreview").src = imgElem.src;
-  document.getElementById("editimage").value = ""; // reset file input
+  document.getElementById("editimage").value = "";
 
-  // Update preview on new file selection
+  // Update image preview if user selects new file
   document.getElementById("editimage").onchange = e => {
     const file = e.target.files[0];
-    if (file) document.getElementById("editImagePreview").src = URL.createObjectURL(file);
+    if(file) document.getElementById("editImagePreview").src = URL.createObjectURL(file);
   };
 
   document.getElementById("editPopup").style.display = "flex";
@@ -887,37 +914,38 @@ document.getElementById("closeEdit").addEventListener("click", () => {
   currentEditId = null;
 });
 
-// Save edit
+// Save edited product
 document.getElementById("saveEdit").addEventListener("click", async () => {
-  if (!currentEditId) return;
+  if(!currentEditId) return;
 
   const formData = new FormData();
-  formData.append("Product_Name", document.getElementById("editName").value);
-  formData.append("Category", document.getElementById("editCategory").value);
-  formData.append("Product_Description", document.getElementById("editdesc").value);
-  formData.append("Price", document.getElementById("editPrice").value);
+  formData.append("Product_Name", document.getElementById("editName").value.trim());
+  formData.append("Category", document.getElementById("editCategory").value.trim());
+  formData.append("Product_Description", document.getElementById("editdesc").value.trim());
+  formData.append("Price", document.getElementById("editPrice").value.trim());
 
   const fileInput = document.getElementById("editimage");
-  if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
+  if(fileInput.files[0]) formData.append("image", fileInput.files[0]);
 
   try {
     const res = await fetch(`${API_BASE_URL}/product/product/update_product/${currentEditId}`, {
       method: "PUT",
       body: formData
     });
-    if (!res.ok) throw new Error("Failed to update product");
+
+    if(!res.ok) throw new Error("Failed to update product");
 
     alert("Product updated successfully!");
     document.getElementById("editPopup").style.display = "none";
     currentEditId = null;
     fetchProducts();
-  } catch (err) {
+  } catch(err) {
     console.error(err);
     alert("Error updating product.");
   }
 });
 
-// --- DELETE FUNCTION ---
+// --- DELETE PRODUCT ---
 function deleteProductFromRow(button) {
   const row = button.closest("tr");
   currentDeleteId = row.dataset.id;
@@ -932,26 +960,33 @@ document.getElementById("closeDelete").addEventListener("click", () => {
 
 // Confirm delete
 document.getElementById("confirmDelete").addEventListener("click", async () => {
-  if (!currentDeleteId) return;
+  if(!currentDeleteId) return;
   try {
-    const res = await fetch(`${API_BASE_URL}/product/product/delete_product/${currentDeleteId}`,
-     { method: "DELETE" 
-    
+    const res = await fetch(`${API_BASE_URL}/product/product/delete_product/${currentDeleteId}`, {
+      method: "DELETE"
     });
-    if (!res.ok) throw new Error("Failed to delete product");
+
+    if(!res.ok) throw new Error("Failed to delete product");
 
     alert("Product deleted successfully!");
     document.getElementById("deletePopup").style.display = "none";
     currentDeleteId = null;
     fetchProducts();
-  } catch (err) {
+  } catch(err) {
     console.error(err);
     alert("Error deleting product.");
   }
 });
 
-// Load products initially
+// --- INITIAL LOAD ---
 fetchProducts();
 </script>
+<script>
+// --- Redirect to New Product Page ---
+document.getElementById("new-product").addEventListener("click", () => {
+  window.location.href = "new product.html";
+});
+</script>
+
 
 </html>

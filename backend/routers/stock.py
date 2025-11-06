@@ -18,6 +18,7 @@ router = APIRouter(prefix="/stock", tags=["stock"])
 
 class Stock(BaseModel):
     Quantity_Available:int
+    Stock_Status:str = "Available"
     
 @router.get('/')
 def greetings():
@@ -47,9 +48,9 @@ def get_stock_limit():
 @router.post("/create_stock")
 def create_stock(stock:Stock,current_user: dict = Depends(require_role(["Admin"]))):
     try:
-        sql_command="""INSERT INTO Stock(Quantity_Available)
-        VALUES(%s)"""
-        cursor.execute(sql_command,(stock.Quantity_Available))
+        sql_command="""INSERT INTO Stock(Quantity_Available,Stock_Status)
+        VALUES(%s,%s)"""
+        cursor.execute(sql_command,(stock.Quantity_Available,stock.Stock_Status))
         DB.commit()
     except Exception as e:
         raise HTTPException(status_code=404,detail=(e))
@@ -58,15 +59,16 @@ def create_stock(stock:Stock,current_user: dict = Depends(require_role(["Admin"]
     }
 
 @router.put("/update_stock/{stock_id}")
-async def update_stock(stock_id,stock: Stock,current_user: dict = Depends(require_role(["admin"]))):
+async def update_stock(stock_id,stock: Stock):
     try:
         sql_command = """
             UPDATE Stock
-            SET Quantity_Available = %s
+            SET Quantity_Available = %s,Stock_Status=%s
             WHERE No_Stock=%s
         """
-        cursor.execute(sql_command, (stock.Quantity_Available,stock_id))
+        cursor.execute(sql_command, (stock.Quantity_Available,stock.Stock_Status,stock_id))
         DB.commit()
+        # string  =
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -76,7 +78,7 @@ async def update_stock(stock_id,stock: Stock,current_user: dict = Depends(requir
     }
 
 @router.delete("/delete_stock/{stock_id}")
-def delete_stock(stock_id: int,current_user: dict = Depends(require_role(["Admin"]))):
+def delete_stock(stock_id: int):
     try:
         sql_command = """
             DELETE FROM Stock

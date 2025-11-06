@@ -699,81 +699,345 @@
         </nav>
 
         <main class="content">
-          <h4>Payment Management</h4>
+            <h4>Comprehensive Management Report</h4>
 
-          <div class="action-row">
-            <div class="search-bar">
-              <input
-                type="search"
-                id="productSearch"
-                placeholder="Search order..."
-              />
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </div>
-            <div>
-              <button>New</button>
-            </div>
-          </div>
-          <table class="order-table">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Name</th>
-                <th>No Telephone</th>
-                <th>Payment Date</th>
-                <th>Payment Method</th>
-                <th>Payment Status</th>
-                <th>Amount (FCFA)</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="ordersTableBody">
-              <!-- Rows will be populated here -->
-            </tbody>
-          </table>
+<!-- Summary Cards -->
+<div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+  <div style="flex:1; min-width:150px; background:#1e293b; color:#fff; padding:1rem; border-radius:10px; text-align:center;">
+    <h5>Total Orders</h5>
+    <p id="totalOrders" style="font-size:1.4rem; font-weight:600;">0</p>
+  </div>
+  <div style="flex:1; min-width:150px; background:#047857; color:#fff; padding:1rem; border-radius:10px; text-align:center;">
+    <h5>Total Revenue</h5>
+    <p id="totalRevenue" style="font-size:1.4rem; font-weight:600;">FCFA 0</p>
+  </div>
+  <div style="flex:1; min-width:150px; background:#b45309; color:#fff; padding:1rem; border-radius:10px; text-align:center;">
+    <h5>Pending Orders</h5>
+    <p id="pendingOrders" style="font-size:1.4rem; font-weight:600;">0</p>
+  </div>
+  <div style="flex:1; min-width:150px; background:#dc2626; color:#fff; padding:1rem; border-radius:10px; text-align:center;">
+    <h5>Failed Orders</h5>
+    <p id="failedOrders" style="font-size:1.4rem; font-weight:600;">0</p>
+  </div>
+  <div style="flex:1; min-width:150px; background:#2563eb; color:#fff; padding:1rem; border-radius:10px; text-align:center;">
+    <h5>Completed Orders</h5>
+    <p id="completedOrders" style="font-size:1.4rem; font-weight:600;">0</p>
+  </div>
+  <div style="flex:1; min-width:150px; background:#9333ea; color:#fff; padding:1rem; border-radius:10px; text-align:center;">
+    <h5>Average Order Value</h5>
+    <p id="avgOrderValue" style="font-size:1.4rem; font-weight:600;">FCFA 0</p>
+  </div>
+</div>
+
+<!-- Charts Section -->
+<div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+  <div style="flex:1; min-width:300px; background:#fff; padding:1rem; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+    <canvas id="revenueChart" height="200"></canvas>
+  </div>
+  <div style="flex:1; min-width:300px; background:#fff; padding:1rem; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+    <canvas id="ordersTypeChart" height="200"></canvas>
+  </div>
+  <div style="flex:1; min-width:300px; background:#fff; padding:1rem; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+    <canvas id="paymentStatusChart" height="200"></canvas>
+  </div>
+  <div style="flex:1; min-width:300px; background:#fff; padding:1rem; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+    <canvas id="ordersByCategoryChart" height="200"></canvas>
+  </div>
+  <div style="flex:1; min-width:300px; background:#fff; padding:1rem; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+    <canvas id="topClientsChart" height="200"></canvas>
+  </div>
+</div>
+
+<!-- Export Button -->
+<button id="exportAllExcel" style="background:#1e293b; color:#fff; padding:0.5rem 1rem; border:none; border-radius:6px; cursor:pointer; margin-bottom:1rem;">
+  Export All Tables to Excel
+</button>
+
+<!-- Tables Section -->
+<h5>1. Detailed Orders</h5>
+<table class="order-table" id="ordersTable">
+  <thead>
+    <tr>
+      <th>No</th>
+      <th>Client Name</th>
+      <th>Phone</th>
+      <th>Order Date</th>
+      <th>Type</th>
+      <th>Total Items</th>
+      <th>Amount (FCFA)</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>John Doe</td>
+      <td>655123456</td>
+      <td>30/10/2025</td>
+      <td>Dine-in</td>
+      <td>3</td>
+      <td>12,000</td>
+      <td><span class="status paid">Paid</span></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Jane Smith</td>
+      <td>655654321</td>
+      <td>30/10/2025</td>
+      <td>Takeaway</td>
+      <td>2</td>
+      <td>8,000</td>
+      <td><span class="status pending">Pending</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h5>2. Top Clients</h5>
+<table class="order-table" id="topClientsTable">
+  <thead>
+    <tr>
+      <th>No</th>
+      <th>Client Name</th>
+      <th>Total Orders</th>
+      <th>Total Revenue (FCFA)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>John Doe</td>
+      <td>15</td>
+      <td>120,000</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Jane Smith</td>
+      <td>10</td>
+      <td>80,000</td>
+    </tr>
+  </tbody>
+</table>
+
+<h5>3. Sales by Category</h5>
+<table class="order-table" id="categoryTable">
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Total Orders</th>
+      <th>Total Revenue (FCFA)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Beverages</td>
+      <td>20</td>
+      <td>60,000</td>
+    </tr>
+    <tr>
+      <td>Food</td>
+      <td>30</td>
+      <td>180,000</td>
+    </tr>
+  </tbody>
+</table>
+
+<h5>4. Payment Status Summary</h5>
+<table class="order-table" id="paymentSummaryTable">
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Count</th>
+      <th>Total Amount (FCFA)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Paid</td>
+      <td>60</td>
+      <td>480,000</td>
+    </tr>
+    <tr>
+      <td>Pending</td>
+      <td>15</td>
+      <td>80,000</td>
+    </tr>
+    <tr>
+      <td>Failed</td>
+      <td>5</td>
+      <td>20,000</td>
+    </tr>
+  </tbody>
+</table>
+
+<h5>5. Orders by Type</h5>
+<table class="order-table" id="ordersTypeTable">
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Total Orders</th>
+      <th>Total Revenue (FCFA)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dine-in</td>
+      <td>40</td>
+      <td>200,000</td>
+    </tr>
+    <tr>
+      <td>Takeaway</td>
+      <td>30</td>
+      <td>120,000</td>
+    </tr>
+    <tr>
+      <td>Delivery</td>
+      <td>20</td>
+      <td>90,000</td>
+    </tr>
+  </tbody>
+</table>
+
+<h5>6. Weekly Sales</h5>
+<table class="order-table" id="weeklySalesTable">
+  <thead>
+    <tr>
+      <th>Week</th>
+      <th>Total Orders</th>
+      <th>Total Revenue (FCFA)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Week 1</td>
+      <td>20</td>
+      <td>60,000</td>
+    </tr>
+    <tr>
+      <td>Week 2</td>
+      <td>25</td>
+      <td>75,000</td>
+    </tr>
+    <tr>
+      <td>Week 3</td>
+      <td>30</td>
+      <td>90,000</td>
+    </tr>
+    <tr>
+      <td>Week 4</td>
+      <td>35</td>
+      <td>105,000</td>
+    </tr>
+  </tbody>
+</table>
+
+<h5>7. Top Products</h5>
+<table class="order-table" id="topProductsTable">
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>Total Sold</th>
+      <th>Total Revenue (FCFA)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Pizza</td>
+      <td>50</td>
+      <td>150,000</td>
+    </tr>
+    <tr>
+      <td>Cola</td>
+      <td>80</td>
+      <td>60,000</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+// Update summary
+const ordersRows = document.querySelectorAll("#ordersTable tbody tr");
+let totalOrders=0, totalRevenue=0, pendingOrders=0, failedOrders=0;
+ordersRows.forEach((row) => {
+  totalOrders++;
+  const amount = parseInt(row.cells[6].textContent.replace(/,/g,''));
+  totalRevenue += amount;
+  const status = row.querySelector(".status").textContent.toLowerCase();
+  if(status==="pending") pendingOrders++;
+  if(status==="failed") failedOrders++;
+});
+document.getElementById("totalOrders").textContent=totalOrders;
+document.getElementById("totalRevenue").textContent="FCFA "+totalRevenue.toLocaleString();
+document.getElementById("pendingOrders").textContent=pendingOrders;
+document.getElementById("failedOrders").textContent=failedOrders;
+document.getElementById("completedOrders").textContent=totalOrders-pendingOrders-failedOrders;
+document.getElementById("avgOrderValue").textContent="FCFA "+Math.round(totalRevenue/totalOrders||0);
+
+// Charts
+new Chart(document.getElementById('revenueChart'),{
+  type:'line',
+  data:{
+    labels:['Week1','Week2','Week3','Week4'],
+    datasets:[{label:'Revenue', data:[60000,75000,90000,105000], borderColor:'#047857', backgroundColor:'rgba(4,120,87,0.2)'}]
+  }
+});
+new Chart(document.getElementById('ordersTypeChart'),{
+  type:'pie',
+  data:{labels:['Dine-in','Takeaway','Delivery'], datasets:[{data:[40,30,20], backgroundColor:['#1e293b','#047857','#b45309']}]}
+});
+new Chart(document.getElementById('paymentStatusChart'),{
+  type:'doughnut',
+  data:{labels:['Paid','Pending','Failed'], datasets:[{data:[60,15,5], backgroundColor:['#047857','#b45309','#dc2626']}]}
+});
+new Chart(document.getElementById('ordersByCategoryChart'),{
+  type:'bar',
+  data:{labels:['Beverages','Food','Snacks','Desserts'], datasets:[{label:'Revenue', data:[60000,180000,50000,30000], backgroundColor:'#2563eb'}]}
+});
+new Chart(document.getElementById('topClientsChart'),{
+  type:'bar',
+  data:{labels:['John Doe','Jane Smith','Alice','Bob'], datasets:[{label:'Revenue', data:[120000,80000,60000,40000], backgroundColor:'#9333ea'}]}
+});
+
+// Export all tables
+document.getElementById('exportAllExcel').addEventListener('click',()=>{
+  const wb=XLSX.utils.book_new();
+  const tables=[
+    {id:'ordersTable', name:'Detailed Orders'},
+    {id:'topClientsTable', name:'Top Clients'},
+    {id:'categoryTable', name:'Sales by Category'},
+    {id:'paymentSummaryTable', name:'Payment Status'},
+    {id:'ordersTypeTable', name:'Orders by Type'},
+    {id:'weeklySalesTable', name:'Weekly Sales'},
+    {id:'topProductsTable', name:'Top Products'}
+  ];
+  tables.forEach(tbl=>{
+    const ws=XLSX.utils.table_to_sheet(document.getElementById(tbl.id));
+    XLSX.utils.book_append_sheet(wb, ws, tbl.name);
+  });
+  XLSX.writeFile(wb,'Full_Management_Report.xlsx');
+});
+</script>
+
+            
+        
         </main>
       </div>
-      <!-- add popup -->
-      <div>
-        <div class="add-form"></div>
-      </div>
-      <!-- Edit Popup -->
-      <div class="popup-overlay" id="editPopup">
-        <div class="edit-form">
-          <h3>Edit Product</h3>
-          <label>Name <input type="text" id="editName" /></label>
-          <label>No Telephone <input type="text" id="editTel" /></label>
-          <label>Date <input type="datetime" id="editdate" /></label>
-          <label>Method<input type="text" id="editQty" /></label>
-          <label>Status<input type="text" id="editstatus" /></label>
-          <div style="text-align: center">
-            <button class="save-btn">Save</button>
-            <button class="cancel-btn" id="closeEdit">Cancel</button>
-          </div>
-        </div>
-      </div>
 
-      <!-- Delete Popup -->
-      <div class="popup-overlay" id="deletePopup">
-        <div class="delete-box">
-          <p>Do you want to delete this payment?</p>
-          <button class="yes">Yes</button>
-          <button class="no" id="closeDelete">No</button>
-        </div>
-      </div>
-    </div>
+
+    <!-- JS -->
     <script>
       const sidebar = document.getElementById("sidebar");
       const main = document.getElementById("main");
       const toggleBtn = document.getElementById("toggleSidebar");
       const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
-
-      toggleBtn.addEventListener("click", () => {
+      document.getElementById("toggleSidebar").addEventListener("click", () => {
         sidebar.classList.toggle("hidden");
         main.classList.toggle("expanded");
       });
 
-      // Sidebar Dropdowns
       dropdowns.forEach((item) => {
         item.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -784,186 +1048,36 @@
         });
       });
 
-      // Profile Dropdown
       const profile = document.querySelector(".profile");
       profile.addEventListener("click", (e) => {
         e.stopPropagation();
         profile.classList.toggle("active");
       });
-      document.addEventListener("click", () =>
-        profile.classList.remove("active")
-      );
-    </script>
-    <script>
-      const API_BASE_URL = "http://127.0.0.1:8000"; // Base URL
-      let paymentsData = []; // Store fetched payments
-      let currentEditId = null;
-      let currentDeleteId = null;
 
-      // --- FETCH PAYMENTS ---
-      async function fetchPayments() {
-        try {
-          const response = await fetch(
-            `${API_BASE_URL}/payment/payment/Payment`
-          );
-          if (!response.ok) throw new Error("Failed to fetch payments");
-
-          paymentsData = await response.json();
-          renderPayments(paymentsData);
-        } catch (err) {
-          console.error(err);
-          alert("Error fetching payments. See console.");
-        }
-      }
-
-      // --- RENDER PAYMENTS ---
-      function renderPayments(data) {
-        const tbody = document.getElementById("ordersTableBody");
-        tbody.innerHTML = "";
-
-        if (data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center">No payments found</td></tr>`;
-          return;
-        }
-
-        data.forEach((payment, index) => {
-          const row = document.createElement("tr");
-          row.dataset.id = payment.Payment_ID;
-
-          row.innerHTML = `
-      <td>${index + 1}</td>
-      <td>${payment.Name}</td>
-      <td>${payment.No_Telephone}</td>
-      <td>${new Date(payment.Payment_Date).toLocaleDateString()}</td>
-      <td>${payment.Payment_Method}</td>
-      <td>${payment.Payment_Status}</td>
-      <td>${Number(payment.Total_Amount).toLocaleString()} FCFA</td>
-      <td>
-        <button class="edit-btn">Edit</button>
-        <button class="delete-btn">Delete</button>
-      </td>
-    `;
-          tbody.appendChild(row);
-        });
-      }
-
-      // --- SEARCH FUNCTIONALITY ---
-      document
-        .getElementById("productSearch")
-        .addEventListener("input", (e) => {
-          const query = e.target.value.toLowerCase();
-          const filtered = paymentsData.filter(
-            (p) =>
-              p.Name.toLowerCase().includes(query) ||
-              p.No_Telephone.toLowerCase().includes(query) ||
-              p.Payment_Method.toLowerCase().includes(query) ||
-              p.Payment_Status.toLowerCase().includes(query)
-          );
-          renderPayments(filtered);
-        });
-
-      // --- EDIT PAYMENT ---
-      document
-        .getElementById("ordersTableBody")
-        .addEventListener("click", (e) => {
-          const row = e.target.closest("tr");
-          if (!row) return;
-
-          const id = row.dataset.id;
-          const payment = paymentsData.find((p) => p.Payment_ID == id);
-
-          if (e.target.classList.contains("edit-btn")) {
-            currentEditId = id;
-            document.getElementById("editName").value = payment.Name;
-            document.getElementById("editTel").value = payment.No_Telephone;
-            document.getElementById("editdate").value = new Date(
-              payment.Payment_Date
-            )
-              .toISOString()
-              .slice(0, 16);
-            document.getElementById("editQty").value = payment.Payment_Method;
-            document.getElementById("editstatus").value =
-              payment.Payment_Status;
-            document.getElementById("editPopup").style.display = "flex";
-          } else if (e.target.classList.contains("delete-btn")) {
-            currentDeleteId = id;
-            document.getElementById("deletePopup").style.display = "flex";
-          }
-        });
-
-      // --- CLOSE EDIT POPUP ---
-      document.getElementById("closeEdit").addEventListener("click", () => {
-        document.getElementById("editPopup").style.display = "none";
-        currentEditId = null;
+      document.addEventListener("click", () => {
+        profile.classList.remove("active");
       });
-
-      // --- SAVE EDIT ---
-      document
-        .querySelector("#editPopup .save-btn")
-        .addEventListener("click", async () => {
-          if (!currentEditId) return;
-
-          const payload = {
-            Name: document.getElementById("editName").value,
-            No_Telephone: document.getElementById("editTel").value,
-            Payment_Date: document.getElementById("editdate").value,
-            Payment_Method: document.getElementById("editQty").value,
-            Payment_Status: document.getElementById("editstatus").value,
-          };
-
-          try {
-            const res = await fetch(
-              `${API_BASE_URL}/payment/payment/update_payment/${currentEditId}`,
-              {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              }
-            );
-            if (!res.ok) throw new Error("Failed to update payment");
-
-            alert("Payment updated successfully!");
-            document.getElementById("editPopup").style.display = "none";
-            currentEditId = null;
-            fetchPayments();
-          } catch (err) {
-            console.error(err);
-            alert("Error updating payment.");
-          }
+      // Popups
+      const editPopup = document.getElementById("editPopup");
+      const deletePopup = document.getElementById("deletePopup");
+      document.querySelectorAll(".edit").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const row = btn.closest("tr");
+          document.getElementById("editName").value = row.cells[1].textContent;
+          document.getElementById("editQty").value = row.cells[3].textContent;
+          editPopup.classList.add("active");
         });
-
-      // --- CLOSE DELETE POPUP ---
-      document.getElementById("closeDelete").addEventListener("click", () => {
-        document.getElementById("deletePopup").style.display = "none";
-        currentDeleteId = null;
       });
+      document.getElementById("closeEdit").onclick = () =>
+        editPopup.classList.remove("active");
 
-      // --- CONFIRM DELETE ---
-      document
-        .querySelector("#deletePopup .yes")
-        .addEventListener("click", async () => {
-          if (!currentDeleteId) return;
-          try {
-            const res = await fetch(
-              `${API_BASE_URL}/payment/payment/delete_payment/${currentDeleteId}`,
-              {
-                method: "DELETE",
-              }
-            );
-            if (!res.ok) throw new Error("Failed to delete payment");
-
-            alert("Payment deleted successfully!");
-            document.getElementById("deletePopup").style.display = "none";
-            currentDeleteId = null;
-            fetchPayments();
-          } catch (err) {
-            console.error(err);
-            alert("Error deleting payment.");
-          }
-        });
-
-      // --- INITIAL LOAD ---
-      fetchPayments();
+      document.querySelectorAll(".delete").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          deletePopup.classList.add("active")
+        );
+      });
+      document.getElementById("closeDelete").onclick = () =>
+        deletePopup.classList.remove("active");
     </script>
   </body>
 </html>
