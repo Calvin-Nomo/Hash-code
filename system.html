@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Menu</title>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ===== GLOBAL ===== */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: #f4f6f8;
+        color: #333;
+        overflow-x: hidden;
+      }
+
+      .wrapper {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* ===== SIDEBAR ===== */
+      #sidebar {
+        width: 250px;
+        background: #1e293b;
+        color: #fff;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1000;
+        transition: transform 0.4s ease;
+        overflow-y: auto;
+      }
+
+      #sidebar.hidden {
+        transform: translateX(-100%);
+      }
+
+      /* Sidebar Logo */
+      .sidebar-logo {
+        padding: 1.5rem;
+        background: #0f172a;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .sidebar-logo a {
+        color: #fff;
+        text-decoration: none;
+      }
+
+      /* Sidebar Nav */
+      .sidebar-nav {
+        list-style: none;
+        padding: 1rem 0;
+      }
+
+      .sidebar-item {
+        position: relative;
+      }
+
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.9rem 1.5rem;
+        color: #e2e8f0;
+        text-decoration: none;
+        transition: 0.3s;
+        border-left: 3px solid transparent;
+      }
+
+      .sidebar-link:hover {
+        background: #334155;
+        border-left: 3px solid #dc2626;
+      }
+
+      .has-dropdown::after {
+        content: "\f107";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        margin-left: auto;
+        transition: transform 0.3s;
+      }
+
+      .dropdown-open > .has-dropdown::after {
+        transform: rotate(180deg);
+      }
+
+      .sidebar-dropdown {
+        list-style: none;
+        display: none;
+        background: #334155;
+      }
+
+      .sidebar-dropdown .sidebar-link {
+        padding-left: 3rem;
+        font-size: 0.9rem;
+      }
+
+      .dropdown-open > .sidebar-dropdown {
+        display: block;
+      }
+
+      /* ===== MAIN ===== */
+      .main {
+        flex: 1;
+        margin-left: 250px;
+        transition: all 0.4s ease;
+        width: 100%;
+      }
+
+      .main.expanded {
+        margin-left: 0;
+      }
+
+      /* ===== NAVBAR ===== */
+      .dashboard-navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.5rem;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+        position: fixed;
+        top: 0;
+        left: 250px;
+        right: 0;
+        z-index: 900;
+        transition: all 0.4s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .main.expanded .dashboard-navbar {
+        left: 0;
+      }
+
+      .left-nav,
+      .right-nav {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .toggle-btn {
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 0.9rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-weight: 500;
+        transition: 0.3s;
+      }
+
+      .toggle-btn:hover {
+        background: #334155;
+      }
+
+      /* Search Bar */
+      .search-bar {
+        position: relative;
+      }
+
+      .search-bar input {
+        padding: 0.5rem 2.5rem 0.5rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        outline: none;
+        width: 200px;
+        transition: all 0.3s;
+      }
+
+      .search-bar input:focus {
+        border-color: #1e293b;
+      }
+
+      .search-bar i {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #555;
+      }
+
+      /* Toggle Theme & Profile */
+      .toggle-theme i {
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #333;
+      }
+
+      .profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .profile img {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .profile-info h2 {
+        font-size: 0.95rem;
+        color: #1e293b;
+      }
+
+      .profile-info p {
+        font-size: 0.75rem;
+        color: #64748b;
+      }
+
+      .profile i.fa-chevron-down {
+        color: #64748b;
+        transition: transform 0.3s;
+      }
+
+      .profile.active i.fa-chevron-down {
+        transform: rotate(180deg);
+      }
+
+      .profile-dropdown {
+        position: absolute;
+        top: 120%;
+        right: 0;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        list-style: none;
+        padding: 0.4rem 0;
+        display: none;
+        z-index: 100;
+        min-width: 160px;
+      }
+
+      .profile-dropdown li a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.6rem 1rem;
+        text-decoration: none;
+        color: #333;
+        font-size: 0.9rem;
+        transition: background 0.3s;
+      }
+
+      .profile-dropdown li a:hover {
+        background: #f1f5f9;
+      }
+
+      .profile.active .profile-dropdown {
+        display: block;
+      }
+
+      /* ===== CONTENT ===== */
+      .content {
+        padding: 90px 1.5rem 1.5rem;
+        min-height: 100vh;
+      }
+
+      /* Action Row */
+      .action-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .action-row button {
+        padding: 0.5rem 1.2rem;
+        border: none;
+        background: #1e293b;
+        color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .action-row button:hover {
+        background: #334155;
+      }
+
+      /* Order Table */
+      .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .order-table th,
+      .order-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .order-table th {
+        background: #f9fafb;
+        color: #475569;
+      }
+
+      .view:hover {
+        color: #2563eb;
+      }
+
+      .edit:hover {
+        color: #facc15;
+      }
+
+      .delete:hover {
+        color: #dc2626;
+      }
+
+      /* Popup Overlays */
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      }
+
+      .popup-overlay.active {
+        display: flex;
+      }
+
+      .edit-form,
+      .delete-box {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        animation: popupFade 0.3s ease;
+      }
+
+      @keyframes popupFade {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 768px) {
+        #sidebar {
+          transform: translateX(-100%);
+        }
+
+        #sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main {
+          margin-left: 0;
+        }
+
+        .dashboard-navbar {
+          left: 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <!-- SIDEBAR -->
+      <aside id="sidebar">
+        <div class="sidebar-logo">
+          <a href="#">Smart Menu</a>
+        </div>
+
+        <ul class="sidebar-nav">
+          <li class="sidebar-item">
+            <a href="admin.html" class="sidebar-link"
+              ><i class="fa-solid fa-chart-line"></i> Dashboard</a
+            >
+          </li>
+
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-box"></i> Inventory</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="product.html" class="sidebar-link">Products</a></li>
+              <li>
+                <a href="new product.html" class="sidebar-link"
+                  >Add New Product</a
+                >
+              </li>
+              <li>
+                <a href="stock.html" class="sidebar-link">Stock</a>
+              </li>
+            </ul>
+          </li>
+
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-tags"></i> Category</a
+            >
+            <ul class="sidebar-dropdown">
+              <li>
+                <a href="reservation.html" class="sidebar-link">Reservation</a>
+              </li>
+              <li><a href="table.html" class="sidebar-link">Table</a></li>
+            </ul>
+          </li>
+
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-users"></i> Users</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="user.html" class="sidebar-link">All Users</a></li>
+              <li><a href="#" class="sidebar-link">Add New User</a></li>
+            </ul>
+          </li>
+
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-cart-shopping"></i> Orders</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="#" class="sidebar-link">Order List</a></li>
+              <li><a href="#" class="sidebar-link">Order Details</a></li>
+              <li><a href="payment.html" class="sidebar-link">Payment</a></li>
+            </ul>
+          </li>
+
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-user-shield"></i> Account</a
+            >
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-chart-line"></i>Reports</a
+            >
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-gear"></i> System Settings</a
+            >
+          </li>
+        </ul>
+      </aside>
+      <!-- MAIN -->
+      <div class="main" id="main">
+        <nav class="dashboard-navbar">
+          <div class="left-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="search-bar">
+              <input type="search" placeholder="Search here..." />
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+          </div>
+
+          <div class="right-nav">
+            <div class="toggle-theme">
+              <i class="fa-solid fa-moon"></i>
+              <i class="fa-solid fa-sun"></i>
+            </div>
+
+            <div class="profile">
+              <img src="image/person_1.jpg" alt="User" />
+              <div class="profile-info">
+                <h2>Calvin Nomo</h2>
+                <p>Admin</p>
+              </div>
+              <i class="fa-solid fa-chevron-down"></i>
+
+              <ul class="profile-dropdown">
+                <li>
+                  <a href="#"
+                    ><i class="fa-solid fa-user-gear"></i> Profile Settings</a
+                  >
+                </li>
+                <li>
+                  <a href="#"
+                    ><i class="fa-solid fa-right-to-bracket"></i> Login</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+       <main class="content">
+  <h2 style="margin-bottom: 1.5rem; color: #1e293b;">System Configuration</h2>
+
+  <!-- Localization -->
+  <div class="settings-section" style="background: #fff; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+    <h3 style="border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; color: #334155;">Localization</h3>
+
+    <label for="language" style="display:block;margin-top:0.8rem;font-weight:500;">Language</label>
+    <select id="language" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px;margin-top:0.4rem;">
+      <option value="en" selected>English</option>
+      <option value="fr">Français</option>
+    </select>
+  </div>
+
+  <!-- Business Information -->
+  <div class="settings-section" style="background:#fff;padding:1.5rem;border-radius:12px;margin-bottom:1.5rem;box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+    <h3 style="border-bottom:2px solid #e2e8f0;padding-bottom:0.5rem;color:#334155;">Business Information</h3>
+
+    <label for="businessName" style="display:block;margin-top:0.8rem;font-weight:500;">Restaurant Name</label>
+    <input type="text" id="businessName" placeholder="Enter restaurant name" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px;margin-top:0.4rem;">
+
+    <label for="businessAddress" style="display:block;margin-top:0.8rem;font-weight:500;">Address</label>
+    <input type="text" id="businessAddress" placeholder="Enter address" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px;margin-top:0.4rem;">
+
+    <label for="businessWebsite" style="display:block;margin-top:0.8rem;font-weight:500;">Website</label>
+    <input type="text" id="businessWebsite" placeholder="Enter website" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px;margin-top:0.4rem;">
+
+    <label for="businessFooter" style="display:block;margin-top:0.8rem;font-weight:500;">Receipt Footer Message</label>
+    <textarea id="businessFooter" placeholder="Thank you for your visit!" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px;margin-top:0.4rem;height:80px;"></textarea>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-top:0.8rem;">
+      <label for="showQr" style="font-weight:500;">Show QR Code in Receipt</label>
+      <input type="checkbox" id="showQr" />
+    </div>
+  </div>
+
+  <button id="saveSettings" style="padding:0.7rem 1.5rem;background:#1e293b;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+    <i class="fa-solid fa-floppy-disk"></i> Save Settings
+  </button>
+</main>
+
+      </div>
+      </div>
+
+    <!-- JS -->
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      const main = document.getElementById("main");
+      const toggleBtn = document.getElementById("toggleSidebar");
+      const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
+      document.getElementById("toggleSidebar").addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+        main.classList.toggle("expanded");
+      });
+
+      dropdowns.forEach((item) => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.classList.toggle("dropdown-open");
+          dropdowns.forEach((other) => {
+            if (other !== item) other.classList.remove("dropdown-open");
+          });
+        });
+      });
+
+      const profile = document.querySelector(".profile");
+      profile.addEventListener("click", (e) => {
+        e.stopPropagation();
+        profile.classList.toggle("active");
+      });
+
+      document.addEventListener("click", () => {
+        profile.classList.remove("active");
+      });
+    </script>
+    <script>
+const apiUrl = "http://127.0.0.1:8000";
+
+window.onload = async () => {
+  try {
+    const res = await fetch(`${apiUrl}/settings`);
+    if (!res.ok) throw new Error("Failed to load settings");
+    const data = await res.json();
+
+    document.getElementById("businessName").value = data.business_name || "";
+    document.getElementById("businessAddress").value = data.business_address || "";
+    document.getElementById("businessWebsite").value = data.business_website || "";
+    document.getElementById("businessFooter").value = data.receipt_footer || "";
+    document.getElementById("showQr").checked = data.show_qr;
+  } catch (error) {
+    console.error(error);
+    alert("⚠️ Failed to load system settings!");
+  }
+};
+
+document.getElementById("saveSettings").addEventListener("click", async () => {
+  const settings = {
+    language: document.getElementById("language").value,
+    currency: document.getElementById("currency").value,
+    business_name: document.getElementById("businessName").value,
+    business_address: document.getElementById("businessAddress").value,
+    business_website: document.getElementById("businessWebsite").value,
+    receipt_footer: document.getElementById("businessFooter").value,
+    show_qr: document.getElementById("showQr").checked
+  };
+
+  try {
+    const res = await fetch(`${apiUrl}/update_settings`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(settings)
+    });
+    const result = await res.json();
+    alert("✅ " + result.message);
+  } catch (error) {
+    console.error(error);
+    alert("⚠️ Failed to save system settings!");
+  }
+});
+</script>
+
+  </body>
+</html>
