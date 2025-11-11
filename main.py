@@ -1,10 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException, Response, Cookie
+from fastapi import UploadFile, File, Form
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordRequestForm
 from backend.data.credentials import ACCESS_SECRET_KEY, REFRESH_SECRET_KEY, Mysql_password, Database_Name
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from typing import Optional
+import os, shutil
 import jwt
 import pymysql
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,6 +43,12 @@ DB = pymysql.connect(
     autocommit=True
 )
 cursor = DB.cursor()
+
+
+UPLOAD_DIR = "uploads"
+# Serve static files at /uploads
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # --- Include Routers ---
 app.include_router(client.router, prefix="/client", tags=["client"])
@@ -137,14 +146,17 @@ revoked_tokens = set()
 
 @app.post("/register")
 def register_user(user: UserCreate):
-    cursor.execute("SELECT * FROM USERS WHERE Email = %s", (user.Email,))
-    if cursor.fetchone():
-        raise HTTPException(status_code=400, detail="User already exists")
-    hashed_password = get_pwd_hash(user.Password)
-    cursor.execute(
-        "INSERT INTO USERS (Username, PasswordHash, Roles, Email, is_active) VALUES (%s, %s, %s, %s, %s)",
-        (user.Username, hashed_password, user.Role, user.Email, True)
-    )
+    try:
+        cursor.execute("SELECT * FROM USERS WHERE Email = %s", (user.Email,))
+        if cursor.fetchone():
+            raise HTTPException(status_code=400, detail="User already exists")
+        hashed_password = get_pwd_hash(user.Password)
+        cursor.execute(
+            "INSERT INTO USERS (Username,Email,PasswordHash, Roles,  is_active) VALUES (%s, %s, %s, %s, %s)",
+            (user.Username,  user.Email, hashed_password, user.Role,True)
+        )
+    except:
+        raise HTTPException(status_code=500,detail='something went wrong')
     return {"message": "User created successfully"}
 
 @app.post("/login")
@@ -169,11 +181,11 @@ def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestF
         httponly=True, secure=False, samesite="lax",
         max_age=REFRESH_TOKEN_EXPIRE_DAYS*24*3600 )
         # Getting the user
-        cursor.execute(""" Select Roles from Users Where Email = %s""",(form_data.username,))
+        cursor.execute(""" Select Roles,Username from Users Where Email = %s""",(form_data.username,))
         role=cursor.fetchone()
         return {"message": "Successfully logged in",
-                "role":f"{role['Roles']}"
-                
+                "role":f"{role['Roles']}",
+                "username":f"{role['Username']}"
                 }
     except Exception as e :
         return {"message": "error logged in"}
@@ -245,3 +257,137 @@ def profile(current_user: dict = Depends(get_current_user)):
 @app.get("/greeting")
 def greeting():
     return {"message": "Welcome!"}
+
+
+# --- Pydantic model ---
+class SystemSettings(BaseModel):
+    business_name: str
+    business_address: str
+    business_website: str
+    receipt_footer: str
+    show_qr: bool
+class Admin_Setting(BaseModel):
+    languages:str
+    theme:str
+# --- GET global settings ---
+@app.get("/settings")
+def get_global_settings():
+    cursor.execute("SELECT * FROM system_settings ORDER BY system_id DESC LIMIT 1")
+    settings = cursor.fetchone()
+    if not settings:
+        raise HTTPException(status_code=404, detail="No settings found")
+    return settings
+
+# --- UPDATE settings ---
+@app.put("/update_settings")
+def update_global_settings(settings: SystemSettings, current_user: dict = Depends(require_role(['superadmin']))):
+    cursor.execute("""Select system_id From system_settings Limit 1""")
+    system_id=cursor.fetchone()
+    if system_id:
+        cursor.execute("""
+            UPDATE system_settings
+            SET business_name=%s,
+                business_address=%s, business_website=%s,
+                receipt_footer=%s, show_qr=%s
+            WHERE system_id=%s
+        """, (
+            settings.business_name,
+            settings.business_address, settings.business_website,
+            settings.receipt_footer, settings.show_qr,system_id['system_id']
+        ))
+        return{'message': f'Settings updated successfully {system_id['system_id']}'
+
+        }
+    else:
+        cursor.execute("""
+            INSERT INTO system_settings (business_name, business_address, business_website, receipt_footer, show_qr)
+            VALUES (%s,%s,%s,%s,%s)
+        """, (settings.business_name, settings.business_address,
+              settings.business_website, settings.receipt_footer, settings.show_qr))
+
+    DB.commit()
+    return {"message": "Settings created successfully"}
+
+
+
+# --- ############Admin  Settings Configuration ############ ---
+#  GET admin setting (personal)
+@app.get("/admin/setting/{user_id}")
+def get_admin_setting(user_id: int):
+    try:
+        cursor.execute("SELECT * FROM admin_setting WHERE updated_by = %s", (user_id,))
+        setting = cursor.fetchone()
+
+        # If not exist, create default
+        if not setting:
+            cursor.execute("""
+                INSERT INTO admin_setting (languages, theme, updated_by)
+                VALUES ('eng', 'light', %s)
+            """, (user_id,))
+            DB.commit()
+            cursor.execute("SELECT * FROM admin_setting WHERE updated_by = %s", (user_id,))
+            setting = cursor.fetchone()
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {
+        "message": "successfully return the admin info ",
+        "language": setting["languages"],
+        "theme": setting["theme"],
+        'admin_profile':setting['Profile_link']
+    }
+
+# UPDATE admin setting
+@app.put("/admin/setting/update/{user_id}")
+def update_admin_setting(user_id: int, settings: Admin_Setting):
+    cursor.execute("SELECT * FROM admin_setting WHERE updated_by = %s", (user_id,))
+    exist = cursor.fetchone()
+
+    if not exist:
+        raise HTTPException(status_code=404, detail="No settings found for this admin")
+
+    cursor.execute("""
+        UPDATE admin_setting
+        SET languages=%s, theme=%s
+        WHERE updated_by=%s
+    """, (settings.languages, settings.theme, user_id))
+    DB.commit()
+    return {"message": f"Settings updated successfully for admin {user_id}"}
+# ajust the admin profile pictures
+@app.put("/update/profile/image/{user_id}")
+async def update_profile_link(user_id: int, image: UploadFile = File(...)):
+    try:
+        file_path = os.path.join(UPLOAD_DIR, image.filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+        db_image_path = f"{UPLOAD_DIR}/{image.filename}"
+
+        # Check if row exists
+        cursor.execute("SELECT admin_id FROM admin_setting WHERE updated_by=%s", (user_id,))
+        row = cursor.fetchone()
+
+        if row:
+            # Update existing row
+            cursor.execute(
+                "UPDATE admin_setting SET Profile_link=%s, updated_at=NOW() WHERE updated_by=%s",
+                (db_image_path, user_id)
+            )
+        else:
+            # Insert new row
+            cursor.execute(
+                "INSERT INTO admin_setting (updated_by, Profile_link) VALUES (%s, %s)",
+                (user_id, db_image_path)
+            )
+
+        DB.commit()
+
+        return {
+            "message": "Profile image updated successfully",
+            "profile_image": db_image_path
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+        

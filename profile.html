@@ -3,160 +3,578 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Profile Settings</title>
+    <title>Smart Menu</title>
+
+    <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
     />
+
+    <!-- Google Font -->
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
-    <!-- optional if styles are shared -->
+    <!-- === load CSS -->
+     <link href="profile.css" rel="stylesheet"/>
     <style>
-      body {
+      /* ===== GLOBAL ===== */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
         font-family: "Poppins", sans-serif;
+      }
+
+      body {
         background: #f4f6f8;
         color: #333;
+        overflow-x: hidden;
       }
 
-      .container {
-        max-width: 700px;
-        margin: 100px auto;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
+      .wrapper {
+        display: flex;
+        min-height: 100vh;
       }
 
-      h2 {
+      /* ===== SIDEBAR ===== */
+      #sidebar {
+        width: 250px;
+        background: #1e293b;
+        color: #fff;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1000;
+        transition: transform 0.4s ease;
+        overflow-y: auto;
+      }
+
+      #sidebar.hidden {
+        transform: translateX(-100%);
+      }
+
+      /* Sidebar Logo */
+      .sidebar-logo {
+        padding: 1.5rem;
+        background: #0f172a;
         text-align: center;
-        margin-bottom: 1.5rem;
-        color: #1e293b;
+        font-size: 1.5rem;
+        font-weight: 600;
       }
 
-      .profile-form label {
+      .sidebar-logo a {
+        color: #fff;
+        text-decoration: none;
+      }
+
+      /* Sidebar Nav */
+      .sidebar-nav {
+        list-style: none;
+        padding: 1rem 0;
+      }
+
+      .sidebar-item {
+        position: relative;
+      }
+
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.9rem 1.5rem;
+        color: #e2e8f0;
+        text-decoration: none;
+        transition: 0.3s;
+        border-left: 3px solid transparent;
+      }
+
+      .sidebar-link:hover {
+        background: #334155;
+        border-left: 3px solid #dc2626;
+      }
+
+      .has-dropdown::after {
+        content: "\f107";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        margin-left: auto;
+        transition: transform 0.3s;
+      }
+
+      .dropdown-open > .has-dropdown::after {
+        transform: rotate(180deg);
+      }
+
+      .sidebar-dropdown {
+        list-style: none;
+        display: none;
+        background: #334155;
+      }
+
+      .sidebar-dropdown .sidebar-link {
+        padding-left: 3rem;
+        font-size: 0.9rem;
+      }
+
+      .dropdown-open > .sidebar-dropdown {
         display: block;
-        margin-top: 1rem;
-        font-weight: 500;
-        color: #475569;
       }
 
-      .profile-form input,
-      .profile-form select {
+      /* ===== MAIN ===== */
+      .main {
+        flex: 1;
+        margin-left: 250px;
+        transition: all 0.4s ease;
         width: 100%;
-        padding: 0.7rem;
-        margin-top: 0.4rem;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        outline: none;
-        font-size: 1rem;
-        transition: border 0.3s;
       }
 
-      .profile-form input:focus {
-        border-color: #1e293b;
+      .main.expanded {
+        margin-left: 0;
       }
 
-      .profile-pic {
+      /* ===== NAVBAR ===== */
+      .dashboard-navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.5rem;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+        position: fixed;
+        top: 0;
+        left: 250px;
+        right: 0;
+        z-index: 900;
+        transition: all 0.4s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .main.expanded .dashboard-navbar {
+        left: 0;
+      }
+
+      .left-nav,
+      .right-nav {
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin-top: 1rem;
       }
 
-      .profile-pic img {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #1e293b;
-      }
-
-      .profile-pic label {
-        background: #1e293b;
-        color: #fff;
-        padding: 0.4rem 1rem;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: 0.3s;
-      }
-
-      .profile-pic label:hover {
-        background: #334155;
-      }
-
-      .save-btn {
-        width: 100%;
+      .toggle-btn {
         background: #1e293b;
         color: #fff;
         border: none;
-        padding: 0.8rem;
-        margin-top: 2rem;
+        padding: 0.5rem 0.9rem;
         border-radius: 6px;
+        cursor: pointer;
         font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-weight: 500;
+        transition: 0.3s;
+      }
+
+      .toggle-btn:hover {
+        background: #334155;
+      }
+
+      /* Search Bar */
+      .search-bar {
+        position: relative;
+      }
+
+      .search-bar input {
+        padding: 0.5rem 2.5rem 0.5rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        outline: none;
+        width: 200px;
+        transition: all 0.3s;
+      }
+
+      .search-bar input:focus {
+        border-color: #1e293b;
+      }
+
+      .search-bar i {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #555;
+      }
+
+      /* Toggle Theme & Profile */
+      .toggle-theme i {
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #333;
+      }
+
+      .profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .profile img {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .profile-info h2 {
+        font-size: 0.95rem;
+        color: #1e293b;
+      }
+
+      .profile-info p {
+        font-size: 0.75rem;
+        color: #64748b;
+      }
+
+      .profile i.fa-chevron-down {
+        color: #64748b;
+        transition: transform 0.3s;
+      }
+
+      .profile.active i.fa-chevron-down {
+        transform: rotate(180deg);
+      }
+
+      .profile-dropdown {
+        position: absolute;
+        top: 120%;
+        right: 0;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        list-style: none;
+        padding: 0.4rem 0;
+        display: none;
+        z-index: 100;
+        min-width: 160px;
+      }
+
+      .profile-dropdown li a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.6rem 1rem;
+        text-decoration: none;
+        color: #333;
+        font-size: 0.9rem;
+        transition: background 0.3s;
+      }
+
+      .profile-dropdown li a:hover {
+        background: #f1f5f9;
+      }
+
+      .profile.active .profile-dropdown {
+        display: block;
+      }
+
+      /* ===== CONTENT ===== */
+      .content {
+        padding: 90px 1.5rem 1.5rem;
+        min-height: 100vh;
+      }
+
+      /* Action Row */
+      .action-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .action-row button {
+        padding: 0.5rem 1.2rem;
+        border: none;
+        background: #1e293b;
+        color: #fff;
+        border-radius: 6px;
         cursor: pointer;
         transition: 0.3s;
       }
 
-      .save-btn:hover {
+      .action-row button:hover {
         background: #334155;
+      }
+
+      /* Order Table */
+      .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .order-table th,
+      .order-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .order-table th {
+        background: #f9fafb;
+        color: #475569;
+      }
+
+      .view:hover {
+        color: #2563eb;
+      }
+
+      .edit:hover {
+        color: #facc15;
+      }
+
+      .delete:hover {
+        color: #dc2626;
+      }
+
+      /* Popup Overlays */
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      }
+
+      .popup-overlay.active {
+        display: flex;
+      }
+
+      .edit-form,
+      .delete-box {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        animation: popupFade 0.3s ease;
+      }
+
+      @keyframes popupFade {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 768px) {
+        #sidebar {
+          transform: translateX(-100%);
+        }
+
+        #sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main {
+          margin-left: 0;
+        }
+
+        .dashboard-navbar {
+          left: 0;
+        }
       }
     </style>
   </head>
+
   <body>
-    <div class="container">
-      <h2>Profile Settings</h2>
-      <form class="profile-form" id="profileForm">
-        <div class="profile-pic">
-          <img id="preview" src="image/person_1.jpg" alt="Profile Picture" />
-          <label for="profileImage"
-            ><i class="fa-solid fa-camera"></i> Change</label
-          >
-          <input type="file" id="profileImage" accept="image/*" hidden />
+    <div class="wrapper">
+      <!-- SIDEBAR -->
+      <aside id="sidebar">
+        <div class="sidebar-logo">
+          <a href="#">Smart Menu</a>
         </div>
 
-        <label for="username">Full Name</label>
-        <input type="text" id="username" value="Calvin Nomo" />
+        <ul class="sidebar-nav">
+          <li class="sidebar-item">
+            <a href="admin.html" class="sidebar-link"
+              ><i class="fa-solid fa-chart-line"></i> Dashboard</a
+            >
+          </li>
 
-        <label for="email">Email Address</label>
-        <input type="email" id="email" value="calvin@example.com" />
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-box"></i> Inventory</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="product.html" class="sidebar-link">Products</a></li>
+              <li>
+                <a href="new product.html" class="sidebar-link"
+                  >Add New Product</a
+                >
+              </li>
+              <li>
+                <a href="stock.html" class="sidebar-link">Stock</a>
+              </li>
+            </ul>
+          </li>
 
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="********" />
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-tags"></i> Category</a
+            >
+            <ul class="sidebar-dropdown">
+              <li>
+                <a href="reservation.html" class="sidebar-link">Reservation</a>
+              </li>
+              <li><a href="table.html" class="sidebar-link">Table</a></li>
+            </ul>
+          </li>
 
-        <label for="role">Role</label>
-        <select id="role">
-          <option selected>Admin</option>
-          <option>User</option>
-          <option>Manager</option>
-        </select>
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-users"></i> Users</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="user.html" class="sidebar-link">All Users</a></li>
+              <li><a href="#" class="sidebar-link">Add New User</a></li>
+            </ul>
+          </li>
 
-        <button type="button" class="save-btn">Save Changes</button>
-      </form>
+          <li class="sidebar-item dropdown">
+            <a href="#" class="sidebar-link has-dropdown"
+              ><i class="fa-solid fa-cart-shopping"></i> Orders</a
+            >
+            <ul class="sidebar-dropdown">
+              <li><a href="#" class="sidebar-link">Order List</a></li>
+              <li><a href="#" class="sidebar-link">Order Details</a></li>
+              <li><a href="payment.html" class="sidebar-link">Payment</a></li>
+            </ul>
+          </li>
+
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-user-shield"></i> Account</a
+            >
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-chart-line"></i>Reports</a
+            >
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link"
+              ><i class="fa-solid fa-gear"></i> System Settings</a
+            >
+          </li>
+        </ul>
+      </aside>
+      <!-- MAIN -->
+      <div class="main" id="main">
+        <nav class="dashboard-navbar">
+          <div class="left-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="search-bar">
+              <input type="search" placeholder="Search here..." />
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+          </div>
+
+          <div class="right-nav">
+            <div class="toggle-theme">
+              <i class="fa-solid fa-moon"></i>
+              <i class="fa-solid fa-sun"></i>
+            </div>
+
+            <div class="profile">
+              <img src="image/person_1.jpg" alt="User" />
+              <div class="profile-info">
+                <h2>Calvin Nomo</h2>
+                <p>Admin</p>
+              </div>
+              <i class="fa-solid fa-chevron-down"></i>
+
+              <ul class="profile-dropdown">
+                <li>
+                  <a href="#"
+                    ><i class="fa-solid fa-user-gear"></i> Profile Settings</a
+                  >
+                </li>
+                <li>
+                  <a href="#"
+                    ><i class="fa-solid fa-right-to-bracket"></i> Login</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+       <main class="content">
+  <h2 style="margin-bottom: 1.5rem; color: #1e293b;">Profile Configuration</h2>
+
+
+  <!-- Business Information -->
+  
+<!-- container general -->
+ <div class="container">
+    <div class="imageProfile">
+      <img src="image/person_1.jpg" alt="User" id="imgprofile" onclick="hi()" style="cursor:pointer;">
+      <div class="information">
+        <h2 id="username"> NOMO Calvin</h2>
+      </div>
     </div>
 
-    <script>
-      // Preview profile picture
-      const inputFile = document.getElementById("profileImage");
-      const preview = document.getElementById("preview");
+    <button class="btn-modifier-photo" onclick="modifierPhoto()">Modifier la photo</button>
 
-      inputFile.addEventListener("change", function () {
-        const file = this.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function () {
-            preview.src = reader.result;
-          };
-          reader.readAsDataURL(file);
-        }
-      });
+    <div class="form-section">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Entrer votre email" value="exemple@email.com">
 
-      // Save form (no API yet)
-      document.querySelector(".save-btn").addEventListener("click", () => {
-        alert("Profile updated successfully (no backend connected).");
-      });
-    </script>
-  </body>
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" placeholder="********">
+
+      <button class="btn-change-password" onclick="changerMotDePasse()">Changer le mot de passe</button>
+    </div>
+
+    <div class="role">
+      <strong>Rôle :</strong> Administrateur
+    </div>
+
+    <button class="logout-btn" onclick="logout()">Déconnexion</button>
+  </div>
+
+  <script>
+    function modifierPhoto() {
+      alert("Fonction pour changer la photo à venir !");
+    }
+
+    function changerMotDePasse() {
+      alert("Fonction pour modifier le mot de passe !");
+    }
+
+    function logout() {
+      alert("Déconnexion...");
+    }
+  </script>
+</body>
 </html>
