@@ -1015,7 +1015,7 @@
         deletePopup.classList.remove("active");
     </script>
     <script>
-      const API_BASE_URL = "http://localhost:8000"; // Adjust if backend is remote
+      const API_BASE_URL = "http://127.0.0.1:8000"; // Adjust if backend is remote
 
       // Load all orders on page load
       window.addEventListener("load", fetchOrders);
@@ -1161,120 +1161,6 @@
           console.error("Error loading order details:", error);
           tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">Error loading order details.</td></tr>`;
         }
-      }
-    </script>
-    <script>
-      function printInvoice() {
-        // 1️⃣ Get all order info
-        const orderId = document.getElementById("orderId").textContent;
-        const clientName = document.getElementById("clientName").textContent;
-        const clientPhone = document.getElementById("clientPhone").textContent;
-        const orderDate = document.getElementById("orderDate").textContent;
-        const orderType = document.getElementById("orderType").textContent;
-        const totalAmount = document.getElementById("totalAmount").textContent;
-        const paymentMethod =
-          document.getElementById("paymentMethod").textContent;
-        const paymentStatus =
-          document.getElementById("paymentStatus").textContent;
-        const tableNumber = document.getElementById("table_number").textContent;
-
-        // 2️⃣ Build items table rows
-        const itemsRows = Array.from(
-          document.querySelectorAll("#orderItemsTbody tr")
-        )
-          .map((row) => {
-            const cols = row.querySelectorAll("td");
-            if (cols.length < 6) return "";
-            return `<tr>
-        <td>${cols[2].textContent}</td>
-        <td style="text-align:center;">${cols[3].textContent}</td>
-        <td style="text-align:right;">${cols[4].textContent}</td>
-        <td style="text-align:right;">${cols[5].textContent}</td>
-      </tr>`;
-          })
-          .join("");
-
-        // 3️⃣ Build receipt HTML — everything inside .receipt
-        const receiptHTML = `
-    <html>
-      <head>
-        <style>
-          body { font-family: "Courier New", monospace; padding: 10px; background: #fff; }
-          .receipt { width: 350px; margin: auto; padding: 20px; border: 1px dashed #999; }
-          h2 { text-align: center; margin-bottom: 5px; }
-          p { margin: 2px 0; font-size: 14px; }
-          hr { border: none; border-top: 1px dashed #ccc; margin: 10px 0; }
-          table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
-          th, td { padding: 5px; border-bottom: 1px solid #ddd; }
-          th { text-align: left; }
-          .totals { text-align: right; margin-top: 10px; font-size: 14px; }
-          .footer { text-align: center; font-size: 11px; color: #555; margin-top: 15px; }
-          @media print { button { display: none; } }
-        </style>
-      </head>
-      <body>
-        <div class="receipt">
-          <h2>Smart Menu</h2>
-          <p style="text-align:center;">Bienvenue à Smart Menu</p>
-          <p style="text-align:center;">Email: smartmenu@gmail.com</p>
-          <p style="text-align:center;">Tel: 653060490</p>
-          <hr>
-
-          <p><strong>Client:</strong> ${clientName}</p>
-          <p><strong>Téléphone:</strong> ${clientPhone}</p>
-          <p><strong>Type de commande:</strong> ${orderType}</p>
-          <p><strong>Table:</strong> ${tableNumber}</p>
-          <p><strong>Date:</strong> ${orderDate}</p>
-          <hr>
-
-          <table>
-            <thead>
-              <tr>
-                <th>Produit</th>
-                <th>Qté</th>
-                <th>PU</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsRows}
-            </tbody>
-          </table>
-
-          <div class="totals">
-            <p><strong>Total:</strong> ${totalAmount} FCFA</p>
-            <p><strong>Mode Paiement:</strong> ${paymentMethod}</p>
-            <p><strong>Status:</strong> ${paymentStatus}</p>
-          </div>
-          <hr>
-
-          <p style="text-align:center;"><strong>MERCI POUR VOTRE CONFIANCE</strong></p>
-
-          <div class="footer">
-            Commande: ${orderId}<br>
-            ${new Date().toLocaleString()}
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-        // 4️⃣ Print using hidden iframe (no about:blank)
-        const iframe = document.createElement("iframe");
-        iframe.style.position = "absolute";
-        iframe.style.width = "0";
-        iframe.style.height = "0";
-        document.body.appendChild(iframe);
-
-        const doc = iframe.contentWindow.document;
-        doc.open();
-        doc.write(receiptHTML);
-        doc.close();
-
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-
-        setTimeout(() => document.body.removeChild(iframe), 1000);
       }
     </script>
   </body>

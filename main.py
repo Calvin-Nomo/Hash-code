@@ -80,6 +80,16 @@ class UserCreate(BaseModel):
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+# --- Pydantic model ---
+class SystemSettings(BaseModel):
+    business_name: str
+    business_address: str
+    business_website: str
+    receipt_footer: str
+    show_qr: bool
+class Admin_Setting(BaseModel):
+    languages:str
+    theme:str
 
 # ==========================================================
 #                  UTILITY FUNCTIONS
@@ -181,11 +191,12 @@ def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestF
         httponly=True, secure=False, samesite="lax",
         max_age=REFRESH_TOKEN_EXPIRE_DAYS*24*3600 )
         # Getting the user
-        cursor.execute(""" Select Roles,Username from Users Where Email = %s""",(form_data.username,))
+        cursor.execute(""" Select Roles,Username,UserID from Users Where Email = %s""",(form_data.username,))
         role=cursor.fetchone()
         return {"message": "Successfully logged in",
                 "role":f"{role['Roles']}",
-                "username":f"{role['Username']}"
+                "username":f"{role['Username']}",
+                "user_id":f"{role["UserID"]}"
                 }
     except Exception as e :
         return {"message": "error logged in"}
@@ -235,7 +246,16 @@ def get_all_users():
     cursor.execute("SELECT UserID, Username, Email, Roles, is_active FROM USERS")
     result = cursor.fetchall()
     return {"users": result}
-
+@app.get("/user/by/{user_id}")
+def get_users( user_id:int):
+    cursor.execute("""select p.Profile_link,u.UserID,u.Roles,u.Username,u.Email
+from users u
+join admin_setting p
+ON
+p.updated_by=u.UserID
+where u.UserID=%s""",(user_id))
+    result = cursor.fetchone()
+    return {"users": result}
 @app.put("/update_user/{user_id}")
 def update_user(user_id: int, user: UserCreate, current_user: dict = Depends(require_role(["admin"]))):
     hashed_pwd = get_pwd_hash(user.Password)
@@ -259,16 +279,7 @@ def greeting():
     return {"message": "Welcome!"}
 
 
-# --- Pydantic model ---
-class SystemSettings(BaseModel):
-    business_name: str
-    business_address: str
-    business_website: str
-    receipt_footer: str
-    show_qr: bool
-class Admin_Setting(BaseModel):
-    languages:str
-    theme:str
+
 # --- GET global settings ---
 @app.get("/settings")
 def get_global_settings():
@@ -280,7 +291,7 @@ def get_global_settings():
 
 # --- UPDATE settings ---
 @app.put("/update_settings")
-def update_global_settings(settings: SystemSettings, current_user: dict = Depends(require_role(['superadmin']))):
+def update_global_settings(settings: SystemSettings):
     cursor.execute("""Select system_id From system_settings Limit 1""")
     system_id=cursor.fetchone()
     if system_id:

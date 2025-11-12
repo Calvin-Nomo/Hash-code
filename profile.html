@@ -14,8 +14,10 @@
     <!-- Google Font -->
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
+      rel="stylesheet" 
     />
+    <!-- Browser Icon -->
+    <link rel="shortcut icon" href="image/france.png" type="image/x-icon">
     <!-- === load CSS -->
      <link href="profile.css" rel="stylesheet"/>
     <style>
@@ -506,7 +508,7 @@
             </div>
 
             <div class="profile">
-              <img src="image/person_1.jpg" alt="User" />
+              <img src="image/person_1.jpg" alt="User" id="profile-image" />
               <div class="profile-info">
                 <h2>Calvin Nomo</h2>
                 <p>Admin</p>
@@ -538,43 +540,88 @@
 <!-- container general -->
  <div class="container">
     <div class="imageProfile">
-      <img src="image/person_1.jpg" alt="User" id="imgprofile" onclick="hi()" style="cursor:pointer;">
+      <img src="image/person_1.jpg" alt="User" id="imgprofile"  style="cursor:pointer;">
       <div class="information">
-        <h2 id="username"> NOMO Calvin</h2>
+        <h2 id="user-username"> NOMO Calvin</h2>
       </div>
     </div>
 
     <button class="btn-modifier-photo" onclick="modifierPhoto()">Modifier la photo</button>
 
     <div class="form-section">
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="Entrer votre email" value="exemple@email.com">
-
-      <label for="password">Mot de passe</label>
-      <input type="password" id="password" placeholder="********">
-
-      <button class="btn-change-password" onclick="changerMotDePasse()">Changer le mot de passe</button>
+    <p>Email: <span id="user-email"></span></p>
     </div>
-
     <div class="role">
-      <strong>Rôle :</strong> Administrateur
+      <p>Role: <span id="user-role"></span></p>
     </div>
 
-    <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    <button class="logout-btn" id="logout" onclick="logout()">Déconnexion</button>
   </div>
 
-  <script>
-    function modifierPhoto() {
-      alert("Fonction pour changer la photo à venir !");
-    }
+    <script>
+      const user_id=1;
+      console.log(typeof(user_id))
+      async function fetchUsers(user_id) {
+        try {
+          const response = await fetch(
+`http://127.0.0.1:8000/user/by/${user_id}`
+          );
+          if (!response.ok) throw new Error("Failed to fetch users");
 
-    function changerMotDePasse() {
-      alert("Fonction pour modifier le mot de passe !");
-    }
-
-    function logout() {
-      alert("Déconnexion...");
-    }
-  </script>
+          const user = await response.json();
+          console.log('Here are the user info',user);
+          console.log('user-email',user.users.Email);
+          console.log('user-username',user.users.Username);
+          console.log('user-role',user.users.Roles);
+          console.log('user-profile_link',user.users.Profile_link);
+          if (user.users) {
+              document.getElementById('user-email').textContent = user.users.Email || 'example@gmail.com';
+              document.getElementById('user-username').textContent = user.users.Username || 'User';
+              document.getElementById('user-role').textContent = user.users.Roles || 'Unknown';
+              document.getElementById('imgprofile').src = user.users.Profile_link || 'image/person_1.jpg';
+              document.getElementById('profile-image').src = user.users.Profile_link || 'image/person_1.jpg';
+      } else {
+        console.warn("Unexpected response format:", user);
+      }
+        
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        }
+      }
+      fetchUsers(user_id);
+    </script>
 </body>
+<script>
+      const sidebar = document.getElementById("sidebar");
+      const main = document.getElementById("main");
+      const toggleBtn = document.getElementById("toggleSidebar");
+      const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
+
+      toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+        main.classList.toggle("expanded");
+      });
+
+      // Sidebar Dropdowns
+      dropdowns.forEach((item) => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.classList.toggle("dropdown-open");
+          dropdowns.forEach((other) => {
+            if (other !== item) other.classList.remove("dropdown-open");
+          });
+        });
+      });
+
+      // Profile Dropdown
+      const profile = document.querySelector(".profile");
+      profile.addEventListener("click", (e) => {
+        e.stopPropagation();
+        profile.classList.toggle("active");
+      });
+      document.addEventListener("click", () =>
+        profile.classList.remove("active")
+      );
+    </script>
+    
 </html>

@@ -602,30 +602,35 @@
         profile.classList.remove("active");
       });
     </script>
-    <script>
+<script>
 const apiUrl = "http://127.0.0.1:8000";
 
 window.onload = async () => {
   try {
-    const res = await fetch(`${apiUrl}/settings`);
-    if (!res.ok) throw new Error("Failed to load settings");
-    const data = await res.json();
+    // Load language (admin_setting)
+    const langRes = await fetch(`${apiUrl}/admin_settings`);
+    const langData = await langRes.json();
+    document.getElementById("language").value = langData.language || "en";
+
+    // Load restaurant info (system_setting)
+    const sysRes = await fetch(`${apiUrl}/system_settings`);
+    const data = await sysRes.json();
 
     document.getElementById("businessName").value = data.business_name || "";
     document.getElementById("businessAddress").value = data.business_address || "";
     document.getElementById("businessWebsite").value = data.business_website || "";
     document.getElementById("businessFooter").value = data.receipt_footer || "";
-    document.getElementById("showQr").checked = data.show_qr;
+    document.getElementById("showQr").checked = data.show_qr || false;
   } catch (error) {
     console.error(error);
-    alert("⚠️ Failed to load system settings!");
+    alert("❌ Failed to load system settings!");
   }
 };
 
+// Save both
 document.getElementById("saveSettings").addEventListener("click", async () => {
+  const lang = document.getElementById("language").value;
   const settings = {
-    language: document.getElementById("language").value,
-    currency: document.getElementById("currency").value,
     business_name: document.getElementById("businessName").value,
     business_address: document.getElementById("businessAddress").value,
     business_website: document.getElementById("businessWebsite").value,
@@ -634,16 +639,25 @@ document.getElementById("saveSettings").addEventListener("click", async () => {
   };
 
   try {
-    const res = await fetch(`${apiUrl}/update_settings`, {
+    // Save language
+    await fetch(`${apiUrl}/admin_settings`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language: lang })
+    });
+
+    // Save system settings
+    const res = await fetch(`${apiUrl}/system_settings`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(settings)
     });
+
     const result = await res.json();
-    alert("✅ " + result.message);
+    alert("✅ Settings saved successfully!");
   } catch (error) {
     console.error(error);
-    alert("⚠️ Failed to save system settings!");
+    alert("❌ Failed to save settings!");
   }
 });
 </script>
