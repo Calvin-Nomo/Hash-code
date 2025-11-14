@@ -754,10 +754,10 @@
             </div>
 
             <div class="profile">
-              <img src="image/person_1.jpg" alt="User" />
+              <img src="image/person_1.jpg" alt="User" id="user-profile_link" />
               <div class="profile-info">
-                <h2>Calvin Nomo</h2>
-                <p>Admin</p>
+                <h2 id="user-username">Calvin Nomo</h2>
+                <p id="user-role">Admin</p>
               </div>
               <i class="fa-solid fa-chevron-down"></i>
 
@@ -1013,6 +1013,14 @@
       });
       document.getElementById("closeDelete").onclick = () =>
         deletePopup.classList.remove("active");
+                      // Here we will opdate the userinfo
+          const info=JSON.parse(localStorage.getItem("user-form"));
+          console.log('user-name',info.username)
+          console.log('user-info',info)
+          document.getElementById('user-username').textContent = info.username || 'User';
+          document.getElementById('user-role').textContent = info.role || 'Unknown';
+          document.getElementById('user-profile_link').src = info.image || 'image/person_1.jpg';
+    //Fin
     </script>
     <script>
       const API_BASE_URL = "http://127.0.0.1:8000"; // Adjust if backend is remote

@@ -499,15 +499,15 @@
 
           <div class="right-nav">
             <div class="toggle-theme">
-              <i class="fa-solid fa-moon"></i>
-              <i class="fa-solid fa-sun"></i>
+              <i class="fa-solid fa-moon" id="dark"></i>
+              <i class="fa-solid fa-sun" id="light"></i>
             </div>
 
             <div class="profile">
-              <img src="image/person_1.jpg" alt="User" />
+                <img src="#" alt="User" id="user-profile_link"/>
               <div class="profile-info">
-                <h2>Calvin Nomo</h2>
-                <p>Admin</p>
+                <h2 id="user-username">Calvin Nomo</h2>
+                <p id="user-role">Admin</p>
               </div>
               <i class="fa-solid fa-chevron-down"></i>
 
@@ -601,33 +601,43 @@
       document.addEventListener("click", () => {
         profile.classList.remove("active");
       });
-    </script>
-<script>
+                            // Here we will opdate the userinfo
+          const info=JSON.parse(localStorage.getItem("user-form"));
+          console.log('user-name',info.username)
+          console.log('user-info',info)
+          document.getElementById('user-username').textContent = info.username || 'User';
+          document.getElementById('user-role').textContent = info.role || 'Unknown';
+          document.getElementById('user-profile_link').src = info.image || 'image/person_1.jpg';
+          console.log();
+    //Fin
+
 const apiUrl = "http://127.0.0.1:8000";
+const userId = 1; // you can dynamically set this if user logged in
 
 window.onload = async () => {
   try {
-    // Load language (admin_setting)
-    const langRes = await fetch(`${apiUrl}/admin_settings`);
-    const langData = await langRes.json();
-    document.getElementById("language").value = langData.language || "en";
+    // 🔹 1. Fetch admin setting (language, theme)
+    const adminRes = await fetch(`${apiUrl}/admin/setting/${userId}`);
+    const adminData = await adminRes.json();
+    console.log(adminData);
+    document.getElementById("language").value = adminData.language || "eng";
 
-    // Load restaurant info (system_setting)
-    const sysRes = await fetch(`${apiUrl}/system_settings`);
-    const data = await sysRes.json();
+    // 🔹 2. Fetch restaurant (system) settings
+    const sysRes = await fetch(`${apiUrl}/system/setting`);
+    const sysData = await sysRes.json();
 
-    document.getElementById("businessName").value = data.business_name || "";
-    document.getElementById("businessAddress").value = data.business_address || "";
-    document.getElementById("businessWebsite").value = data.business_website || "";
-    document.getElementById("businessFooter").value = data.receipt_footer || "";
-    document.getElementById("showQr").checked = data.show_qr || false;
-  } catch (error) {
-    console.error(error);
-    alert("❌ Failed to load system settings!");
+    document.getElementById("businessName").value = sysData.business_name || "";
+    document.getElementById("businessAddress").value = sysData.business_address || "";
+    document.getElementById("businessWebsite").value = sysData.business_website || "";
+    document.getElementById("businessFooter").value = sysData.receipt_footer || "";
+    document.getElementById("showQr").checked = sysData.show_qr || false;
+  } catch (err) {
+    console.error(err);
+    alert("⚠️ Failed to load settings!");
   }
 };
 
-// Save both
+// 🔸 SAVE SETTINGS
 document.getElementById("saveSettings").addEventListener("click", async () => {
   const lang = document.getElementById("language").value;
   const settings = {
@@ -639,28 +649,28 @@ document.getElementById("saveSettings").addEventListener("click", async () => {
   };
 
   try {
-    // Save language
-    await fetch(`${apiUrl}/admin_settings`, {
+    //Update admin language
+    await fetch(`${apiUrl}/admin/setting/update/${userId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ language: lang })
+      body: JSON.stringify({ languages: lang })
     });
 
-    // Save system settings
-    const res = await fetch(`${apiUrl}/system_settings`, {
+    //  Update system settings
+    await fetch(`${apiUrl}/update_settings`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(settings)
     });
 
-    const result = await res.json();
-    alert("✅ Settings saved successfully!");
+    alert(" All settings saved successfully!");
   } catch (error) {
     console.error(error);
-    alert("❌ Failed to save settings!");
+    alert(" Failed to save settings!");
   }
 });
 </script>
+
 
   </body>
 </html>

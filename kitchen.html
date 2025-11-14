@@ -105,6 +105,15 @@
     <div id="ordersContainer" class="orders-container">
       <p class="empty">No orders available yet...</p>
     </div>
+        <div class="filter">
+      <div>
+        <p>All</p>
+        <p>Take Away</p>
+        <p>Reservation</p>
+        <p>Dine In</p>
+      </div>
+    </div>
+
   </main>
 
   <script>
@@ -149,6 +158,7 @@
         card.className = "order-card";
 
         card.innerHTML = `
+        
           <div class="order-header">
             <span class="order-id">#${order.id}</span>
             <span class="order-status">${order.status}</span>
@@ -175,7 +185,7 @@
 
     // Refresh button
     document.getElementById("refreshBtn").addEventListener("click", () => {
-      alert("🔄 Orders refreshed!");
+      alert("Orders refreshed!");
       loadOrders();
     });
 

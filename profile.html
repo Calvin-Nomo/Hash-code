@@ -508,10 +508,10 @@
             </div>
 
             <div class="profile">
-              <img src="image/person_1.jpg" alt="User" id="profile-image" />
+              <img src="#" alt="User" id="user-profile_link"/>
               <div class="profile-info">
-                <h2>Calvin Nomo</h2>
-                <p>Admin</p>
+                <h2 id="user-username">Calvin Nomo</h2>
+                <p id="user-role">Admin</p>
               </div>
               <i class="fa-solid fa-chevron-down"></i>
 
@@ -557,40 +557,6 @@
 
     <button class="logout-btn" id="logout" onclick="logout()">Déconnexion</button>
   </div>
-
-    <script>
-      const user_id=1;
-      console.log(typeof(user_id))
-      async function fetchUsers(user_id) {
-        try {
-          const response = await fetch(
-`http://127.0.0.1:8000/user/by/${user_id}`
-          );
-          if (!response.ok) throw new Error("Failed to fetch users");
-
-          const user = await response.json();
-          console.log('Here are the user info',user);
-          console.log('user-email',user.users.Email);
-          console.log('user-username',user.users.Username);
-          console.log('user-role',user.users.Roles);
-          console.log('user-profile_link',user.users.Profile_link);
-          if (user.users) {
-              document.getElementById('user-email').textContent = user.users.Email || 'example@gmail.com';
-              document.getElementById('user-username').textContent = user.users.Username || 'User';
-              document.getElementById('user-role').textContent = user.users.Roles || 'Unknown';
-              document.getElementById('imgprofile').src = user.users.Profile_link || 'image/person_1.jpg';
-              document.getElementById('profile-image').src = user.users.Profile_link || 'image/person_1.jpg';
-      } else {
-        console.warn("Unexpected response format:", user);
-      }
-        
-        } catch (error) {
-          console.error("Error fetching users:", error);
-        }
-      }
-      fetchUsers(user_id);
-    </script>
-</body>
 <script>
       const sidebar = document.getElementById("sidebar");
       const main = document.getElementById("main");
@@ -623,5 +589,47 @@
         profile.classList.remove("active")
       );
     </script>
+    <script>
+      async function fetchUsers(user_id) {
+        try {
+          const response = await fetch(
+`http://127.0.0.1:8000/user/by/${user_id}`
+          );
+          if (!response.ok) throw new Error("Failed to fetch users");
+
+          const user = await response.json();
+          console.log('Here are the user info',user);
+          const user_credential={
+                'username':user.users.Username,
+                'role':user.users.Roles,
+                'image':user.users.Profile_link,
+                'id':user.users.UserID
+              };
+
+              localStorage.setItem('user-form',JSON.stringify(user_credential)); 
+
+
+      //     if (user.users) {
+      //         document.getElementById('user-email').textContent = user.users.Email || 'example@gmail.com';
+      //         document.getElementById('user-username').textContent = user.users.Username || 'User';
+      //         document.getElementById('user-role').textContent = user.users.Roles || 'Unknown';
+      //         document.getElementById('imgprofile').src = user.users.Profile_link || 'image/person_1.jpg';
+      //         document.getElementById('user-profile_link').src = user.users.Profile_link || 'image/person_1.jpg';
+      //         fetchUsers(user.users.UserID);
+
+      // } else {
+      //   console.warn("Unexpected response format:", user);
+      // }
+        
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        }
+      }
+       const info=JSON.parse(localStorage.getItem("user-form"));
+       const user_id=info.id
+      fetchUsers(user_id);
+    </script>
+</body>
+
     
 </html>

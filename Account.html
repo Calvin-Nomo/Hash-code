@@ -504,10 +504,10 @@
             </div>
 
             <div class="profile">
-              <img src="image/person_1.jpg" alt="User" />
+              <img src="#" alt="User" id="user-profile_link" />
               <div class="profile-info">
-                <h2>Calvin Nomo</h2>
-                <p>Admin</p>
+                <h2 id="user-username">Calvin Nomo</h2>
+                <p id="user-role">Admin</p>
               </div>
               <i class="fa-solid fa-chevron-down"></i>
 
@@ -677,6 +677,14 @@
         } catch (error) {
           console.error("Error fetching users:", error);
         }
+                  // Here we will opdate the userinfo
+          const info=JSON.parse(localStorage.getItem("user-form"));
+          console.log('user-name',info.username)
+          console.log('user-info',info)
+          document.getElementById('user-username').textContent = info.username || 'User';
+          document.getElementById('user-role').textContent = info.role || 'Unknown';
+          document.getElementById('user-profile_link').src = info.image || 'image/person_1.jpg';
+    //Fin
       }
       // Her in the account.html i can only edit or block and account
       window.onload = fetchUsers;

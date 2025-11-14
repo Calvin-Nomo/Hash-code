@@ -458,10 +458,10 @@
             </div>
 
             <div class="profile">
-              <img src="image/person_1.jpg" alt="User" />
+              <img src="#" alt="User" id="user-profile_link"/>
               <div class="profile-info">
-                <h2>Calvin Nomo</h2>
-                <p>Admin</p>
+                <h2 id="user-username">Calvin Nomo</h2>
+                <p id="user-role">Admin</p>
               </div>
               <i class="fa-solid fa-chevron-down"></i>
 
@@ -557,6 +557,13 @@
       document.addEventListener("click", () => {
         profile.classList.remove("active");
       });
+              // Here we will opdate the userinfo
+          const info=JSON.parse(localStorage.getItem("user-form"));
+          document.getElementById('user-username').textContent = info.username || 'User';
+          document.getElementById('user-role').textContent = info.role || 'Unknown';
+          document.getElementById('user-profile_link').src = info.image || 'image/person_1.jpg';
+    //Fin
+
 
       // Product form submission
       const addForm = document.getElementById("add-form");
@@ -584,7 +591,6 @@
           successMsg.style.display = "block";
           return;
         }
-
         const formData = new FormData();
         formData.append("Product_Name", name);
         formData.append("Category", category);

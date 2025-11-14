@@ -89,7 +89,6 @@ class SystemSettings(BaseModel):
     show_qr: bool
 class Admin_Setting(BaseModel):
     languages:str
-    theme:str
 
 # ==========================================================
 #                  UTILITY FUNCTIONS
@@ -332,8 +331,8 @@ def get_admin_setting(user_id: int):
         # If not exist, create default
         if not setting:
             cursor.execute("""
-                INSERT INTO admin_setting (languages, theme, updated_by)
-                VALUES ('eng', 'light', %s)
+                INSERT INTO admin_setting (languages,updated_by)
+                VALUES ('eng', %s)
             """, (user_id,))
             DB.commit()
             cursor.execute("SELECT * FROM admin_setting WHERE updated_by = %s", (user_id,))
@@ -344,9 +343,7 @@ def get_admin_setting(user_id: int):
 
     return {
         "message": "successfully return the admin info ",
-        "language": setting["languages"],
-        "theme": setting["theme"],
-        'admin_profile':setting['Profile_link']
+        "language": setting["languages"]
     }
 
 # UPDATE admin setting
@@ -360,9 +357,9 @@ def update_admin_setting(user_id: int, settings: Admin_Setting):
 
     cursor.execute("""
         UPDATE admin_setting
-        SET languages=%s, theme=%s
+        SET languages=%s
         WHERE updated_by=%s
-    """, (settings.languages, settings.theme, user_id))
+    """, (settings.languages, user_id))
     DB.commit()
     return {"message": f"Settings updated successfully for admin {user_id}"}
 # ajust the admin profile pictures
