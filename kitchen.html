@@ -19,36 +19,34 @@
       justify-content: space-between;
       align-items: center;
     }
-    header h1 {
-      font-size: 1.4rem;
-      margin: 0;
-    }
+    header h1 { font-size: 1.4rem; margin: 0; }
+
     .orders-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1rem;
       padding: 1.5rem;
     }
+
     .order-card {
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       padding: 1rem;
       transition: 0.3s;
+      position: relative;
     }
-    .order-card:hover {
-      transform: translateY(-2px);
-    }
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-    .order-id {
-      font-weight: 600;
-      color: #334155;
-    }
+
+    /* Status colors */
+    .order-card.new { border-left: 6px solid #facc15; }
+    .order-card.in-progress { border-left: 6px solid #f97316; }
+    .order-card.completed { border-left: 6px solid #16a34a; opacity: 0.7; }
+    .order-card.canceled { border-left: 6px solid #ef4444; opacity: 0.6; }
+
+    .order-card:hover { transform: translateY(-2px); }
+
+    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .order-id { font-weight: 600; color: #334155; }
     .order-status {
       background: #e2e8f0;
       color: #475569;
@@ -57,42 +55,33 @@
       border-radius: 6px;
       text-transform: capitalize;
     }
-    .order-items {
-      margin: 0.6rem 0;
-      list-style: none;
-      padding: 0;
-    }
-    .order-items li {
-      padding: 0.3rem 0;
-      border-bottom: 1px dashed #cbd5e1;
-      font-size: 0.9rem;
-    }
-    .order-footer {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 1rem;
-    }
-    button {
-      border: none;
-      border-radius: 8px;
+
+    .order-items { margin: 0.6rem 0; list-style: none; padding: 0; }
+    .order-items li { padding: 0.3rem 0; border-bottom: 1px dashed #cbd5e1; font-size: 0.9rem; }
+
+    .order-footer { display: flex; justify-content: space-between; margin-top: 1rem; }
+    button { border: none; border-radius: 8px; cursor: pointer; padding: 0.4rem 0.8rem; font-weight: 500; }
+    .btn-progress { background: #facc15; color: #1e293b; }
+    .btn-complete { background: #16a34a; color: white; }
+    .btn-cancel { background: #ef4444; color: white; }
+
+    .filter { display: flex; justify-content: center; gap: 1rem; margin: 1rem 0; }
+    .filter p {
       cursor: pointer;
       padding: 0.4rem 0.8rem;
-      font-weight: 500;
+      background: #e2e8f0;
+      border-radius: 6px;
+      text-transform: capitalize;
+      margin: 0;
+      transition: 0.2s;
     }
-    .btn-progress {
-      background: #facc15;
-      color: #1e293b;
-    }
-    .btn-complete {
-      background: #16a34a;
-      color: white;
-    }
-    .empty {
-      text-align: center;
-      color: #64748b;
-      margin-top: 3rem;
-      font-size: 1.1rem;
-    }
+    .filter p:hover, .filter .active { background: #334155; color: white; }
+
+    .empty { text-align: center; color: #64748b; margin-top: 3rem; font-size: 1.1rem; }
+
+    .history-container { padding: 1.5rem; border-top: 1px solid #cbd5e1; margin-top: 2rem; }
+    .history-title { font-weight: 600; margin-bottom: 1rem; }
+    .order-timer { font-size: 0.8rem; color: #64748b; position: absolute; top: 1rem; right: 1rem; }
   </style>
 </head>
 <body>
@@ -102,95 +91,150 @@
   </header>
 
   <main>
-    <div id="ordersContainer" class="orders-container">
-      <p class="empty">No orders available yet...</p>
-    </div>
-        <div class="filter">
-      <div>
-        <p>All</p>
-        <p>Take Away</p>
-        <p>Reservation</p>
-        <p>Dine In</p>
-      </div>
+    <div class="filter">
+      <p class="active" data-type="all">All</p>
+      <p data-type="Takeaway">Take Away</p>
+      <p data-type="Reservation">Reservation</p>
+      <p data-type="Dine In">Dine In</p>
     </div>
 
+    <div id="ordersContainer" class="orders-container">
+      <p class="empty">Loading orders...</p>
+    </div>
+
+    <div class="history-container">
+      <div class="history-title">Order History</div>
+      <div id="historyContainer"></div>
+    </div>
   </main>
 
   <script>
-    // Mock orders (you can replace this with backend data later)
-    const mockOrders = [
-      {
-        id: "ORD-101",
-        table: "Table 3",
-        status: "new",
-        items: ["Grilled Chicken", "French Fries", "Coca-Cola"],
-        note: "Extra ketchup please",
-      },
-      {
-        id: "ORD-102",
-        table: "Table 7",
-        status: "in progress",
-        items: ["Beef Burger", "Orange Juice"],
-        note: "No onions",
-      },
-      {
-        id: "ORD-103",
-        table: "Takeaway",
-        status: "new",
-        items: ["Pizza Margherita", "Bottle of Water"],
-        note: "",
-      },
-    ];
+    let orders = [];
+    let orderHistory = [];
+    let currentFilter = "all";
 
-    const container = document.getElementById("ordersContainer");
+    async function fetchOrders() {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/order/order/order_history");
+        if (!res.ok) throw new Error("Failed to fetch orders");
+        const data = await res.json();
+        // Separate active orders and history (completed/canceled)
+        orders = data.filter(o => o.Order_Status !== "completed" && o.Order_Status !== "canceled");
+        orderHistory = data.filter(o => o.Order_Status === "completed" || o.Order_Status === "canceled");
+        loadOrders();
+        loadHistory();
+      } catch (err) {
+        document.getElementById("ordersContainer").innerHTML = `<p class="empty">Error loading orders: ${err.message}</p>`;
+      }
+    }
 
-    // Load all orders
+    function formatElapsedTime(orderDate) {
+      const startTime = new Date(orderDate).getTime();
+      const diff = Math.floor((Date.now() - startTime) / 1000);
+      const minutes = Math.floor(diff / 60).toString().padStart(2,'0');
+      const seconds = (diff % 60).toString().padStart(2,'0');
+      return `${minutes}:${seconds}`;
+    }
+
     function loadOrders() {
+      const container = document.getElementById("ordersContainer");
       container.innerHTML = "";
 
-      if (mockOrders.length === 0) {
-        container.innerHTML = '<p class="empty">No orders available yet...</p>';
+      const filteredOrders = currentFilter === "all"
+        ? orders
+        : orders.filter(order => (order.Order_Type || "").toLowerCase().includes(currentFilter.toLowerCase()));
+
+      if (filteredOrders.length === 0) {
+        container.innerHTML = '<p class="empty">No orders available...</p>';
         return;
       }
 
-      mockOrders.forEach((order, index) => {
+      filteredOrders.forEach(order => {
         const card = document.createElement("div");
-        card.className = "order-card";
-
+        card.className = `order-card ${order.Order_Status.replace(" ", "-")}`;
         card.innerHTML = `
-        
           <div class="order-header">
-            <span class="order-id">#${order.id}</span>
-            <span class="order-status">${order.status}</span>
+            <span class="order-id">#${order.Order_ID}</span>
+            <span class="order-status">${order.Order_Status}</span>
           </div>
-          <p><strong>Table:</strong> ${order.table}</p>
+          <div class="order-timer" id="timer-${order.Order_ID}">${formatElapsedTime(order.Order_Date)}</div>
+          <p><strong>Table:</strong> ${order.No_Table || order.Order_Type}</p>
           <ul class="order-items">
-            ${order.items.map(item => `<li>${item}</li>`).join("")}
+            ${order.Items.map(item => `<li>${item.Product_Name} x ${item.Quantity}</li>`).join("")}
           </ul>
-          ${order.note ? `<p><strong>Note:</strong> ${order.note}</p>` : ""}
+          ${order.Note ? `<p><strong>Note:</strong> ${order.Note}</p>` : ""}
           <div class="order-footer">
-            <button class="btn-progress" onclick="updateStatus(${index}, 'in progress')">In Progress</button>
-            <button class="btn-complete" onclick="updateStatus(${index}, 'completed')">Complete</button>
+            ${order.Order_Status !== 'completed' && order.Order_Status !== 'canceled' ? `
+              <button class="btn-progress" onclick="updateStatus('${order.Order_ID}', 'in progress')">In Progress</button>
+              <button class="btn-complete" onclick="updateStatus('${order.Order_ID}', 'completed')">Complete</button>
+              <button class="btn-cancel" onclick="updateStatus('${order.Order_ID}', 'canceled')">Cancel</button>
+            ` : ""}
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // Update order status
-    function updateStatus(index, newStatus) {
-      mockOrders[index].status = newStatus;
-      loadOrders();
+    function loadHistory() {
+      const historyContainer = document.getElementById("historyContainer");
+      historyContainer.innerHTML = "";
+      if (orderHistory.length === 0) {
+        historyContainer.innerHTML = '<p class="empty">No completed/canceled orders yet...</p>';
+        return;
+      }
+      orderHistory.forEach(order => {
+        const div = document.createElement("div");
+        div.className = `order-card ${order.Order_Status}`;
+        div.innerHTML = `
+          <div class="order-header">
+            <span class="order-id">#${order.Order_ID}</span>
+            <span class="order-status">${order.Order_Status.charAt(0).toUpperCase() + order.Order_Status.slice(1)}</span>
+          </div>
+          <p><strong>Table:</strong> ${order.No_Table}</p>
+          <ul class="order-items">
+            ${order.Items.map(item => `<li>${item.Product_Name} x ${item.Quantity}</li>`).join("")}
+          </ul>
+          ${order.Note ? `<p><strong>Note:</strong> ${order.Note}</p>` : ""}
+        `;
+        historyContainer.appendChild(div);
+      });
     }
 
-    // Refresh button
-    document.getElementById("refreshBtn").addEventListener("click", () => {
-      alert("Orders refreshed!");
-      loadOrders();
+    async function updateStatus(orderID, newStatus) {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/order/order/order_status/${orderID}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order_status: newStatus })
+        });
+        if (!res.ok) throw new Error("Failed to update status");
+        await fetchOrders(); // refresh data
+        alert(`Order ${orderID} updated to ${newStatus}`);
+      } catch(err) {
+        alert(err.message);
+      }
+    }
+
+    // Timer refresh
+    setInterval(() => {
+      orders.forEach(order => {
+        const timerEl = document.getElementById(`timer-${order.Order_ID}`);
+        if (timerEl) timerEl.textContent = formatElapsedTime(order.Order_Date);
+      });
+    }, 1000);
+
+    document.querySelectorAll(".filter p").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter p").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = btn.dataset.type;
+        loadOrders();
+      });
     });
 
-    // Initial load
-    loadOrders();
+    document.getElementById("refreshBtn").addEventListener("click", fetchOrders);
+
+    fetchOrders(); // Initial load
   </script>
 </body>
 </html>

@@ -178,7 +178,7 @@
         try {
           // Replace with your FastAPI endpoint
           const response = await fetch(`
-            "http://127.0.0.1:8000/order/order/orders/history"
+            "http://127.0.0.1:8000/order/order/order_history"
           `);
           console.log(response);
           if (!response.ok) throw new Error("Failed to fetch orders");

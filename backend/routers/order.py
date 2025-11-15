@@ -31,8 +31,8 @@ class Order(BaseModel):
     No_Table: Optional[int] = None
     Note: Optional[str] = None
     items: List[Items]
-    Sesion_id: Optional[str] = None
-
+class OrderStatusUpdate(BaseModel):
+    order_status: str
 class FullOrderRequest(BaseModel):
     client: Client
     reservation: Optional[Reservation] = None
@@ -114,7 +114,7 @@ def total_orders():
     return cursor.fetchone()
 # Order Detail
 # ---------------- GET Endpoint ----------------
-@router.get("/orders/{order_id}")
+@router.get("/order/{order_id}")
 def get_order_detail(order_id: int):
     # -------- First query: Order + Client + Payment + Table + Reservation --------
     cursor.execute("""
@@ -168,9 +168,9 @@ WHERE o.Order_ID = %s;
         "Order_ID": order["Order_ID"],
         "Order_Type": order["Order_Type"],
         "Order_Date": str(order["Order_Date"]),
-                "Note": str(order["Note"]),
-                        "Order_Status": str(order["Order_Status"]),
-                                                "No_Reservation": str(order["No_Reservation"]),
+        "Note": str(order["Note"]),
+        "Order_Status": str(order["Order_Status"]),
+        "No_Reservation": str(order["No_Reservation"]),
         "Total_Amount": float(order["Total_Amount"]),
         "No_Table": order["No_Table"],
         "Transaction_Fees": float(order["Transaction_Fees"]) if order["Transaction_Fees"] else 0,
@@ -183,8 +183,8 @@ WHERE o.Order_ID = %s;
         "No_Person": order["No_Person"],
         "Items": [dict(item) for item in items]
     }
-@router.get("/orders/history")
-def get_order_history(session_id: str):
+@router.get("/order_history")
+def get_order_history():
     # -------- Query: Orders + Payment + Table + Client + Reservation --------
     cursor.execute("""
     SELECT  
@@ -209,9 +209,8 @@ def get_order_history(session_id: str):
     JOIN Clients c ON c.No_Client = o.No_Client
     LEFT JOIN Tab t ON t.Table_ID = o.No_Table
     LEFT JOIN Reservation r ON o.No_Reservation = r.No_Reservation
-    WHERE o.Session_id = %s
     ORDER BY o.Order_Date DESC;
-    """, (session_id,))
+    """)
     
     orders = cursor.fetchall()
     if not orders:
@@ -335,9 +334,9 @@ def create_order(data: FullOrderRequest):
         order_date = datetime.utcnow()
         status = "Pending"
         cursor.execute(
-            """INSERT INTO Orders(No_Client, No_Reservation, Order_Date, Order_Type, No_Table,Session_id,Order_Status, Note)
-               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-            (client_id, reservation_id, order_date, data.order.Order_Type, table_id,data.order.Sesion_id,status, data.order.Note)
+            """INSERT INTO Orders(No_Client, No_Reservation, Order_Date, Order_Type, No_Table,Order_Status, Note)
+               VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            (client_id, reservation_id, order_date, data.order.Order_Type, table_id,status, data.order.Note)
         )
         order_id = cursor.lastrowid
       
@@ -544,6 +543,29 @@ def update_order(order_id: int, data: FullOrderRequest, current_user: dict = Dep
     except Exception as e:
         DB.rollback()
         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
+# ----- PUT Endpoint -----
+@router.put("/order_status/{order_id}")
+def update_order_status(order_id: int, data: OrderStatusUpdate):
+    cursor.execute("SELECT Order_ID FROM orders WHERE Order_ID = %s", (order_id,))
+    record = cursor.fetchone()
+
+    if not record:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    cursor.execute("""
+        UPDATE orders
+        SET Order_Status = %s
+        WHERE Order_ID = %s
+    """, (data.order_status, order_id))
+
+    DB.commit()
+
+    return {
+        "message": "Order status updated successfully",
+        "order_id": order_id,
+        "new_status": data.order_status
+    }
+
 
 # ------------------- DELETE ORDER -------------------
 @router.delete("/order/{order_id}")

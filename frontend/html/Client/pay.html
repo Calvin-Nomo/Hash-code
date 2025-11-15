@@ -317,13 +317,6 @@
         fee = 0,
         finalAmount = 0;
 
-      // ✅ Ensure session ID exists
-      if (!localStorage.getItem("sessionId")) {
-        const sessionId =
-          "sess_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
-        localStorage.setItem("sessionId", sessionId);
-      }
-
       // ✅ Load and calculate totals
       function loadCartTotal() {
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -375,12 +368,10 @@
 
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
         const clientData = JSON.parse(localStorage.getItem("clientData")) || {};
-        const sessionId = localStorage.getItem("sessionId");
 
         // ✅ Prepare payload (consistent with FastAPI FullOrderRequest)
         const orderPayload = {
           order: {
-            Session_id: sessionId,
             Order_Type: clientData.type || "Take Away",
             No_Table: clientData.table || null,
             Note: clientData.note || null,
@@ -431,7 +422,7 @@
           const result = await res.json();
           console.log("Order response:", result);
 
-          // ✅ Clear local data after success
+          //  Clear local data after success
           localStorage.removeItem("cart");
           localStorage.removeItem("clientData");
 

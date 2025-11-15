@@ -147,6 +147,17 @@ def require_role(allowed_roles: list):
             raise HTTPException(status_code=403, detail="Access forbidden")
         return current_user
     return role_checker
+def get_langauge():
+        language={
+    'eng':{
+        'das_title':'Dashbord',
+    },
+    'fr':{
+        'das_title':'Tableau de Bord'
+    }
+    }
+        return
+
 
 # ==========================================================
 #                 AUTH ROUTES
@@ -398,4 +409,27 @@ async def update_profile_link(user_id: int, image: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-        
+#################### Language translation
+
+
+
+# UPDATE admin setting
+@app.get("/language/{user_id}")
+def get_langeuage (user_id: int):
+    cursor.execute("SELECT languages FROM admin_setting WHERE updated_by = %s", (user_id,))
+    exist = cursor.fetchone()
+    language={
+    'eng':{
+        'das_title':'Dashbord'
+    },
+    'fr':{
+        'das_title':'Tableau de Bord'
+    }
+    }
+    if not exist:
+        raise HTTPException(status_code=404, detail="No language found")
+
+    DB.commit()
+    return {"message": f"Settings updated successfully for admin {user_id}",
+            'language': f"{language[exist['languages']]}"
+            }

@@ -373,20 +373,6 @@
       const tableClientContainer = document.getElementById(
         "tableClientContainer"
       );
-
-      // --- Generate session ID if not exists ---
-      function generateSessionId() {
-        let sessionId = localStorage.getItem("sessionId");
-        if (!sessionId) {
-          sessionId = "sess-" + Math.random().toString(36).substr(2, 9);
-          localStorage.setItem("sessionId", sessionId);
-        }
-        return sessionId;
-      }
-
-      const sessionId = generateSessionId();
-      console.log("Session ID:", sessionId);
-
       // --- Toggle forms based on order type ---
       orderType.addEventListener("change", () => {
         clientForm.classList.add("hidden");
@@ -506,8 +492,7 @@
       // --- Save client/reservation info to localStorage ---
       function saveClientData() {
         let clientData = {
-          sessionId: sessionId,
-          type: orderType.value,
+          type: orderType.value
         };
 
         if (orderType.value === "Dine In" || orderType.value === "Take Away") {

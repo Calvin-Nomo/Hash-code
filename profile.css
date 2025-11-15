@@ -1,120 +1,104 @@
- body {
-      font-family: "Poppins", sans-serif;
-      background: #a9abae;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      position: relative;
-    }
+/* ===== MAIN CONTENT ===== */
+.content {
+    padding: 2rem;
+    font-family: "Poppins", sans-serif;
+    background: #f5f7fa;
+    min-height: 100vh;
+}
 
+/* ===== MAIN CONTAINER ===== */
+.container {
+    width: 420px;
+    background: #ffffff;
+    padding: 2rem;
+    margin: 0 auto;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* ===== PROFILE IMAGE ===== */
+.imageProfile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.imageProfile img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #4f46e5;
+    margin-bottom: 10px;
+}
+
+.information h2 {
+    margin-top: 10px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* ===== MODIFIER PHOTO BUTTON ===== */
+.btn-modifier-photo {
+    background: #4f46e5;
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: 0.2s ease-in-out;
+    width: 100%;
+    font-size: 14px;
+}
+
+.btn-modifier-photo:hover {
+    background: #4338ca;
+}
+
+/* ===== USER INFO SECTIONS ===== */
+.form-section, .role {
+    background: #f1f5f9;
+    padding: 12px;
+    margin-top: 20px;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 15px;
+}
+
+.form-section p, .role p {
+    margin: 0;
+    color: #475569;
+}
+
+.form-section span, .role span {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* ===== LOGOUT BUTTON ===== */
+.logout-btn {
+    background: #ef4444;
+    color: white;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    margin-top: 25px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 15px;
+    transition: 0.2s ease-in-out;
+}
+
+.logout-btn:hover {
+    background: #dc2626;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
     .container {
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 420px;
-      padding: 25px;
-      
+        width: 95%;
     }
-s
-    .imageProfile {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 15px;
-    }
-
-    .imageProfile img {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #007bff;
-    }
-
-    .information h2 {
-      margin: 0;
-      color: #333;
-    }
-
-    .information h4 {
-      margin: 3px 0;
-      color: #555;
-    }
-
-    .btn-modifier-photo {
-      display: block;
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    .btn-modifier-photo:hover {
-      background: #0056b3;
-    }
-
-    .form-section {
-      margin-top: 20px;
-    }
-
-    .form-section label {
-      display: block;
-      margin-bottom: 5px;
-      color: #333;
-      font-weight: 500;
-    }
-
-    .form-section input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 15px;
-      font-size: 14px;
-    }
-
-    .btn-change-password {
-      width: 100%;
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 15px;
-    }
-
-    .btn-change-password:hover {
-      background: #1e7e34;
-    }
-
-    .role {
-      text-align: center;
-      margin-top: 25px;
-      font-size: 16px;
-      color: #444;
-    }
-
-    .logout-btn {
-      display: block;
-      width: 100%;
-      background: #dc3545;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 25px;
-    }
-
-    .logout-btn:hover {
-      background: #b52a35;
-    }
+}

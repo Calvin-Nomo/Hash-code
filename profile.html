@@ -413,8 +413,7 @@
         <div class="sidebar-logo">
           <a href="#">Smart Menu</a>
         </div>
-
-        <ul class="sidebar-nav">
+                <ul class="sidebar-nav">
           <li class="sidebar-item">
             <a href="admin.html" class="sidebar-link"
               ><i class="fa-solid fa-chart-line"></i> Dashboard</a
@@ -456,7 +455,6 @@
             >
             <ul class="sidebar-dropdown">
               <li><a href="user.html" class="sidebar-link">All Users</a></li>
-              <li><a href="#" class="sidebar-link">Add New User</a></li>
             </ul>
           </li>
 
@@ -465,24 +463,19 @@
               ><i class="fa-solid fa-cart-shopping"></i> Orders</a
             >
             <ul class="sidebar-dropdown">
-              <li><a href="#" class="sidebar-link">Order List</a></li>
-              <li><a href="#" class="sidebar-link">Order Details</a></li>
+              <li><a href="profile.html" class="sidebar-link">Order List</a></li>
+              <li><a href="qrcode.html" class="sidebar-link">Qrcode System</a></li>
               <li><a href="payment.html" class="sidebar-link">Payment</a></li>
             </ul>
           </li>
 
           <li class="sidebar-item">
-            <a href="#" class="sidebar-link"
+            <a href="Account.html" class="sidebar-link"
               ><i class="fa-solid fa-user-shield"></i> Account</a
             >
           </li>
           <li class="sidebar-item">
-            <a href="#" class="sidebar-link"
-              ><i class="fa-solid fa-chart-line"></i>Reports</a
-            >
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link"
+            <a href="system.html" class="sidebar-link"
               ><i class="fa-solid fa-gear"></i> System Settings</a
             >
           </li>
@@ -521,11 +514,6 @@
                     ><i class="fa-solid fa-user-gear"></i> Profile Settings</a
                   >
                 </li>
-                <li>
-                  <a href="#"
-                    ><i class="fa-solid fa-right-to-bracket"></i> Login</a
-                  >
-                </li>
               </ul>
             </div>
           </div>
@@ -539,97 +527,223 @@
   
 <!-- container general -->
  <div class="container">
-    <div class="imageProfile">
-      <img src="image/person_1.jpg" alt="User" id="imgprofile"  style="cursor:pointer;">
-      <div class="information">
-        <h2 id="user-username"> NOMO Calvin</h2>
-      </div>
+  <div class="imageProfile">
+    <img src="image/person_1.jpg" alt="User" id="imgprofile" style="cursor:pointer;">
+    <div class="information">
+        <h2 id="user-username1"></h2>
     </div>
+</div>
+<!-- Hidden file input -->
+<input type="file" id="profileFileInput" accept="image/*" style="display:none">
 
-    <button class="btn-modifier-photo" onclick="modifierPhoto()">Modifier la photo</button>
-
+<button class="btn-modifier-photo" onclick="modifierPhoto()">Modifier la photo</button>
     <div class="form-section">
     <p>Email: <span id="user-email"></span></p>
     </div>
     <div class="role">
-      <p>Role: <span id="user-role"></span></p>
+      <p>Role: <span id="user-role1"></span></p>
     </div>
 
     <button class="logout-btn" id="logout" onclick="logout()">Déconnexion</button>
   </div>
-<script>
-      const sidebar = document.getElementById("sidebar");
-      const main = document.getElementById("main");
-      const toggleBtn = document.getElementById("toggleSidebar");
-      const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
 
-      toggleBtn.addEventListener("click", () => {
-        sidebar.classList.toggle("hidden");
-        main.classList.toggle("expanded");
-      });
-
-      // Sidebar Dropdowns
-      dropdowns.forEach((item) => {
-        item.addEventListener("click", (e) => {
-          e.stopPropagation();
-          item.classList.toggle("dropdown-open");
-          dropdowns.forEach((other) => {
-            if (other !== item) other.classList.remove("dropdown-open");
-          });
-        });
-      });
-
-      // Profile Dropdown
-      const profile = document.querySelector(".profile");
-      profile.addEventListener("click", (e) => {
-        e.stopPropagation();
-        profile.classList.toggle("active");
-      });
-      document.addEventListener("click", () =>
-        profile.classList.remove("active")
-      );
-    </script>
-    <script>
-      async function fetchUsers(user_id) {
-        try {
-          const response = await fetch(
-`http://127.0.0.1:8000/user/by/${user_id}`
-          );
-          if (!response.ok) throw new Error("Failed to fetch users");
-
-          const user = await response.json();
-          console.log('Here are the user info',user);
-          const user_credential={
-                'username':user.users.Username,
-                'role':user.users.Roles,
-                'image':user.users.Profile_link,
-                'id':user.users.UserID
-              };
-
-              localStorage.setItem('user-form',JSON.stringify(user_credential)); 
-
-
-      //     if (user.users) {
-      //         document.getElementById('user-email').textContent = user.users.Email || 'example@gmail.com';
-      //         document.getElementById('user-username').textContent = user.users.Username || 'User';
-      //         document.getElementById('user-role').textContent = user.users.Roles || 'Unknown';
-      //         document.getElementById('imgprofile').src = user.users.Profile_link || 'image/person_1.jpg';
-      //         document.getElementById('user-profile_link').src = user.users.Profile_link || 'image/person_1.jpg';
-      //         fetchUsers(user.users.UserID);
-
-      // } else {
-      //   console.warn("Unexpected response format:", user);
-      // }
-        
-        } catch (error) {
-          console.error("Error fetching users:", error);
-        }
-      }
-       const info=JSON.parse(localStorage.getItem("user-form"));
-       const user_id=info.id
-      fetchUsers(user_id);
-    </script>
 </body>
+<script>
+  // ======================
+  // SIDEBAR TOGGLE
+  // ======================
+  const sidebar = document.getElementById("sidebar");
+  const main = document.getElementById("main");
+  const toggleBtn = document.getElementById("toggleSidebar");
+  const dropdowns = document.querySelectorAll(".sidebar-item.dropdown");
 
-    
+  toggleBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("hidden");
+    main.classList.toggle("expanded");
+  });
+
+  // Sidebar Dropdowns
+  dropdowns.forEach((item) => {
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      item.classList.toggle("dropdown-open");
+
+      // Close other dropdowns
+      dropdowns.forEach((other) => {
+        if (other !== item) other.classList.remove("dropdown-open");
+      });
+    });
+  });
+
+  // Profile Dropdown
+  const profile = document.querySelector(".profile");
+  profile.addEventListener("click", (e) => {
+    e.stopPropagation();
+    profile.classList.toggle("active");
+  });
+
+  document.addEventListener("click", () => {
+    profile.classList.remove("active");
+  });
+</script>
+<script>
+  // Load user info on page load
+window.addEventListener("DOMContentLoaded", () => {
+    const user = JSON.parse(localStorage.getItem("user-form"));
+    console.log('Here is the user info',user);
+    if (!user) return;
+
+    document.getElementById("imgprofile").src = user.image || "image/person_1.jpg";
+    document.getElementById("user-username1").textContent = user.username || "User";
+});
+
+// Trigger the hidden file input when button is clicked
+function modifierPhoto() {
+    const fileInput = document.getElementById("profileFileInput");
+    fileInput.click();
+}
+
+// Handle file selection and upload
+document.getElementById("profileFileInput").addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const user = JSON.parse(localStorage.getItem("user-form"));
+    if (!user || !user.id) return;
+
+    // Preview image immediately
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById("imgprofile").src = e.target.result;
+        user.image = e.target.result; // save preview in localStorage
+        localStorage.setItem("user-form", JSON.stringify(user));
+    };
+    reader.readAsDataURL(file); 
+      const UserId=localStorage.getItem("user_id");
+    // Upload image to your FastAPI backend
+    try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const response = await fetch(`http://127.0.0.1:8000/update/profile/image/${UserId}`, {
+            method: "PUT",
+            body: formData
+        });
+
+        if (!response.ok) throw new Error("Failed to upload image");
+
+        const data = await response.json();
+        console.log("Backend image path:", data.profile_image);
+
+        // Update localStorage with backend path
+        user.image = data.profile_image;
+        localStorage.setItem("user-form", JSON.stringify(user));
+
+        alert("Profile image updated successfully!");
+    } catch (err) {
+        console.error(err);
+        alert("Failed to update profile image on backend.");
+    }
+});
+
+</script>
+
+<script>
+  // ======================
+  // FETCH USER INFO
+  // ======================
+  async function fetchUsers(user_id) {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/user/by/${user_id}`);
+
+      if (!response.ok) throw new Error("Failed to fetch user");
+
+      const data = await response.json();
+      const user = data.users;
+
+      console.log("Fetched User:", user);
+
+      if (!user) {
+        console.warn("Invalid response:", data);
+        return;
+      }
+
+      // Store minimal credentials
+      const user_credential = {
+        username: user.Username,
+        role: user.Roles,
+        image: user.Profile_link
+      };
+      console.log(user_credential);
+
+      localStorage.setItem("user-form", JSON.stringify(user_credential));
+      // Update HTML UI
+      document.getElementById("user-email").textContent = user.Email || "example@gmail.com";
+      document.getElementById("user-username").textContent = user.Username || "User";
+      document.getElementById("user-username1").textContent = user.Username || "User1";
+      document.getElementById("user-role").textContent = user.Roles || "role";
+      document.getElementById("user-role1").textContent = user.Roles || "role1";
+
+      document.getElementById("imgprofile").src =
+        user.Profile_link || "image/person_1.jpg";
+
+      document.getElementById("user-profile_link").src =
+        user.Profile_link || "image/person_1.jpg";
+
+      //  REMOVE INFINITE CALL
+      // fetchUsers(user.UserID); (Removed)
+
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  }
+
+  // ======================
+  // INIT
+  // ======================
+  const user_id=localStorage.getItem("user_id");
+  if ( user_id) {
+    fetchUsers(user_id);
+  } else {
+    console.warn("No user found in localStorage");
+  }
+</script>   
+
+<script>
+async function logout() {
+    const user_id = localStorage.getItem("user_id");
+
+    // If no user ID, redirect immediately
+    if (!user_id) {
+        console.warn("No user found — redirecting to login");
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        // Call backend logout API (send cookies)
+        const response = await fetch(`http://127.0.0.1:8000/logout`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include"  // important to send cookies
+        });
+
+        if (!response.ok) {
+            console.error("Logout API failed:", response.statusText);
+        }
+
+    } catch (error) {
+        console.error("Logout request error:", error);
+    } finally {
+        // Always clear localStorage and redirect
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user-form"); // optional
+        // localStorage.clear(); // optional, clears everything
+
+        window.location.href = "login.html";
+    }
+}
+</script>
 </html>
