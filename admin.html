@@ -721,8 +721,7 @@
         profile.classList.remove("active");
       });
                 // Here we will opdate the userinfo
-          const info=JSON.parse(localStorage.getItem("user-form"));
-          console.log('user-name',info.username)
+      const info=JSON.parse(localStorage.getItem("user-form"));
           console.log('user-info',info)
           document.getElementById('user-username').textContent = info.username || 'User';
           document.getElementById('user-role').textContent = info.role || 'Unknown';

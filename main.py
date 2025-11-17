@@ -418,14 +418,144 @@ async def update_profile_link(user_id: int, image: UploadFile = File(...)):
 def get_langeuage (user_id: int):
     cursor.execute("SELECT languages FROM admin_setting WHERE updated_by = %s", (user_id,))
     exist = cursor.fetchone()
-    language={
-    'eng':{
-        'das_title':'Dashbord'
+    language= {
+    "en": {
+        # -------------------------------
+        # SIDEBAR + NAVIGATION
+        # -------------------------------
+        "sidebar-title": "Smart Menu",
+        "nav-dashboard": "Dashboard",
+        "nav-inventory": "Inventory",
+        "nav-products": "Products",
+        "nav-add-product": "Add New Product",
+        "nav-stock": "Stock",
+        "nav-category": "Category",
+        "nav-reservation": "Reservation",
+        "nav-table": "Table",
+        "nav-users": "Users",
+        "nav-all-users": "All Users",
+        "nav-orders": "Orders",
+        "nav-order-list": "Order List",
+        "nav-qrcode": "Qrcode System",
+        "nav-payment": "Payment",
+        "nav-account": "Account",
+        "nav-system-settings": "System Settings",
+
+        # Navbar Search
+        "search-bar-placeholder": "Search here...",
+
+        # -------------------------------
+        # PROFILE PAGE
+        # -------------------------------
+        "profile-config-title": "Profile Configuration",
+        "btn-change-photo-text": "Change Photo",
+        "user-password-label": "Password:",
+        "btn-logout-text": "Logout",
+
+        # -------------------------------
+        # PRODUCT MANAGEMENT PAGE
+        # -------------------------------
+        "pm-title": "Product Management",
+        "pm-search-placeholder": "Search product...",
+        "btn-new-product": "New",
+
+        # Table Headers
+        "th-image": "Image",
+        "th-name": "Name",
+        "th-category": "Category",
+        "th-description": "Description",
+        "th-price": "Price",
+        "th-action": "Action",
+
+        # -------------------------------
+        # EDIT PRODUCT POPUP
+        # -------------------------------
+        "edit-title": "Edit Product",
+        "label-edit-name": "Name",
+        "label-edit-category": "Category",
+        "label-edit-price": "Price",
+        "label-edit-desc": "Description",
+        "label-edit-image": "Image",
+        "edit-save-btn": "Save",
+        "edit-cancel-btn": "Cancel",
+
+        # -------------------------------
+        # DELETE PRODUCT POPUP
+        # -------------------------------
+        "delete-confirm-text": "Do you want to delete this product?",
+        "delete-yes-btn": "Yes",
+        "delete-no-btn": "No"
     },
-    'fr':{
-        'das_title':'Tableau de Bord'
+
+    "fr": {
+        # -------------------------------
+        # SIDEBAR + NAVIGATION
+        # -------------------------------
+        "sidebar-title": "Smart Menu",
+        "nav-dashboard": "Tableau de Bord",
+        "nav-inventory": "Inventaire",
+        "nav-products": "Produits",
+        "nav-add-product": "Ajouter un Produit",
+        "nav-stock": "Stock",
+        "nav-category": "Catégorie",
+        "nav-reservation": "Réservation",
+        "nav-table": "Table",
+        "nav-users": "Utilisateurs",
+        "nav-all-users": "Tous les Utilisateurs",
+        "nav-orders": "Commandes",
+        "nav-order-list": "Liste des Commandes",
+        "nav-qrcode": "Système Qrcode",
+        "nav-payment": "Paiement",
+        "nav-account": "Compte",
+        "nav-system-settings": "Paramètres du Système",
+
+        # Navbar Search
+        "search-bar-placeholder": "Chercher ici...",
+
+        # -------------------------------
+        # PROFILE PAGE
+        # -------------------------------
+        "profile-config-title": "Configuration du Profil",
+        "btn-change-photo-text": "Modifier la Photo",
+        "user-password-label": "Mot de passe:",
+        "btn-logout-text": "Déconnexion",
+
+        # -------------------------------
+        # PRODUCT MANAGEMENT PAGE
+        # -------------------------------
+        "pm-title": "Gestion des Produits",
+        "pm-search-placeholder": "Rechercher un produit...",
+        "btn-new-product": "Nouveau",
+
+        # Table Headers
+        "th-image": "Image",
+        "th-name": "Nom",
+        "th-category": "Catégorie",
+        "th-description": "Description",
+        "th-price": "Prix",
+        "th-action": "Action",
+
+        # -------------------------------
+        # EDIT PRODUCT POPUP
+        # -------------------------------
+        "edit-title": "Modifier le Produit",
+        "label-edit-name": "Nom",
+        "label-edit-category": "Catégorie",
+        "label-edit-price": "Prix",
+        "label-edit-desc": "Description",
+        "label-edit-image": "Image",
+        "edit-save-btn": "Enregistrer",
+        "edit-cancel-btn": "Annuler",
+
+        # -------------------------------
+        # DELETE PRODUCT POPUP
+        # -------------------------------
+        "delete-confirm-text": "Voulez-vous supprimer ce produit ?",
+        "delete-yes-btn": "Oui",
+        "delete-no-btn": "Non"
     }
-    }
+}
+
     if not exist:
         raise HTTPException(status_code=404, detail="No language found")
 

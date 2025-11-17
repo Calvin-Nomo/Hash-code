@@ -1161,4 +1161,62 @@
       }
     </script>
   </body>
+      <script>
+  function printInvoice() {
+  const invoiceContent = document.getElementById("invoiceContainer");
+
+  if (!invoiceContent) {
+    console.error("Invoice container not found!");
+    alert("Invoice preview missing!");
+    return;
+  }
+
+  const printWindow = window.open("", "_blank", "width=800,height=900");
+
+  // Only HTML + CSS here
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Invoice</title>
+        <style>
+          body { font-family: Arial; padding: 20px; }
+          h2 { text-align: center; margin-bottom: 20px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          table, th, td { border: 1px solid #000; }
+          th, td { padding: 8px; text-align: left; font-size: 14px; }
+          .total-box { margin-top: 20px; font-size: 16px; float: right; }
+          img { width: 50px; height: auto; }
+          .header-info p { margin: 3px 0; }
+        </style>
+      </head>
+      <body>
+        <h2>Order Receipt</h2>
+        <div class="header-info">
+          <p><strong>Order ID:</strong> ${document.getElementById("orderId").textContent}</p>
+          <p><strong>Date:</strong> ${document.getElementById("orderDate").textContent}</p>
+          <p><strong>Client:</strong> ${document.getElementById("clientName").textContent}</p>
+          <p><strong>Phone:</strong> ${document.getElementById("clientPhone").textContent}</p>
+          <p><strong>Payment Method:</strong> ${document.getElementById("paymentMethod").textContent}</p>
+          <p><strong>Status:</strong> ${document.getElementById("paymentStatus").textContent}</p>
+          <p><strong>Order Type:</strong> ${document.getElementById("orderType").textContent}</p>
+        </div>
+        <hr/>
+        ${invoiceContent.innerHTML}
+        <div class="total-box">
+          <p><strong>Fees:</strong> ${document.getElementById("fees1").textContent}</p>
+          <p><strong>Total:</strong> ${document.getElementById("totalAmount").textContent}</p>
+          <p><strong>Final Amount:</strong> ${document.getElementById("finalAmount").textContent}</p>
+        </div>
+      </body>
+    </html>
+  `); // <-- THIS IS THE END OF THE TEMPLATE
+
+  // All JS code **outside** template literal
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+}
+
+</script>
 </html>

@@ -534,11 +534,13 @@
     </div>
 </div>
 <!-- Hidden file input -->
-<input type="file" id="profileFileInput" accept="image/*" style="display:none">
-
-<button class="btn-modifier-photo" onclick="modifierPhoto()">Modifier la photo</button>
+<input type="file" id="profileFileInput" accept="image/*" style="display: none;">
+<button class="btn-modifier-photo" id="btnChangePhoto"  type="button">Modifier la photo</button>
     <div class="form-section">
     <p>Email: <span id="user-email"></span></p>
+    </div>
+        <div class="role">
+      <p>Password: <span id="user-password">***********</span></p>
     </div>
     <div class="role">
       <p>Role: <span id="user-role1"></span></p>
@@ -586,7 +588,7 @@
     profile.classList.remove("active");
   });
 </script>
-<script>
+<!-- <script>
   // Load user info on page load
 window.addEventListener("DOMContentLoaded", () => {
     const user = JSON.parse(localStorage.getItem("user-form"));
@@ -617,6 +619,8 @@ document.getElementById("profileFileInput").addEventListener("change", async (ev
         document.getElementById("imgprofile").src = e.target.result;
         user.image = e.target.result; // save preview in localStorage
         localStorage.setItem("user-form", JSON.stringify(user));
+        console.log(localStorage.setItem("user-form", JSON.stringify(user)));
+        
     };
     reader.readAsDataURL(file); 
       const UserId=localStorage.getItem("user_id");
@@ -646,6 +650,67 @@ document.getElementById("profileFileInput").addEventListener("change", async (ev
     }
 });
 
+</script> -->
+<script>
+  // BUTTON CLICK → open file picker
+document.getElementById("btnChangePhoto").addEventListener("click", function () {
+    document.getElementById("profileFileInput").click();
+});
+
+// ON FILE SELECTED
+document.getElementById("profileFileInput").addEventListener("change", async function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 1️⃣ Show preview instantly
+    const imgPreview = document.getElementById("imgprofile");
+    imgPreview.src = URL.createObjectURL(file);
+
+    // 2️⃣ Send image to backend using PUT
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+        const userId = localStorage.getItem("user_id");
+
+        const response = await fetch(`http://127.0.0.1:8000/update/profile/image/${userId}`, {
+            method: "PUT",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            //  Replace frontend image with new backend image URL
+            imgPreview.src = result.imageUrl;
+
+            // Save new image path locally (so all HTML pages update)
+            localStorage.setItem("profileImage", result.imageUrl);
+
+            alert("Photo mise à jour avec succès !");
+        } else {
+            alert("Erreur : " + result.message);
+        }
+
+    } catch (error) {
+        console.error("Upload error:", error);
+        alert("Impossible de télécharger l'image");
+    }
+});
+
+//  Load saved image on every page
+window.addEventListener("DOMContentLoaded", () => {
+    const savedImg = localStorage.getItem("profileImage");
+    if (savedImg) {
+        document.getElementById("imgprofile").src = savedImg;
+    }
+});
+
+</script>
+<!--  managing profile image -->
+<script>
+  const fileInput = document.getElementById("profileFileInput").value;
+  console.log(fileInput,'Image path')
 </script>
 
 <script>
@@ -702,6 +767,7 @@ document.getElementById("profileFileInput").addEventListener("change", async (ev
   // INIT
   // ======================
   const user_id=localStorage.getItem("user_id");
+  console.log('the user id',user_id)
   if ( user_id) {
     fetchUsers(user_id);
   } else {
@@ -712,6 +778,7 @@ document.getElementById("profileFileInput").addEventListener("change", async (ev
 <script>
 async function logout() {
     const user_id = localStorage.getItem("user_id");
+
 
     // If no user ID, redirect immediately
     if (!user_id) {
