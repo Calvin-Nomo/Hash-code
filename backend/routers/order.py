@@ -3,7 +3,7 @@ from fastapi import Response
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-
+from backend.routers.notification import send_notification
 import math
 import pymysql
 
@@ -288,7 +288,7 @@ def check_dine_in_availability(table_id: int):
 
 # ------------------- POST: CREATE FULL ORDER -------------------
 @router.post("/FullOrderRequest")
-def create_order(data: FullOrderRequest):
+async def create_order(data: FullOrderRequest):
     try:
         cursor = DB.cursor()
         DB.begin()  # start transaction
@@ -393,6 +393,7 @@ def create_order(data: FullOrderRequest):
         )
 
         DB.commit()
+        await send_notification(f'New Order Created No-{order_id}--{data.order.Order_Type}')
         return {"message": "Order placed successfully", "order_id": order_id}
 
     except HTTPException as e:

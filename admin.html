@@ -455,6 +455,31 @@
       .view:hover {
         color: #2563eb;
       }
+      /* Notification Popup */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background:#23CC42;
+  color: #fff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  z-index: 999999;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.4s ease;
+}
+
+.notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification.hidden {
+  display: none;
+}
+
 
       @media (max-width: 768px) {
         .order-header {
@@ -682,6 +707,10 @@
         </main>
       </div>
     </div>
+<!-- NOTIFICATION POPUP -->
+<div id="notificationPopup" class="notification hidden">
+  <p id="notificationMessage"></p>
+</div>
 
     <!-- JS -->
     <script>
@@ -873,6 +902,42 @@
         }
       }
 
+
+      function showNotification(message) {
+  const popup = document.getElementById("notificationPopup");
+  const text = document.getElementById("notificationMessage");
+
+  text.textContent = message;
+  popup.classList.remove("hidden");
+
+  setTimeout(() => {
+    popup.classList.add("show");
+  }, 10);
+
+  setTimeout(() => {
+    popup.classList.remove("show");
+    setTimeout(() => popup.classList.add("hidden"), 300);
+  }, 4000);
+  
+}
+// --- WEBSOCKET FOR LIVE NOTIFICATIONS ---
+const socket = new WebSocket("ws://127.0.0.1:8000/notification/notification/ws/notifications");
+
+socket.onopen = () => console.log("WebSocket connected for new order");
+
+socket.onmessage = (event) => {
+  console.log("Notification received:", event.data);
+  // Refresh stock table whenever a notification arrives
+    // Show notification popup
+  showNotification(event.data);
+};
+
+socket.onclose = () => {
+  console.warn(" WebSocket closed. Attempting reconnect in 5s...");
+  setTimeout(() => window.location.reload(), 5000);
+};
+
+socket.onerror = (err) => console.error(" WebSocket error:", err);
       // Load recent orders when page loads
       window.addEventListener("load", fetchRecentOrders);
     </script>

@@ -873,23 +873,6 @@ yesDeleteBtn.addEventListener("click", () => {
   });
 });
 
-// --- WEBSOCKET FOR LIVE NOTIFICATIONS ---
-const socket = new WebSocket("ws://127.0.0.1:8000/notification/notification/ws/notifications");
-
-socket.onopen = () => console.log("✅ WebSocket connected for stock updates");
-
-socket.onmessage = (event) => {
-  console.log("📢 Notification received:", event.data);
-  // Refresh stock table whenever a notification arrives
-  loadStock();
-};
-
-socket.onclose = () => {
-  console.warn("❌ WebSocket closed. Attempting reconnect in 5s...");
-  setTimeout(() => window.location.reload(), 5000);
-};
-
-socket.onerror = (err) => console.error("⚠️ WebSocket error:", err);
 
 // Initial load
 loadStock();

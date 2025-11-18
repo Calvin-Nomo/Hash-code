@@ -447,7 +447,7 @@
             card.classList.add("product-card");
             card.dataset.category = prod.Category.toLowerCase();
             card.innerHTML = `
-              <img src="${prod.Image_link}" alt="${prod.Product_Name}" />
+              <img src="${prod.Image_link}" alt="${prod.Name}" />
               <h4>${prod.Name}</h4>
               <p>${prod.Product_Description}</p>
               <div class="product-footer">
@@ -512,7 +512,7 @@
             div.innerHTML = `
               <img src="${item.Image_link}" alt="${item.Name}" />
               <div class="cart-item-info">
-                <span><strong>${item.Product_Name}</strong></span><br>
+                <span><strong>${item.Name}</strong></span><br>
                 <span>Price: ${item.Price.toFixed(2)}FCFA</span><br>
                 <div>Qty: <input type="number" value="${
                   item.qty

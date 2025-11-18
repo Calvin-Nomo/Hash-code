@@ -164,10 +164,10 @@
           </ul>
           ${order.Note ? `<p><strong>Note:</strong> ${order.Note}</p>` : ""}
           <div class="order-footer">
-            ${order.Order_Status !== 'completed' && order.Order_Status !== 'canceled' ? `
+            ${order.Order_Status !== 'Completed' && order.Order_Status !== 'Canceled' ? `
               <button class="btn-progress" onclick="updateStatus('${order.Order_ID}', 'in progress')">In Progress</button>
-              <button class="btn-complete" onclick="updateStatus('${order.Order_ID}', 'completed')">Complete</button>
-              <button class="btn-cancel" onclick="updateStatus('${order.Order_ID}', 'canceled')">Cancel</button>
+              <button class="btn-complete" onclick="updateStatus('${order.Order_ID}', 'Completed')">Complete</button>
+              <button class="btn-cancel" onclick="updateStatus('${order.Order_ID}', 'Canceled')">Cancel</button>
             ` : ""}
           </div>
         `;
