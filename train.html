@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    let allUsers = []; // store all users
+let selectedUserId = null; // store clicked user ID
+
+const users = await response.json();
+allUsers = users;
+
+const tbody = document.getElementById("userTableBody");
+tbody.innerHTML = "";
+
+users.forEach((user, index) => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${index + 1}</td>
+    <td>${user.Username}</td>
+    <td>${user.Email}</td>
+    <td>**********</td>
+    <td>${user.Roles}</td>
+    <td>
+      <button class="edit-btn" onclick="editUser(${user.UserID})">Edit</button>
+      <button class="delete-btn" onclick="deleteUser(${user.UserID})">Delete</button>
+      <button class="block-btn" onclick="blockUser(${user.UserID})">Block</button>
+    </td>
+  `;
+  tbody.appendChild(tr);
+});
+
+  </script>
+  <script>
+    function editUser(id) {
+  selectedUserId = id;
+
+  const user = allUsers.find(u => u.UserID === id);
+
+  // Fill popup
+  document.getElementById("editName").value = user.Username;
+  document.getElementById("editEmail").value = user.Email;
+  document.getElementById("editRole").value = user.Roles;
+
+  // Show popup
+  document.getElementById("editPopup").style.display = "block";
+}
+
+  </script>
+</body>
+</html>

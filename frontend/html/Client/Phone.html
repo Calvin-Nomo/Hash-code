@@ -308,6 +308,67 @@
         gap: 8px;
       }
 
+/* Welcome animation inside phone frame */
+.welcome-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:#e74c3c;; /* white phone screen background */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  font-family: "Poppins", sans-serif;
+}
+
+.welcome-animation h1,
+.welcome-animation p {
+  color: white;
+  text-align: center;
+  margin: 5px 0;
+}
+
+.screen-mockup {
+  margin-top: 20px;
+  width: 80%;
+  height: 120px;
+  border-radius: 15px;
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  font-weight: 600;
+  color: #333;
+}
+
+.step {
+  position: absolute;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+}
+
+.step.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+.fly-img {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  pointer-events: none;
+  transition: all 0.8s ease-in-out;
+  z-index: 9999;
+}
+
       .checkout-btn,
       .cancel-btn {
         width: 100%;
@@ -355,10 +416,59 @@
         }
       }
     </style>
+    <style>
+/* Full-screen Welcome Page */
+.welcome-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ff6b6b, #ff4757);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  overflow: hidden;
+  animation: fadeIn 1s ease forwards;
+}
+
+/* Heading */
+.welcome-page h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+/* Paragraph */
+.welcome-page p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+/* Optional fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+</style>
+
   </head>
 
   <body>
-    <div class="phone-frame">
+
+
+    <div class="phone-frame" id="mainContent">
+<!-- Welcome Page -->
+<div id="welcomePage" class="welcome-page">
+  <h1>Smart Menu</h1>
+  <p>The Best QR Code Ordering System</p>
+</div>
+
       <header class="top-header">
         <h2>Smart<span class="danger">Menu</span></h2>
         <div class="location">
@@ -422,7 +532,6 @@
         </div>
       </div>
     </div>
-
     <script>
       const API_URL ="http://127.0.0.1:8000/product/product/Product";
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -432,6 +541,35 @@
       const emptyMsg = document.getElementById("emptyCartMsg");
       const cartTotalEl = document.getElementById("cartTotal");
       const cartCountEl = document.getElementById("cart-count");
+function animateToCart(imgElement) {
+    const cartIcon = document.querySelector(".cart-btn i");
+
+    let flyingImg = imgElement.cloneNode(true);
+    flyingImg.classList.add("fly-img");
+    document.body.appendChild(flyingImg);
+
+    const imgRect = imgElement.getBoundingClientRect();
+    flyingImg.style.left = imgRect.left + "px";
+    flyingImg.style.top = imgRect.top + "px";
+
+    const cartRect = cartIcon.getBoundingClientRect();
+    setTimeout(() => {
+        flyingImg.style.left = cartRect.left + "px";
+        flyingImg.style.top = cartRect.top + "px";
+        flyingImg.style.width = "20px";
+        flyingImg.style.height = "20px";
+        flyingImg.style.opacity = "0";
+    }, 50);
+
+    setTimeout(() => flyingImg.remove(), 900);
+}
+const notificationSound = new Audio("source/notification.mp3");
+
+function playNotificationSound() {
+    notificationSound.currentTime = 0; // restart sound
+    notificationSound.play();
+}
+
 
       async function loadProducts() {
         try {
@@ -455,10 +593,21 @@
                 <button class="add-to-cart-btn"><i class="material-icons-sharp">add</i></button>
               </div>`;
             grid.appendChild(card);
-            card
-              .querySelector(".add-to-cart-btn")
-              .addEventListener("click", () => addToCart(prod));
-          });
+          //   card
+          //     .querySelector(".add-to-cart-btn")
+          //     .addEventListener("click", () => addToCart(prod));
+          // });
+          card
+            .querySelector(".add-to-cart-btn")
+            .addEventListener("click", (e) => {
+                const img = card.querySelector("img");
+                animateToCart(img);
+                playNotificationSound();
+                addToCart(prod);
+
+            });
+            });
+
 
           // Categories
           catContainer.innerHTML = "";

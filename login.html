@@ -1,175 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <!-- BOXICONS -->
-    <!-- Montserrat Font -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
-      r
-      el="stylesheet"
-    />
-    <title>Login & Register</title>
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.mins.css"
-      rel="stylesheet"
-    />
-    <!-- Css -->
-    <link rel="stylesheet" href="./frontend/css/style.css" />
-  </head>
-  <body>
-    <div class="wrapper">
-      <div class="form-header">
-        <div class="titles">
-          <div class="title-login">Login</div>
-          <div class="title-register">Register</div>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <!-- Montserrat / Poppins Font -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Boxicons -->
+  <link
+    href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    rel="stylesheet"
+  />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./frontend/css/style.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <div class="form-header">
+      <div class="titles">
+        <div class="title-login">Login</div>
       </div>
-      <!-- Login -->
-      <form action="#" class="login-form" autocomplete="off">
-        <div class="input-box">
-          <input type="email" class="input-field" id="log-email" required />
-          <label for="log-email" class="label"> Email</label>
-          <i class="bx bx-envelope icon"></i>
-        </div>
-        <div class="input-box">
-          <input type="password" class="input-field" id="log-pass" required />
-          <label for="log-pass" class="label"> Password</label>
-          <i class="bx bx-lock-alt icon"></i>
-        </div>
-        <div class="form-cols">
-          <div class="col-1"></div>
-          <div class="col-2"></div>
-          <a href="#">Forgot Password</a>
-        </div>
-        <div class="input-box">
-          <button class="btn-submit" id="SignInBtn">
-            Sign In
-            <i class="bx bx-log-in"></i>
-          </button>
-        </div>
-        <div class="switch-form">
-          <span
-            >Don't have an account?
-            <a href="#" onclick="registerFunction()">Register</a></span
-          >
-        </div>
-      </form>
-      <!-- Fin Login -->
-
-      <!-- Register -->
-      <form action="#" class="register-form" autocomplete="off">
-        <div class="input-box">
-          <input type="text" class="input-field" id="reg-name" required />
-          <label for="regname" class="label"> Username</label>
-          <i class="bx bx-user icon"></i>
-        </div>
-        <div class="input-box">
-          <input type="email" class="input-field" id="reg-email" required />
-          <label for="reg-email" class="label"> Email</label>
-          <i class="bx bx-envelope icon"></i>
-        </div>
-        <div class="input-box">
-          <input type="password" class="input-field" id="reg-pass" required />
-          <label for="reg-pass" class="label"> Password</label>
-          <i class="bx bx-lock-alt icon"></i>
-        </div>
-        <div class="form-cols">
-          <div class="col-1">
-            <input type="checkbox" id="agree" />
-            <label for="agree">I agree to terms & conditions</label>
-          </div>
-          <div class="col-2"></div>
-        </div>
-        <div class="input-box">
-          <button class="btn-submit" id="SignUpBtn">
-            Sign In
-            <i class="bx bx-log-out"></i>
-          </button>
-        </div>
-        <div class="switch-form">
-          <span
-            >Already have an account?
-            <a href="#" onclick="LoginFunction()">Login</a></span
-          >
-        </div>
-      </form>
-      <!-- Fin Login -->
     </div>
-  </body>
+
+    <!-- Login Form -->
+    <form class="login-form" autocomplete="off">
+      <div class="input-box">
+        <input type="email" class="input-field" id="log-email" required />
+        <label for="log-email" class="label">Email</label>
+        <i class="bx bx-envelope icon"></i>
+      </div>
+
+      <div class="input-box">
+        <input type="password" class="input-field" id="log-pass" required />
+        <label for="log-pass" class="label">Password</label>
+        <i class="bx bx-lock-alt icon"></i>
+      </div>
+
+      <div class="form-cols">
+        <div class="col-1"></div>
+        <div class="col-2"></div>
+        <a href="#">Forgot Password?</a>
+      </div>
+
+      <div class="input-box">
+        <button class="btn-submit" id="SignInBtn">
+          Sign In
+          <i class="bx bx-log-in"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+
   <script>
-    const LoginForm = document.querySelector(".login-form");
-    const registerForm = document.querySelector(".register-form");
-    const wrapper = document.querySelector(".wrapper");
-    const loginTitle = document.querySelector(".title-login");
-    const registerTitle = document.querySelector(".title-register");
-    const signUpBtn = document.querySelector("#SignUpBtn");
-    const signInBtn = document.querySelector("#SignInBtn");
+    const signInBtn = document.getElementById("SignInBtn");
 
-    // --- Form switch functions ---
-    function LoginFunction() {
-      LoginForm.style.left = "50%";
-      LoginForm.style.opacity = 1;
-      registerForm.style.left = "150%";
-      registerForm.style.opacity = 0;
-      wrapper.style.height = "500px";
-      loginTitle.style.top = "50%";
-      loginTitle.style.opacity = 1;
-      registerTitle.style.top = "50px";
-      registerTitle.style.opacity = 0;
-    }
-
-    function registerFunction() {
-      LoginForm.style.left = "-50%";
-      LoginForm.style.opacity = 0;
-      registerForm.style.left = "50%";
-      registerForm.style.opacity = 1;
-      wrapper.style.height = "580px";
-      loginTitle.style.top = "-60%";
-      loginTitle.style.opacity = 0;
-      registerTitle.style.top = "50%";
-      registerTitle.style.opacity = 1;
-    }
-
-    // --- Login handler ---
     signInBtn.addEventListener("click", async (e) => {
       e.preventDefault();
 
       const Email = document.getElementById("log-email").value;
-      const PasswordHash = document.getElementById("log-pass").value;
+      const Password = document.getElementById("log-pass").value;
 
       const formData = new FormData();
-      formData.append("username", Email); // ⚠️ Doit s'appeler "username"
-      formData.append("password", PasswordHash); //  Doit s'appeler "password"
+      formData.append("username", Email);  // ⚠️ match backend expected key
+      formData.append("password", Password);
 
       try {
         const response = await fetch("http://127.0.0.1:8000/login", {
           method: "POST",
-          body: formData, // Pas de JSON ici
-          credentials: "include", // Pour les cookies JWT
+          body: formData,
+          credentials: "include", // for JWT cookies if used
         });
 
         const data = await response.json();
-        console.log("Réponse complète :", data);
-      
-         console.log(localStorage.setItem('user_id',data.user_id));
-        if (data.role === "admin") {
-          console.log("Welcom to your admin panel");
-          window.location.href = "admin.html";
-        }
+        console.log("Login response:", data);
 
         if (response.ok) {
-          alert("Connexion réussie !");
+          localStorage.setItem('user_id', data.user_id);
+          alert("Login successful!");
+          
+          if (data.role === "admin") {
+            window.location.href = "admin.html";
+          } else {
+            window.location.href = "dashboard.html"; // redirect for other roles
+          }
         } else {
-          // FastAPI envoie {detail:[{msg:"..."}]} en cas d'erreur
-          alert(data.detail ? data.detail[0].msg : "Erreur de connexion");
+          alert(data.detail ? data.detail[0].msg : "Login error");
         }
       } catch (error) {
-        console.error("Erreur de connexion :", error);
-        alert("Une erreur est survenue — vérifie la console.");
+        console.error("Login error:", error);
+        alert("An error occurred. Check console for details.");
       }
     });
   </script>
+</body>
 </html>

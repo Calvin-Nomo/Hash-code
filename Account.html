@@ -342,44 +342,155 @@
       .delete:hover {
         color: #dc2626;
       }
+      
+/* --- POPUP OVERLAY --- */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  visibility: hidden; /* hidden by default */
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
 
-      /* Popup Overlays */
-      .popup-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 2000;
-      }
+/* Show the popup */
+.popup-overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
 
-      .popup-overlay.active {
-        display: flex;
-      }
+/* --- FORMS --- */
+.add-form, .edit-form {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  animation: popupFade 0.3s ease;
+}
 
-      .edit-form,
-      .delete-box {
-        background: #fff;
-        border-radius: 10px;
-        padding: 1.5rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        animation: popupFade 0.3s ease;
-      }
+/* Form headings */
+.add-form h3, .edit-form h3 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  text-align: center;
+  color: #333;
+}
 
-      @keyframes popupFade {
-        from {
-          opacity: 0;
-          transform: scale(0.9);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
+/* Labels and inputs */
+.add-form label, .edit-form label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.add-form input, .edit-form input {
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.add-form input:focus, .edit-form input:focus {
+  border-color: #007BFF;
+}
+/* Simple styling for select dropdown */
+.selectrole {
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect */
+.selectrole:hover {
+  border-color: #007BFF;
+}
+
+/* Focus effect */
+.selectrole:focus {
+  border-color: #007BFF;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+
+/* Buttons */
+.save-btn, .cancel-btn {
+  padding: 8px 18px;
+  margin: 5px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.save-btn {
+  background: #28a745;
+  color: #fff;
+}
+
+.save-btn:hover {
+  background: #218838;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: #fff;
+}
+
+.cancel-btn:hover {
+  background: #c82333;
+}
+
+/* Center the buttons */
+.add-form div, .edit-form div {
+  text-align: center;
+}
+
+/* Popup animation */
+@keyframes popupFade {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 500px) {
+  .add-form, .edit-form {
+    padding: 20px;
+  }
+
+  .save-btn, .cancel-btn {
+    width: 45%;
+    margin: 5px 2%;
+  }
+}
 
       /* ===== RESPONSIVE ===== */
       @media (max-width: 768px) {
@@ -534,7 +645,7 @@
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
             <div>
-              <button>New</button>
+              <button id="newUserBtn">New</button>
             </div>
           </div>
           <table class="order-table">
@@ -552,16 +663,29 @@
           </table>
         </main>
       </div>
-      <!-- add popup -->
-      <div>
-        <div class="add-form"></div>
-      </div>
-      <!-- Edit Popup -->
+      
+     
       <div class="popup-overlay" id="editPopup">
+        <!-- add popup -->
+          <div class="add-form">
+          <h3>Add Account</h3>
+          <label>Name <input type="text" id="addName" /></label>
+          <label>Email <input type="email" id="addemail" /></label>
+          <label>Password<input type="text" id="addpassword" /></label>
+            <select name="" id="addrole" class="selectrole">
+              <option value="admin" selected>Admin</option>
+              <option value="waiter">Waiter</option>
+            </select>
+            <div style="text-align: center">
+            <button class="save-btn" id="addUserBtn">Save</button>
+            <button class="cancel-btn" id="closeAdd">Cancel</button>
+          </div>
+        </div>
+         <!-- Edit Popup -->
         <div class="edit-form">
           <h3>Edit Account</h3>
           <label>Name <input type="text" id="editName" /></label>
-          <label>Email <input type="text" id="editemail" /></label>
+          <label>Email <input type="email" id="editemail" /></label>
           <label>Role <input type="text" id="editrole" /></label>
 
           <div style="text-align: center">
@@ -680,8 +804,67 @@
           document.getElementById('user-profile_link').src = info.image || 'image/person_1.jpg';
     //Fin
       }
+
       // Her in the account.html i can only edit or block and account
-      window.onload = fetchUsers;
-    </script>
+function setupAddUserPopup() {
+  const editPop = document.getElementById("editPopup");
+  const newUserBtn = document.getElementById("newUserBtn");
+  const closeAddBtn = document.getElementById("closeAdd"); // Cancel button
+  const addUserBtn = document.getElementById("addUserBtn"); // Save button
+
+  // --- Show popup when "New" is clicked ---
+  newUserBtn.addEventListener("click", () => {
+    editPop.classList.add("active");   // show the popup
+    document.querySelector(".add-form").style.display = "block";
+    document.querySelector(".edit-form").style.display = "none";
+  });
+
+  // --- Send POST request when "Save" is clicked ---
+  addUserBtn.addEventListener("click", async () => {
+    const userData = {
+      Username: document.getElementById("addName").value,
+      Email: document.getElementById("addemail").value,
+      Password: document.getElementById("addpassword").value,
+      Role: document.getElementById("addrole").value
+    };
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("User added successfully!");
+        editPop.classList.remove("active"); // hide popup
+        // Clear inputs
+        document.getElementById("addName").value = "";
+        document.getElementById("addemail").value = "";
+        document.getElementById("addpassword").value = "";
+        document.getElementById("addrole").value = "admin";
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      alert(`Network error: ${error.message}`);
+    }
+  });
+
+  // --- Hide popup when "Cancel" is clicked ---
+  closeAddBtn.addEventListener("click", () => {
+    editPop.classList.remove("active");
+  });
+}
+
+// Initialize the popup logic when DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  setupAddUserPopup();
+});
+
+window.onload = fetchUsers;
+</script>
   </body>
 </html>

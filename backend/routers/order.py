@@ -367,33 +367,28 @@ async def create_order(data: FullOrderRequest):
                WHERE oi.Order_ID = %s""",
             (order_id,)
         )
-        total = cursor.fetchone()["total"]
-        def total_and_fees(total:float,method:str,tax=100):
-            if method=='MTN Money'or method=='Orange Money':
-                amount=total//5000
-                fee= amount * tax
-                total_amount=total+fee
-                return total_amount
-            #here is in the case if the payment method is by cash
-            else:
-             return total
-
-
-        def transaction_fees(total: float, method: str, tax=100):
-            fee = 0
+        total = cursor.fetchone()["total"] or 0
+        def total_and_fees(total: float, method: str, tax=100):
+            """
+            Calculates the total amount including transaction fees based on payment method.
+            Returns both total amount and fee.
+            """
             if method in ['MTN Money', 'Orange Money']:
-                blocks = math.ceil(total / 5000)
+                blocks = math.ceil(total / 5000)  # count partial 5000 blocks
                 fee = blocks * tax
-            return fee
+                total_amount = total + fee
+                return total_amount, fee
+            else:
+                return total, 0
 
         cursor.execute(
             """INSERT INTO Payment(Order_ID, Total_Amount, Payment_Date, Payment_Method, Payment_Status,Transaction_Fees)
                VALUES (%s, %s, %s, %s, %s, %s)""",
-            (order_id, total_and_fees(total=total,method=data.payment.Payment_Method), datetime.utcnow(), data.payment.Payment_Method, "Payed",transaction_fees(total=total,method=data.payment.Payment_Method))
+            (order_id, total_and_fees(total=total,method=data.payment.Payment_Method), datetime.utcnow(), data.payment.Payment_Method, "Payed",total_and_fees(total=total,method=data.payment.Payment_Method))
         )
 
         DB.commit()
-        await send_notification(f'New Order Created No-{order_id}--{data.order.Order_Type}')
+        await send_notification(f'New  Order Created No #{order_id} Order Type-{data.order.Order_Type}')
         return {"message": "Order placed successfully", "order_id": order_id}
 
     except HTTPException as e:

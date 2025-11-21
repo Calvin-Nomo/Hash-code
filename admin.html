@@ -763,19 +763,19 @@
       async function fetchTotals() {
         try {
           const response = await fetch(
-            "http://localhost:8000/reservation/reservation/total_reservations"
+            "http://127.0.0.1:8000/reservation/reservation/total_reservations"
           );
           const response1 = await fetch(
-            "http://localhost:8000/payment/payment/total_revenue"
+            "http://127.0.0.1:8000/payment/payment/total_revenue"
           );
           const response2 = await fetch(
-            "http://localhost:8000/order/order/total_order"
+            "http://127.0.0.1:8000/order/order/total_order"
           );
           const response3 = await fetch(
-            "http://localhost:8000/client/client/total_client"
+            "http://127.0.0.1:8000/client/client/total_client"
           );
-          const response4 = await fetch(
-            `http://localhost:8000/order/order/orderinfo`
+            const response4 = await fetch(
+            `http://127.0.0.1:8000/order/order/orderinfo`
           );
 
           if (!response.ok) {
@@ -786,7 +786,7 @@
           console.log("Total reservations:", Number(data.total));
           const data1 = await response1.json();
 
-          console.log("Total revenue:", Number(data1.total_revenue));
+          console.log("Total revenue:", Number(data1.total));
           const data2 = await response2.json();
 
           console.log("Total Order:", Number(data2.total));
@@ -920,6 +920,12 @@
   }, 4000);
   
 }
+const notificationSound = new Audio("frontend/html/source/notification.mp3");
+
+function playNotificationSound() {
+    notificationSound.currentTime = 0; // restart sound
+    notificationSound.play();
+}
 // --- WEBSOCKET FOR LIVE NOTIFICATIONS ---
 const socket = new WebSocket("ws://127.0.0.1:8000/notification/notification/ws/notifications");
 
@@ -930,6 +936,7 @@ socket.onmessage = (event) => {
   // Refresh stock table whenever a notification arrives
     // Show notification popup
   showNotification(event.data);
+  playNotificationSound()
 };
 
 socket.onclose = () => {
