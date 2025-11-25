@@ -77,6 +77,9 @@ class UserCreate(BaseModel):
     Email: str
     Password: str
     Role: str
+class UpdatePassword(BaseModel):
+    Password: str           # old password
+    NewPassword: str        # new password
 
 class TokenData(BaseModel):
     email: Optional[str] = None
@@ -413,6 +416,7 @@ async def update_profile_link(user_id: int, image: UploadFile = File(...)):
 
 
 
+
 # UPDATE admin setting
 @app.get("/language/{user_id}")
 def get_langeuage (user_id: int):
@@ -563,3 +567,35 @@ def get_langeuage (user_id: int):
     return {"message": f"Settings updated successfully for admin {user_id}",
             'language': f"{language[exist['languages']]}"
             }
+# ===============================
+#==============Change Password===
+@app.put("/change/password/{user_id}")
+def change_password(user_id: int, new_update: UpdatePassword):
+    cursor.execute("SELECT * FROM USERS WHERE UserID = %s", (user_id,))
+    user = cursor.fetchone()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # verify old password
+    if not verify_pwd(new_update.Password, user["PasswordHash"]):
+        raise HTTPException(status_code=401, detail="Incorrect Current Password")
+
+    # hash the NEW password
+    new_hashed = get_pwd_hash(new_update.NewPassword)
+
+    try:
+        cursor.execute("""
+            UPDATE USERS 
+            SET PasswordHash = %s
+            WHERE UserID = %s
+        """, (new_hashed, user_id))
+
+        DB.commit()
+        
+        return {"message": "Password updated successfully"}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Password update error")
+
+# ===============================

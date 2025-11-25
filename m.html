@@ -1,0 +1,156 @@
+<script>
+
+const BASE_URL = "http://127.0.0.1:8000";
+let currentEditId = null;
+
+// ---------------------------------
+// 1) FETCH USERS (GET)
+// ---------------------------------
+async function fetchUsers() {
+    try {
+        const response = await fetch(`${BASE_URL}/client/client/all_users`);
+        const users = await response.json();
+
+        const tbody = document.getElementById("userTableBody");
+        tbody.innerHTML = "";
+
+        users.forEach((user, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${user.Username}</td>
+                    <td>${user.Email}</td>
+                    <td>********</td>
+                    <td>${user.Roles}</td>
+                    <td>
+                        <button onclick="editUser(${user.UserID})">Edit</button>
+                        <button onclick="deleteUser(${user.UserID})">Delete</button>
+                        <button onclick="blockUser(${user.UserID})">Block</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (err) {
+        console.error("Failed to fetch users", err);
+    }
+}
+
+// ------------------------------------------------------
+// 2) SHOW ADD USER POPUP
+// ------------------------------------------------------
+function showAddUser() {
+    document.getElementById("editPopup").style.display = "flex";
+    document.querySelector(".add-form").style.display = "block";
+    document.querySelector(".edit-form").style.display = "none";
+}
+
+// ------------------------------------------------------
+// 3) ADD USER (POST)
+// ------------------------------------------------------
+document.getElementById("addUserBtn").addEventListener("click", async () => {
+    const userData = {
+        Username: document.getElementById("addName").value,
+        Email: document.getElementById("addemail").value,
+        Password: document.getElementById("addpassword").value,
+        Role: document.getElementById("addrole").value
+    };
+
+    try {
+        const response = await fetch(`${BASE_URL}/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userData)
+        });
+
+        if (!response.ok) throw new Error("Failed to add user");
+
+        alert("User added successfully!");
+        closePopup();
+        fetchUsers();
+
+    } catch (error) {
+        alert("Error: " + error.message);
+    }
+});
+
+// ------------------------------------------------------
+// 4) SHOW EDIT POPUP + LOAD USER DATA
+// ------------------------------------------------------
+async function editUser(id) {
+    currentEditId = id;
+
+    document.getElementById("editPopup").style.display = "flex";
+    document.querySelector(".add-form").style.display = "none";
+    document.querySelector(".edit-form").style.display = "block";
+
+    const response = await fetch(`${BASE_URL}/client/client/get_user/${id}`);
+    const user = await response.json();
+
+    document.getElementById("editName").value = user.Username;
+    document.getElementById("editemail").value = user.Email;
+    document.getElementById("editrole").value = user.Roles;
+}
+
+// ------------------------------------------------------
+// 5) SAVE EDIT (PUT)
+// ------------------------------------------------------
+document.getElementById("saveEditBtn").addEventListener("click", async () => {
+    const updatedData = {
+        Username: document.getElementById("editName").value,
+        Email: document.getElementById("editemail").value,
+        Role: document.getElementById("editrole").value
+    };
+
+    try {
+        const response = await fetch(`${BASE_URL}/client/client/update_user/${currentEditId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedData)
+        });
+
+        if (!response.ok) throw new Error("Failed to update user");
+
+        alert("User updated!");
+        closePopup();
+        fetchUsers();
+
+    } catch (error) {
+        alert("Error: " + error.message);
+    }
+});
+
+// ------------------------------------------------------
+// 6) DELETE USER (DELETE)
+// ------------------------------------------------------
+async function deleteUser(id) {
+    if (!confirm("Delete this user?")) return;
+
+    try {
+        const response = await fetch(`${BASE_URL}/client/client/delete_user/${id}`, {
+            method: "DELETE"
+        });
+
+        if (!response.ok) throw new Error("Delete failed");
+
+        alert("User deleted");
+        fetchUsers();
+
+    } catch (error) {
+        alert("Error: " + error.message);
+    }
+}
+
+// ------------------------------------------------------
+// 7) CLOSE POPUP
+// ------------------------------------------------------
+function closePopup() {
+    document.getElementById("editPopup").style.display = "none";
+}
+document.getElementById("closeAdd").onclick = closePopup;
+document.getElementById("closeEdit").onclick = closePopup;
+
+// Start
+window.onload = fetchUsers;
+
+</script>

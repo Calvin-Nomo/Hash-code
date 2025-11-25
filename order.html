@@ -901,7 +901,7 @@
             </p>
 
             <div style="text-align: center">
-              <button class="btn" onclick="Invoice()">
+              <button class="btn" onclick="printReceipt()">
                 Print Invoice
               </button>
               <button class="btn" onclick="markCompleted()">
@@ -1157,28 +1157,6 @@
         }
       }
     </script>
+    <script src="frontend/js/script.js"></script>
   </body>
-<script>
-  function Invoice(){
-const printWindow = window.open("", "_blank", "width=600,height=700");
-
-  printWindow.document.write(`
-    <html>
-      <head><title>Invoice</title></head>
-      <body>
-        Welcome to smart menu
-      </body>
-    </html>
-  `);
-
-  printWindow.document.close();
-
-  setTimeout(() => {
-    printWindow.print();
-    printWindow.close();
-  }, 300);
-}
-  
-  
-</script>
 </html>

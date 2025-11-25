@@ -1,0 +1,46 @@
+<script>
+
+// Here is for the profile
+const popup = document.getElementById("pass-change");
+const btnOpen = document.getElementById("passchange");
+const btnCancel = document.getElementById("cancelPass");
+const btnSave = document.getElementById("savePass");
+
+// Show popup
+btnOpen.addEventListener("click", () => {
+  popup.style.display = "flex";
+});
+
+// Hide popup
+btnCancel.addEventListener("click", () => {
+  popup.style.display = "none";
+});
+
+// SAVE password
+btnSave.addEventListener("click", async () => {
+  const currentPass = document.getElementById("currentPass").value;
+  const newPass = document.getElementById("newPass").value;
+
+  const user_id = 1; // <<< replace with real logged-in user id
+
+  const data = {
+    Password: currentPass,   // old password
+    NewPassword: newPass     // new password
+  };
+
+  try {
+    let res = await fetch(`http://127.0.0.1:8000/change/password/${user_id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+    alert(result.message);
+    popup.style.display = "none";
+    
+  } catch (error) {
+    alert("Error changing password");
+  }
+});
+</script>
